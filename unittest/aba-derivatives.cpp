@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
 
   Model model;
   buildModels::humanoidRandom(model);
-  std::cout << std::endl;
+  std::cout << " g" <<  std::endl;
   Data data(model), data_ref(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
