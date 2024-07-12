@@ -132,7 +132,7 @@ jobs:
                 flags+="-DBUILD_WITH_COLLISION_SUPPORT=ON"
               fi
             done
-        
+          echo "Final flags: ${flags}"
       - name: Run cmake
         run: |
           # Add cloned repo to safe.directory, since it was not cloned by the container
