@@ -116,7 +116,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake \
           -DPYTHON_EXECUTABLE=$(which python3) "
-          if [ "${{ contains(github.event.pull_request.labels.*.name, 'build_all') }}" == "true" ]; then
+          if[ "${{ contains(github.event.pull_request.labels.*.name, 'build_all') }}" == "true" ]; then
               echo "Pull request with all label detected"
               flags+=" -DBUILD_WITH_COLLISION_SUPPORT=ON"
               flags+=" -DBUILD_ADVANCED_TESTING=OFF"
@@ -127,7 +127,7 @@ jobs:
               flags+=" -DBUILD_WITH_AUTODIFF_SUPPORT=ON"
               break
           else
-            if [ "${{ contains(github.event.pull_request.labels.*.name, 'build_collision') }}" == "true" ]; then
+            if[ "${{ contains(github.event.pull_request.labels.*.name, 'build_collision') }}" == "true" ]; then
               flags+="-DBUILD_WITH_COLLISION_SUPPORT=ON"
             fi
           fi
