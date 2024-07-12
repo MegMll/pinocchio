@@ -117,7 +117,7 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake \
           -DPYTHON_EXECUTABLE=$(which python3) "
           for label in ${{ github.event.pull_request.labels.*.name }}; do
-              if [ "$label" == "build_all" ]; then
+              if "$label" == "build_all"; then
                 echo "Pull request with deploy label detected"
                 flags+=" -DBUILD_WITH_COLLISION_SUPPORT=ON"
                 flags+=" -DBUILD_ADVANCED_TESTING=OFF"
@@ -128,7 +128,7 @@ jobs:
                 flags+=" -DBUILD_WITH_AUTODIFF_SUPPORT=ON"
                 break
               fi
-              if [ "$label" == "build_collision" ]; then
+              if "$label" == "build_collision"; then
                 flags+="-DBUILD_WITH_COLLISION_SUPPORT=ON"
               fi
             done
