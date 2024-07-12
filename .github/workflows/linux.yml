@@ -128,7 +128,7 @@ jobs:
                 flags+=" -DBUILD_WITH_AUTODIFF_SUPPORT=ON"
                 break
               fi
-              if [ "$label" == "build_all" ]; then
+              if [ "$label" == "build_collision" ]; then
                 flags+="-DBUILD_WITH_COLLISION_SUPPORT=ON"
               fi
             done
@@ -145,7 +145,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake .. "${flags}"
+          cmake .. ${flags}
           make -j2
           make -j2 build_tests
           export CTEST_OUTPUT_ON_FAILURE=1
