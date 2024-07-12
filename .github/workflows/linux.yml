@@ -112,8 +112,7 @@ jobs:
       - name: Get compilation flags
         run: |
           # Set compilation flags
-          declare -a FLAGS
-          flags+=(-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          flags=(-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake \
           -DPYTHON_EXECUTABLE=$(which python3))
