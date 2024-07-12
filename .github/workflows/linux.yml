@@ -117,25 +117,23 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake \
           -DPYTHON_EXECUTABLE=$(which python3))
-          # Check if flag a is present
-          
-          if [[ ${{ github.event.pull_request.labels | join(' ', @) }} == *"build_all"* ]]; then
-            flags+=(--DBUILD_WITH_COLLISION_SUPPORT=ON \
-            -DBUILD_ADVANCED_TESTING=OFF \
-            -DBUILD_WITH_CASADI_SUPPORT=ON \
-            -DBUILD_WITH_OPENMP_SUPPORT=ON \
-            -BUILD_WITH_URDF_SUPPORT=ON \
-            -DBUILD_WITH_SDF_SUPPORT=ON \
-            -DBUILD_WITH_AUTODIFF_SUPPORT=ON)
-          else
-            if [[ ${{ github.event.pull_request.labels | join(' ', @) }} == *"build_collision"* ]]; then
-              flags+=(--DBUILD_WITH_COLLISION_SUPPORT=ON)
-            fi
-
-            if [[ ${{ github.event.pull_request.labels | join(' ', @) }} == *"build_with_casadi"* ]]; then
-              flags+=(--DBUILD_WITH_CASADI_SUPPORT=ON)
-            fi
-
+          for label in ${{ github.event.pull_request.labels.*.name }}; do
+              if [ "$label" == "build_all" ]; then
+                echo "Pull request with deploy label detected"
+                flags+=(--DBUILD_WITH_COLLISION_SUPPORT=ON \
+                -DBUILD_ADVANCED_TESTING=OFF \
+                -DBUILD_WITH_CASADI_SUPPORT=ON \
+                -DBUILD_WITH_OPENMP_SUPPORT=ON \
+                -BUILD_WITH_URDF_SUPPORT=ON \
+                -DBUILD_WITH_SDF_SUPPORT=ON \
+                -DBUILD_WITH_AUTODIFF_SUPPORT=ON)
+                break
+              fi
+              if [ "$label" == "build_all" ]; then
+                flags+=(--DBUILD_WITH_COLLISION_SUPPORT=ON)
+              fi
+            done
+        
       - name: Run cmake
         run: |
           # Add cloned repo to safe.directory, since it was not cloned by the container
