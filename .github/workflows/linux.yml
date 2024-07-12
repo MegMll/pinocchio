@@ -116,7 +116,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake \
           -DPYTHON_EXECUTABLE=$(which python3) "
-          for label in ${{ github.event.pull_request.labels.*.name }}; do
+          for label in "${{ github.event.pull_request.labels[*].name }}"; do
               if $label == "build_all"; then
                 echo "Pull request with deploy label detected"
                 flags+=" -DBUILD_WITH_COLLISION_SUPPORT=ON"
