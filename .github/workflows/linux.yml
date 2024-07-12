@@ -108,6 +108,33 @@ jobs:
         run: |
           apt clean
           df -h
+      - name: Get compilation flags
+        run:
+          # Set compilation flags
+          declare -a FLAGS
+          flags+=(-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake \
+          -DPYTHON_EXECUTABLE=$(which python3))
+          # Check if flag a is present
+          
+          if [[ ${{ github.event.pull_request.labels | join(' ', @) }} == *"build_all"* ]]; then
+            flags+=(--DBUILD_WITH_COLLISION_SUPPORT=ON \
+            -DBUILD_ADVANCED_TESTING=OFF \
+            -DBUILD_WITH_CASADI_SUPPORT=ON \
+            -DBUILD_WITH_OPENMP_SUPPORT=ON \
+            -BUILD_WITH_URDF_SUPPORT=ON \
+            -DBUILD_WITH_SDF_SUPPORT=ON \
+            -DBUILD_WITH_AUTODIFF_SUPPORT=ON)
+          else
+            if [[ ${{ github.event.pull_request.labels | join(' ', @) }} == *"build_collision"* ]]; then
+              flags+=(--DBUILD_WITH_COLLISION_SUPPORT=ON)
+            fi
+
+            if [[ ${{ github.event.pull_request.labels | join(' ', @) }} == *"build_with_casadi"* ]]; then
+              flags+=(--DBUILD_WITH_CASADI_SUPPORT=ON)
+            fi
+
       - name: Run cmake
         run: |
           # Add cloned repo to safe.directory, since it was not cloned by the container
@@ -120,16 +147,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake .. \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DBUILD_WITH_COLLISION_SUPPORT=ON \
-            -DBUILD_ADVANCED_TESTING=OFF \
-            -DBUILD_WITH_CASADI_SUPPORT=ON \
-            -DPYTHON_EXECUTABLE=$(which python3) \
-            -DBUILD_WITH_OPENMP_SUPPORT=ON \
-            -DINSTALL_DOCUMENTATION=ON \
-            -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake
+          cmake .. "${flags[@]}"
           make -j2
           make -j2 build_tests
           export CTEST_OUTPUT_ON_FAILURE=1
