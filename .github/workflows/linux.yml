@@ -108,8 +108,9 @@ jobs:
         run: |
           apt clean
           df -h
+          
       - name: Get compilation flags
-        run:
+        run: |
           # Set compilation flags
           declare -a FLAGS
           flags+=(-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
