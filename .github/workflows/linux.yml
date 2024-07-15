@@ -90,6 +90,15 @@ jobs:
             process.stdout.write(context.repo.owner);
             process.stdout.write(context.repo.repo);
             process.stdout.write(prNumber);
+
+            const { data } = await github.rest.pulls.get({
+              context.repo.owner,
+              context.repo.repo,
+              pull_number: prNumber,
+            });
+
+
+          
             
       - name: Print labels
         run: |
