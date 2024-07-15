@@ -72,6 +72,22 @@ jobs:
     # print branch name
       - name: Debug
         run: echo ${{ env.BRANCH_NAME }}
+        
+      - name: Get labels of the pull request
+        id: get_labels
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: labels } = await github.rest.issues.labels_for_issue({
+              repo: context.repo.repo,
+            });
+            const labelNames = labels.map(label => label.name);
+            return { labels: labelNames };
+
+      - name: Print labels
+        run: |
+          echo "Labels: ${{ steps.get_labels.outputs.labels }}"
+
 
       - name: Register robotpkg
         run: |
@@ -108,23 +124,7 @@ jobs:
         run: |
           apt clean
           df -h
-      - name: Get labels of the pull request
-        id: get_labels
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { data: labels } = await github.rest.issues.getLabel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number
-            });
-            const labelNames = labels.map(label => label.name);
-            return { labels: labelNames };
 
-      - name: Print labels
-        run: |
-          echo "Labels: ${{ steps.get_labels.outputs.labels }}"
-        
       - name: Get compilation flags
         run: |
           # Set compilation flags
