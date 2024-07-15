@@ -93,9 +93,9 @@ jobs:
               repo: context.repo.repo,
               pull_number: prNumber,
             });
-
-
-          
+            const labelNames = data.labels.map(label => label.name);
+            console.log(`Labels: ${labelNames.join(', ')}`);
+            return { labels: labelNames };
             
       - name: Print labels
         run: |
