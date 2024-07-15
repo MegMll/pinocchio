@@ -73,6 +73,7 @@ jobs:
       - name: Debug
         run: echo ${{ env.BRANCH_NAME }}
         
+    # Get labels of pull request
       - name: Get labels of the pull request
         id: get_labels
         uses: actions/github-script@v6
@@ -80,12 +81,11 @@ jobs:
           script: |
             const prNumber = context.issue.number || getPullRequestNumber(context.ref);
       
-            const getPrLabels = async (prNumber) => {
-              const { data } = await github.rest.pulls.get({
-                pull_number: prNumber,
-                owner,
-                repo,
-              });
+            const { data } = await github.rest.pulls.get({
+              pull_number: prNumber,
+              owner,
+              repo,
+            });
           
             const labelNames = data.labels.map(label => label.name);
             console.log(`Labels: ${labelNames.join(', ')}`);
