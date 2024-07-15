@@ -92,8 +92,8 @@ jobs:
             process.stdout.write(prNumber);
 
             const { data } = await github.rest.pulls.get({
-              context.repo.owner,
-              context.repo.repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               pull_number: prNumber,
             });
 
