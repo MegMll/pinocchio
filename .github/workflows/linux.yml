@@ -76,7 +76,7 @@ jobs:
     # Get labels of pull request
       - name: Get labels of the pull request
         id: get_labels
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const getPullRequestNumber = (ref) => {
