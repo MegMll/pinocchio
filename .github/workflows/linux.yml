@@ -88,15 +88,7 @@ jobs:
           
             const prNumber = context.issue.number || getPullRequestNumber(context.ref);
       
-            const { data } = await github.rest.pulls.get({
-              pull_number: prNumber,
-              context.repo.owner,
-              context.repo.repo,
-            });
-          
-            const labelNames = data.labels.map(label => label.name);
-            console.log(`Labels: ${labelNames.join(', ')}`);
-            return { labels: labelNames };
+            
 
       - name: Print labels
         run: |
