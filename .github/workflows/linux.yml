@@ -78,12 +78,16 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.pull_request.number
-            });
-            const labelNames = labels.map(label => label.name);
+            const prNumber = context.issue.number || getPullRequestNumber(context.ref);
+      
+            const getPrLabels = async (prNumber) => {
+              const { data } = await github.rest.pulls.get({
+                pull_number: prNumber,
+                owner,
+                repo,
+              });
+          
+            const labelNames = data.labels.map(label => label.name);
             console.log(`Labels: ${labelNames.join(', ')}`);
             return { labels: labelNames };
 
