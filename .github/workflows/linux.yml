@@ -78,8 +78,10 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { data: labels } = await github.rest.issues.labels_for_issue({
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
               repo: context.repo.repo,
+              issue_number: context.issue.number
             });
             const labelNames = labels.map(label => label.name);
             return { labels: labelNames };
