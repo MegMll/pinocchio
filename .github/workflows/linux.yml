@@ -95,11 +95,11 @@ jobs:
             });
             const labelNames = data.labels.map(label => label.name);
             console.log(`Labels: ${labelNames.join(', ')}`);
-            return { labels: labelNames };
-            
+            return  labelNames;
+          result-encoding: string
       - name: Print labels
         run: |
-          echo "Labels: ${{ steps.get_labels.outputs.labels }}"
+          echo "Labels: ${{ steps.get_labels.outputs.result }}"
 
 
       - name: Register robotpkg
