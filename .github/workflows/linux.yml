@@ -90,16 +90,7 @@ jobs:
             process.stdout.write(context.repo.owner);
             process.stdout.write(context.repo.repo);
             process.stdout.write(prNumber);
-            const { data } = await github.rest.pulls.get({
-              context.repo.owner,
-              context.repo.repo,
-              pull_number: prNumber,
-            });
-
-            const labelNames = data.labels.map(label => label.name);
-            console.log(`Labels: ${labelNames.join(', ')}`);
-            return { labels: labelNames };
-          
+            
       - name: Print labels
         run: |
           echo "Labels: ${{ steps.get_labels.outputs.labels }}"
