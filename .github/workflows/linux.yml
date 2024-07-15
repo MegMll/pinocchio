@@ -87,6 +87,9 @@ jobs:
             };
           
             const prNumber = context.issue.number || getPullRequestNumber(context.ref);
+            console.log(context.repo.owner);
+            console.log(context.repo.repo);
+            console.log(prNumber);
             const { data } = await github.rest.pulls.get({
               context.repo.owner,
               context.repo.repo,
