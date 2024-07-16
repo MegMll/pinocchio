@@ -94,13 +94,18 @@ jobs:
               pull_number: prNumber,
             });
             const labelNames = data.labels.map(label => label.name);
-            console.log(`Labels: ${labelNames.join(', ')}`);
-            return  labelNames;
+            let cmakeFlags = '-DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake -DPYTHON_EXECUTABLE=$(which python3)';
+            labelNames.forEach((label, index) => {
+              if(label == 'build_collision')
+              {
+                cmakeFlags += ' -DBUILD_WITH_COLLISION_SUPPORT=ON';
+              }
+            });
+            return  cmakeFlags;
           result-encoding: string
       - name: Print labels
         run: |
           echo "Labels: ${{ steps.get_labels.outputs.result }}"
-
 
       - name: Register robotpkg
         run: |
@@ -138,31 +143,6 @@ jobs:
           apt clean
           df -h
 
-      - name: Get compilation flags
-        run: |
-          # Set compilation flags
-          flags="-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake \
-          -DPYTHON_EXECUTABLE=$(which python3) "
-          if[ "${{ contains(github.event.pull_request.labels.*.name, 'build_all') }}" == "true" ]
-          then
-              echo "Pull request with all label detected"
-              flags+=" -DBUILD_WITH_COLLISION_SUPPORT=ON"
-              flags+=" -DBUILD_ADVANCED_TESTING=OFF"
-              flags+=" -DBUILD_WITH_CASADI_SUPPORT=ON"
-              flags+=" -DBUILD_WITH_OPENMP_SUPPORT=ON"
-              flags+=" -DBUILD_WITH_URDF_SUPPORT=ON"
-              flags+=" -DBUILD_WITH_SDF_SUPPORT=ON"
-              flags+=" -DBUILD_WITH_AUTODIFF_SUPPORT=ON"
-              break
-          else
-            if[ "${{ contains(github.event.pull_request.labels.*.name, 'build_collision') }}" == "true" ]
-            then
-              flags+="-DBUILD_WITH_COLLISION_SUPPORT=ON"
-            fi
-          fi
-          echo "Final flags: ${flags}"
       - name: Run cmake
         run: |
           # Add cloned repo to safe.directory, since it was not cloned by the container
@@ -175,7 +155,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake .. ${flags}
+          cmake .. ${steps.get_labels.outputs.result}
           make -j2
           make -j2 build_tests
           export CTEST_OUTPUT_ON_FAILURE=1
