@@ -155,7 +155,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake .. "${steps.get_labels.outputs.result}"
+          cmake .. ${{ steps.get_labels.outputs.result }}
           make -j2
           make -j2 build_tests
           export CTEST_OUTPUT_ON_FAILURE=1
