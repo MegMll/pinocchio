@@ -79,30 +79,15 @@ module.exports = async ({github, context, core}) => {
         if (labelNames.length > 0) {
             if (
               lastReviewFromActionsBot &&
-              lastReviewFromActionsBot.state !== 'DISMISSED'
+
             ) {
-                await github.rest.pulls.dismissReview({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: prNumber,
-                    review_id: lastReviewFromActionsBot.id,
-                    message: 'All good!',
-                });
+                return;
             }
         }
         else
-        {
-            if (
-                lastReviewFromActionsBot &&
-                lastReviewFromActionsBot.state === 'CHANGES_REQUESTED'
-            ) {
-                core.info(`Skipping REQUEST_CHANGES review`);
-                return;
-            }
-        
+        {       
             const reviewMessage = `👋 Hi,
             this is a reminder message for maintainers to please assign a proper label to this Pull Request.
-    
             The possible labels are:
             - build_collision (build pinocchio with coal support)
             - build_casadi (build pinoochio with casadi support)
@@ -112,7 +97,6 @@ module.exports = async ({github, context, core}) => {
             - build_mpfr
             - build_sdf (build sdf parser)
             - build_accelerate
-    
             The bot will dismiss the review as soon as at least one label has been assigned to the Pull Request.
             Thanks.`;
             await github.rest.pulls.createReview({
