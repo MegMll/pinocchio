@@ -8,6 +8,8 @@ import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer as Visualizer
 import hppfcl as fcl
 
+
+
 # load model from example-robot urdf
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models/")
 
