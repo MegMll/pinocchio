@@ -77,10 +77,7 @@ module.exports = async ({github, context, core}) => {
           );
       
         if (labelNames.length > 0) {
-            if (
-              lastReviewFromActionsBot &&
-
-            ) {
+            if (lastReviewFromActionsBot) {
                 return;
             }
         }
