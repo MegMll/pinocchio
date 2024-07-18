@@ -75,7 +75,7 @@ module.exports = async ({github, context, core}) => {
         )}`
       );
   
-    if (prLabels.length > 0) {
+    if (labelNames.length > 0) {
         if (
           lastReviewFromActionsBot &&
           lastReviewFromActionsBot.state !== 'DISMISSED'
