@@ -22,6 +22,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_aba_derivatives)
 {
+  
   using namespace Eigen;
   using namespace pinocchio;
 
