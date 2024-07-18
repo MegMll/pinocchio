@@ -56,71 +56,75 @@ module.exports = async ({github, context, core}) => {
     });
 
     core.setOutput("cmakeFlags", cmakeFlags);
-
-    const reviews = await github.rest.pulls.listReviews({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: prNumber,
-      });
-      const allReviewsFromActionsBot = reviews.data.filter(
-        (review) => review.user.login === 'github-actions[bot]'
-      );
-
-      const lastReviewFromActionsBot =
-        allReviewsFromActionsBot.length > 0 &&
-        allReviewsFromActionsBot[allReviewsFromActionsBot.length - 1];
-      core.debug(
-        `Last review from actions bot: ${JSON.stringify(
-          lastReviewFromActionsBot
-        )}`
-      );
-  
-    if (labelNames.length > 0) {
-        if (
-          lastReviewFromActionsBot &&
-          lastReviewFromActionsBot.state !== 'DISMISSED'
-        ) {
-            await github.rest.pulls.dismissReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                review_id: lastReviewFromActionsBot.id,
-                message: 'All good!',
-            });
-        }
-    }
-    else
+    try
     {
-        if (
-            lastReviewFromActionsBot &&
-            lastReviewFromActionsBot.state === 'CHANGES_REQUESTED'
-        ) {
-            core.info(`Skipping REQUEST_CHANGES review`);
-            return;
-        }
-    
-        const reviewMessage = `👋 Hi,
-        this is a reminder message for maintainers to please assign a proper label to this Pull Request.
-
-        The possible labels are:
-        - build_collision (build pinocchio with coal support)
-        - build_casadi (build pinoochio with casadi support)
-        - build_autodiff (build pinocchio with cppad support)
-        - build_codegen
-        - build_extra (build pinocchio with extra algorithms)
-        - build_mpfr
-        - build_sdf (build sdf parser)
-        - build_accelerate
-
-        The bot will dismiss the review as soon as at least one label has been assigned to the Pull Request.
-        Thanks.`;
-        await github.rest.pulls.createReview({
-            owner:context.repo.owner,
+        const reviews = await github.rest.pulls.listReviews({
+            owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: prNumber,
-            body: reviewMessage,
-            event: 'COMMENT'
-        });
+          });
+          const allReviewsFromActionsBot = reviews.data.filter(
+            (review) => review.user.login === 'github-actions[bot]'
+          );
+    
+          const lastReviewFromActionsBot =
+            allReviewsFromActionsBot.length > 0 &&
+            allReviewsFromActionsBot[allReviewsFromActionsBot.length - 1];
+          core.debug(
+            `Last review from actions bot: ${JSON.stringify(
+              lastReviewFromActionsBot
+            )}`
+          );
+      
+        if (labelNames.length > 0) {
+            if (
+              lastReviewFromActionsBot &&
+              lastReviewFromActionsBot.state !== 'DISMISSED'
+            ) {
+                await github.rest.pulls.dismissReview({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber,
+                    review_id: lastReviewFromActionsBot.id,
+                    message: 'All good!',
+                });
+            }
+        }
+        else
+        {
+            if (
+                lastReviewFromActionsBot &&
+                lastReviewFromActionsBot.state === 'CHANGES_REQUESTED'
+            ) {
+                core.info(`Skipping REQUEST_CHANGES review`);
+                return;
+            }
+        
+            const reviewMessage = `👋 Hi,
+            this is a reminder message for maintainers to please assign a proper label to this Pull Request.
+    
+            The possible labels are:
+            - build_collision (build pinocchio with coal support)
+            - build_casadi (build pinoochio with casadi support)
+            - build_autodiff (build pinocchio with cppad support)
+            - build_codegen
+            - build_extra (build pinocchio with extra algorithms)
+            - build_mpfr
+            - build_sdf (build sdf parser)
+            - build_accelerate
+    
+            The bot will dismiss the review as soon as at least one label has been assigned to the Pull Request.
+            Thanks.`;
+            await github.rest.pulls.createReview({
+                owner:context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                body: reviewMessage,
+                event: 'COMMENT'
+            });
+        }
+    } catch (error) {
+    await core.setFailed(error.stack || error.message);
     }
     return;
 }
