@@ -118,7 +118,8 @@ module.exports = async ({github, context, core}) => {
             owner:context.repo.owner,
             repo: context.repo.repo,
             pull_number: prNumber,
-            body: reviewMessage
+            body: reviewMessage,
+            event: 'COMMENT'
         });
     }
     return;
