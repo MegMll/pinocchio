@@ -58,8 +58,8 @@ module.exports = async ({github, context, core}) => {
     core.setOutput("cmakeFlags", cmakeFlags);
 
     const reviews = await github.rest.pulls.listReviews({
-        owner,
-        repo,
+        owner: context.repo.owner,
+        repo: context.repo.repo,
         pull_number: prNumber,
       });
       const allReviewsFromActionsBot = reviews.data.filter(
@@ -81,8 +81,8 @@ module.exports = async ({github, context, core}) => {
           lastReviewFromActionsBot.state !== 'DISMISSED'
         ) {
             await github.rest.pulls.dismissReview({
-                owner,
-                repo,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
                 pull_number: prNumber,
                 review_id: lastReviewFromActionsBot.id,
                 message: 'All good!',
@@ -115,8 +115,8 @@ module.exports = async ({github, context, core}) => {
         The bot will dismiss the review as soon as at least one label has been assigned to the Pull Request.
         Thanks.`;
         await github.rest.pulls.createReview({
-            owner,
-            repo,
+            owner:context.repo.owner,
+            repo: context.repo.repo,
             pull_number: prNumber,
             body: reviewMessage
         });
