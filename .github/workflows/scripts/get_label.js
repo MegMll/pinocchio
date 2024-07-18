@@ -62,24 +62,18 @@ module.exports = async ({github, context, core}) => {
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: prNumber,
-          });
-          const allReviewsFromActionsBot = reviews.data.filter(
+        });
+        const allReviewsFromActionsBot = reviews.data.filter(
             (review) => review.user.login === 'github-actions[bot]'
-          );
-    
-          const lastReviewFromActionsBot =
-            allReviewsFromActionsBot.length > 0 &&
-            allReviewsFromActionsBot[allReviewsFromActionsBot.length - 1];
-          core.debug(
-            `Last review from actions bot: ${JSON.stringify(
-              lastReviewFromActionsBot
-            )}`
-          );
-      
+        );
+
+        if(allReviewsFromActionsBot.length > 0)
+        {
+            return;
+        }
+
         if (labelNames.length > 0) {
-            if (lastReviewFromActionsBot) {
                 return;
-            }
         }
         else
         {       
