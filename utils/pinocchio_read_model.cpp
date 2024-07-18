@@ -44,7 +44,7 @@ int main(int argc, char * argv[])
     else
       filename = argv[i];
   }
-
+  std::cout << << std::endl;
   // Check extension of the file
   pinocchio::ModelFileExtensionType extension_type = pinocchio::checkModelFileExtension(filename);
   pinocchio::Model model;
