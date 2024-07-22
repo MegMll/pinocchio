@@ -1,3 +1,4 @@
+lol
 <p align="center">
   <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/master/doc/images/pinocchio-logo-large.png" width="800" alt="Pinocchio Logo" align="center"/>
 </p>
