@@ -44,7 +44,7 @@ module.exports = async ({github, context, core}) => {
         if (labelFlags[label]) {
           hasLabel = true;
         }
-    }
+    });
 
     try
     {
