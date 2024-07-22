@@ -2,8 +2,7 @@ name: Verify Pull Request Labels
 
 on: [pull_request]
 
-permissions:
-  pull-requests: write
+permissions: write-all
   
 jobs:
   verify_pr_labels:
