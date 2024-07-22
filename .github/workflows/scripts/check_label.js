@@ -71,15 +71,15 @@ module.exports = async ({github, context, core}) => {
             This is a reminder message to please assign a proper label to this Pull Request.
             The possible labels are:
             
-            - build_collision (build pinocchio with coal support)
-            - build_casadi (build pinoochio with casadi support)
-            - build_autodiff (build pinocchio with cppad support)
-            - build_codegen (build pinocchio with cppadcg support)
-            - build_extra (build pinocchio with extra algorithms)
-            - build_mpfr (build pinocchio with Boost.Multiprecision support)
-            - build_sdf (build pinocchio with sdf parser)
-            - build_accelerate
-            - build_all (build pinocchio with all the options stated above)
+                - build_collision (build pinocchio with coal support)
+                - build_casadi (build pinoochio with casadi support)
+                - build_autodiff (build pinocchio with cppad support)
+                - build_codegen (build pinocchio with cppadcg support)
+                - build_extra (build pinocchio with extra algorithms)
+                - build_mpfr (build pinocchio with Boost.Multiprecision support)
+                - build_sdf (build pinocchio with sdf parser)
+                - build_accelerate
+                - build_all (build pinocchio with all the options stated above)
             
             Thanks.`;
             await github.rest.pulls.createReview({
