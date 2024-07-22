@@ -73,7 +73,7 @@ The possible labels are:
 
 - build_collision (build pinocchio with coal support)
 - build_casadi (build pinoochio with casadi support)
--  build_autodiff (build pinocchio with cppad support)
+- build_autodiff (build pinocchio with cppad support)
 - build_codegen (build pinocchio with cppadcg support)
 - build_extra (build pinocchio with extra algorithms)
 - build_mpfr (build pinocchio with Boost.Multiprecision support)
