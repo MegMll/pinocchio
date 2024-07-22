@@ -43,7 +43,6 @@ module.exports = async ({github, context, core}) => {
     labelNames.forEach(label => {
         if (labelFlags[label]) {
           hasLabel = true;
-          break;
         }
     }
 
