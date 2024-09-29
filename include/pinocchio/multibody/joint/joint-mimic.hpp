@@ -349,8 +349,25 @@ namespace pinocchio
     // Joint Prismatic Unaligned
     typedef JointModelPrismaticUnalignedTpl<Scalar, Options> JointModelPrismaticUnaligned;
 
+<<<<<<< HEAD
     // Joint Translation
     typedef JointModelTranslationTpl<Scalar, Options> JointModelTranslation;
+=======
+  // Joint FreeFlyer
+  typedef JointModelFreeFlyerTpl<Scalar, Options> JointModelFreeFlyer;
+
+
+  typedef boost::variant<
+    JointModelRX, JointModelRY, JointModelRZ
+  , JointModelRevoluteUnaligned
+  , JointModelPX, JointModelPY, JointModelPZ
+  , JointModelPrismaticUnaligned
+  , JointModelTranslation
+  , JointModelRUBX, JointModelRUBY, JointModelRUBZ
+  , JointModelRevoluteUnboundedUnaligned
+  , JointModelFreeFlyer
+  > JointModelVariant;
+>>>>>>> 52ff6226 ([urdf] Fix parsing of mimic joints)
 
     typedef boost::variant<
       JointModelRX,
@@ -393,6 +410,7 @@ namespace pinocchio
     // Joint Prismatic Unaligned
     typedef JointDataPrismaticUnalignedTpl<Scalar, Options> JointDataPrismaticUnaligned;
 
+<<<<<<< HEAD
     // Joint Translation
     typedef JointDataTranslationTpl<Scalar, Options> JointDataTranslation;
 
@@ -419,6 +437,22 @@ namespace pinocchio
   struct JointModelMimicTpl;
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   struct JointDataMimicTpl;
+=======
+  // Joint FreeFlyer
+  typedef JointDataFreeFlyerTpl<Scalar, Options> JointDataFreeFlyer;
+
+  typedef boost::variant<
+    JointDataRX, JointDataRY, JointDataRZ
+  , JointDataRevoluteUnaligned
+  , JointDataPX, JointDataPY, JointDataPZ
+  , JointDataPrismaticUnaligned
+  , JointDataTranslation
+  , JointDataRUBX, JointDataRUBY, JointDataRUBZ
+  , JointDataRevoluteUnboundedUnaligned
+  , JointDataFreeFlyer
+  > JointDataVariant;
+};
+>>>>>>> 52ff6226 ([urdf] Fix parsing of mimic joints)
 
   template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct traits<JointMimicTpl<_Scalar, _Options, JointCollectionTpl>>

@@ -286,9 +286,8 @@ namespace pinocchio
               max_config, friction, damping);
             break;
           case Base::MIMIC:
-            std::cout << model.joints.back() << std::endl;
             joint_id = model.addJoint(frame.parentJoint, 
-                    typename JointCollection::JointModelMimic(model.joints.back(), 1, 0),
+                    typename JointCollection::JointModelMimic(model.joints.at(1), 1, 0),
                     frame.placement * placement, joint_name,
                     max_effort,max_velocity,min_config,max_config,
                     friction, damping);
