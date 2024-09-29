@@ -203,8 +203,18 @@ namespace pinocchio
     template<typename JointModel>
     static ReturnType algo(const JointModelBase<JointModel> & jmodel, InputType a)
     {
+      // Converting a VectorBlock of anysize (static or dynamic) to another vector block of anysize
+      // (static or dynamic) since there is no copy constructor.
       auto vectorBlock = jmodel.jointConfigFromDofSelector(a);
-      return ReturnType(vectorBlock.nestedExpression(), 0, vectorBlock.size());
+
+      // VectorBlock does not implemet such getter, hack the Eigen::Block base class to retreive
+      // such values.
+      const Index start = vectorBlock.startRow()
+                          + vectorBlock.startCol(); // The other dimension is always 0 (for vectors)
+      const Index size =
+        vectorBlock.rows() * vectorBlock.cols(); // The other dimension is always 1 (for vectors)
+
+      return ReturnType(vectorBlock.nestedExpression(), start, size);
     }
   };
 
