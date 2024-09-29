@@ -316,7 +316,6 @@ namespace pinocchio
     };
   } // namespace impl
 
-
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   struct JointMimicTpl;
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -354,6 +353,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> TangentVector_t;
 
+    typedef boost::mpl::false_ is_mimicable_t;
+
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
@@ -381,10 +382,7 @@ namespace pinocchio
     typedef JointMimicTpl<_Scalar, _Options, JointCollectionTpl> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
 
-    // typedef typename boost::make_variant_over<typename boost::mpl::filter_view<typename
-    // JointDataVariant::types, is_mimicable<boost::mpl::_1>>::type>::type
-    // MimicableJointDataVariant;
-    typedef JointDataTpl<_Scalar, _Options, JointCollectionMimicableTpl> RefJointData;
+    typedef JointDataTpl<_Scalar, _Options, JointCollectionTpl> RefJointData;
     typedef typename RefJointData::JointDataVariant RefJointDataVariant;
 
     JointDataMimicTpl()
@@ -401,37 +399,14 @@ namespace pinocchio
     // { *this = other; }
 
     JointDataMimicTpl(
-      const JointDataTpl<Scalar, Options, JointCollectionTpl> & jdata,
+      const RefJointData & jdata,
       const Scalar & scaling,
       const Scalar & nq,
       const Scalar & nv)
     : m_scaling(scaling)
     , S(m_jdata_ref.S(), scaling)
     , m_jdata_ref(
-        transferToVariant<JointDataTpl<Scalar, Options, JointCollectionTpl>, RefJointData>(jdata))
-    {
-      joint_q.resize(nq, 1);
-      m_q_transform.resize(nq, 1);
-      joint_v.resize(nv, 1);
-      m_v_transform.resize(nv, 1);
-    }
-
-    // JointDataMimicTpl(const RefJointDataVariant & jdata,
-    //                const Scalar & scaling,
-    //                const Scalar & nq,
-    //                const Scalar & nv)
-    // : m_jdata_ref(jdata)
-    // , m_scaling(scaling)
-    // , S(m_jdata_ref.S(),scaling)
-    // {
-
-    // }
-
-    JointDataMimicTpl(
-      const RefJointData & jdata, const Scalar & scaling, const Scalar & nq, const Scalar & nv)
-    : m_jdata_ref(jdata.derived())
-    , m_scaling(scaling)
-    , S(m_jdata_ref.S(), scaling)
+        checkMimic(jdata))
     {
       joint_q.resize(nq, 1);
       m_q_transform.resize(nq, 1);
@@ -660,13 +635,9 @@ namespace pinocchio
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
-    typedef JointModelTpl<Scalar, Options, JointCollectionMimicableTpl> JointModel;
+    typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
     typedef typename JointModel::JointModelVariant JointModelVariant;
-    // typedef typename boost::make_variant_over<typename boost::mpl::filter_view<typename
-    // JointModelVariant::types, is_mimicable<boost::mpl::_1>>::type>::type
-    // MimicableJointModelVariant; typedef JointModelTpl<_Scalar, _Options,
-    // JointCollectionMimicableTpl> MimicableJointModel;
-
+    
     typedef SE3Tpl<Scalar, Options> SE3;
     typedef MotionTpl<Scalar, Options> Motion;
     typedef InertiaTpl<Scalar, Options> Inertia;
@@ -684,34 +655,6 @@ namespace pinocchio
     {
     }
 
-    JointModelMimicTpl(
-      const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
-      const Scalar & scaling,
-      const Scalar & offset)
-    : JointModelMimicTpl(jmodel, jmodel, scaling, offset)
-    {
-    }
-
-    JointModelMimicTpl(
-      const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel_mimicking,
-      const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel_mimicked,
-      const Scalar & scaling,
-      const Scalar & offset)
-    : m_scaling(scaling)
-    , m_offset(offset)
-    , m_jmodel_ref(
-        transferToVariant<JointModelTpl<Scalar, Options, JointCollectionTpl>, JointModelVariant>(
-          jmodel_mimicking))
-    {
-      assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
-      assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
-      assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
-
-      setMimicIndexes(
-        jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
-        jmodel_mimicked.idx_j());
-    }
-
     template<typename JointModel>
     JointModelMimicTpl(
       const JointModelBase<JointModel> & jmodel, const Scalar & scaling, const Scalar & offset)
@@ -725,32 +668,14 @@ namespace pinocchio
       const JointModelBase<JointModelMimicked> & jmodel_mimicked,
       const Scalar & scaling,
       const Scalar & offset)
-    : m_jmodel_ref((JointModel)jmodel_mimicking.derived())
+    : m_jmodel_ref(checkMimic((JointModel)jmodel_mimicking.derived()))
     , m_scaling(scaling)
     , m_offset(offset)
     {
       assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
       assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
-
-      setMimicIndexes(
-        jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
-        jmodel_mimicked.idx_j());
-    }
-
-    template<typename JointModelMimicking>
-    JointModelMimicTpl(
-      const JointModelBase<JointModelMimicking> & jmodel_mimicking,
-      const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel_mimicked,
-      const Scalar & scaling,
-      const Scalar & offset)
-    : m_jmodel_ref((JointModel)jmodel_mimicking.derived())
-    , m_scaling(scaling)
-    , m_offset(offset)
-    {
-      assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
-      assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
-      assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
+      
 
       setMimicIndexes(
         jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
