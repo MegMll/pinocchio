@@ -154,15 +154,13 @@ namespace pinocchio
     template<typename S1, int O1>
     SE3ActionReturnType se3Action(const SE3Tpl<S1, O1> & m) const
     {
-      SE3ActionReturnType res = m_constraint.se3Action(m);
-      return m_scaling_factor * res;
+      return m_scaling_factor * m_constraint.se3Action(m);
     }
 
     template<typename S1, int O1>
     SE3ActionReturnType se3ActionInverse(const SE3Tpl<S1, O1> & m) const
     {
-      SE3ActionReturnType res = m_constraint.se3ActionInverse(m);
-      return m_scaling_factor * res;
+      return m_scaling_factor * m_constraint.se3ActionInverse(m);
     }
 
     int nv_impl() const
@@ -182,9 +180,7 @@ namespace pinocchio
       typename ConstraintForceOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType
       operator*(const ForceDense<Derived> & f) const
       {
-        typedef
-          typename ConstraintForceOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType ReturnType;
-        return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * f));
+        return ref.m_scaling_factor * (ref.m_constraint.transpose() * f);
       }
 
       /// [CRBA]  MatrixBase operator* (RefConstraint::Transpose S, ForceSet::Block)
@@ -192,10 +188,7 @@ namespace pinocchio
       typename ConstraintForceSetOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
-        typedef typename ConstraintForceSetOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType
-          ReturnType;
-        ReturnType tmp = ref.m_constraint.transpose() * F;
-        return ReturnType(ref.m_scaling_factor * tmp);
+        return ref.m_scaling_factor * (ref.m_constraint.transpose() * F);
       }
 
     }; // struct TransposeConst
@@ -221,10 +214,7 @@ namespace pinocchio
     typename MotionAlgebraAction<ScaledJointMotionSubspaceTpl, MotionDerived>::ReturnType
     motionAction(const MotionDense<MotionDerived> & m) const
     {
-      typedef typename MotionAlgebraAction<ScaledJointMotionSubspaceTpl, MotionDerived>::ReturnType
-        ReturnType;
-      ReturnType res = m_scaling_factor * m_constraint.motionAction(m);
-      return res;
+      return m_scaling_factor * m_constraint.motionAction(m);
     }
 
     inline const Scalar & scaling() const
@@ -263,11 +253,7 @@ namespace pinocchio
     typedef ScaledJointMotionSubspaceTpl<S2, O2> Constraint;
     typedef typename Constraint::Scalar Scalar;
 
-    // typedef typename MultiplicationOp<Inertia,typename Constraint::RefConstraint>::ReturnType
-    // OriginalReturnType;
     typedef Eigen::Matrix<S2, 6, Eigen::Dynamic, O2, 6, 6> ReturnType;
-    // typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type ReturnType;
-    // typedef OriginalReturnType ReturnType;
   };
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
@@ -282,8 +268,7 @@ namespace pinocchio
 
       static inline ReturnType run(const Inertia & Y, const Constraint & scaled_constraint)
       {
-        ReturnType tmp = (Y * scaled_constraint.constraint());
-        return scaled_constraint.scaling() * tmp;
+        return scaled_constraint.scaling() * (Y * scaled_constraint.constraint());
       }
     };
   } // namespace impl
