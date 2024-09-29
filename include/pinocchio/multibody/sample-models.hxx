@@ -110,8 +110,8 @@ namespace pinocchio
           // Scalar multiplier = JC::JointModelRX::ConfigVector_t::Random(1)(0);
           // Scalar offset = JC::JointModelRX::ConfigVector_t::Random(1)(0);
 
-          Scalar multiplier = 1;
-          Scalar offset = 0;
+          Scalar multiplier = 2.5;
+          Scalar offset = 0.75;
           joint_id = addJointAndBody(
             model,
             typename JC::JointModelMimic(
