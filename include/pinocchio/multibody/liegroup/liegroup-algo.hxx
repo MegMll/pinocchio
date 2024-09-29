@@ -162,6 +162,15 @@ namespace pinocchio
     using Algo<Visitor, JointModel>::run;                                                          \
   };
 
+#define PINOCCHIO_DETAILS_JOINT_MIMIC_1(Algo)                                                      \
+  template<typename Visitor, typename JointCollection>                                             \
+  struct Algo<Visitor, JointModelMimicTpl<JointCollection>> {                                      \
+    typedef typename Visitor::ArgsType ArgsType;                                                   \
+    static void run (PINOCCHIO_DETAILS_WRITE_ARGS_1(JointModelMimicTpl<JointCollection>))          \
+    {}                                                                                             \
+  }
+
+
   } // namespace details
 
   template<typename Visitor, typename JointModel>
@@ -725,6 +734,8 @@ namespace pinocchio
   };
 
   PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NeutralStepAlgo);
+  PINOCCHIO_DETAILS_JOINT_MIMIC_1(NeutralStepAlgo);
+
 
   template<typename Visitor, typename JointModel>
   struct IntegrateCoeffWiseJacobianStepAlgo;
