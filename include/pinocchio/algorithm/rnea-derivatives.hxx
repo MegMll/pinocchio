@@ -128,7 +128,7 @@ namespace pinocchio
           gravity_partial_dq_.middleRows(jmodel.idx_v(), jmodel.nv()).col(j).noalias() =
             Ag_cols.transpose() * data.dAdq.col(j);
 
-        jmodel.jointVelocitySelector(g).noalias() = J_cols.transpose() * data.of[i].toVector();
+        jmodel.jointVelocityFromDofSelector(g).noalias() = J_cols.transpose() * data.of[i].toVector();
         if (parent > 0)
         {
           data.oYcrb[parent] += data.oYcrb[i];
@@ -291,7 +291,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         data.a[i] =
-          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
         {
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
@@ -404,7 +404,7 @@ namespace pinocchio
         MatrixType3 & rnea_partial_da_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3, rnea_partial_da);
 
         // tau
-        jmodel.jointVelocitySelector(data.tau).noalias() =
+        jmodel.jointVelocityFromDofSelector(data.tau).noalias() =
           J_cols.transpose() * data.of[i].toVector();
 
         const Eigen::DenseIndex nv_subtree = data.nvSubtree[i];

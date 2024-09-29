@@ -197,7 +197,7 @@ namespace pinocchio
 
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.integrate(
-        jmodel.jointConfigFromNqSelector(q.derived()), jmodel.jointVelocitySelector(v.derived()),
+        jmodel.jointConfigFromNqSelector(q.derived()), jmodel.jointVelocityFromNvSelector(v.derived()),
         jmodel.jointConfigFromNqSelector(PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, result)));
     }
   };
@@ -243,7 +243,7 @@ namespace pinocchio
 
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.dIntegrate(
-        jmodel.jointConfigFromNqSelector(q.derived()), jmodel.jointVelocitySelector(v.derived()),
+        jmodel.jointConfigFromNqSelector(q.derived()), jmodel.jointVelocityFromNvSelector(v.derived()),
         jmodel.jointJacBlock(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType, mat)), arg, op);
     }
   };
@@ -298,7 +298,7 @@ namespace pinocchio
 
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.dIntegrateTransport(
-        jmodel.jointConfigFromNqSelector(q.derived()), jmodel.jointVelocitySelector(v.derived()),
+        jmodel.jointConfigFromNqSelector(q.derived()), jmodel.jointVelocityFromNvSelector(v.derived()),
         jmodel.jointJacRows(mat_in.derived()),
         jmodel.jointJacRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixOutType, mat_out)), arg);
     }
@@ -347,7 +347,7 @@ namespace pinocchio
 
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.dIntegrateTransport(
-        jmodel.jointConfigFromNqSelector(q.derived()), jmodel.jointVelocitySelector(v.derived()),
+        jmodel.jointConfigFromNqSelector(q.derived()), jmodel.jointVelocityFromNvSelector(v.derived()),
         jmodel.jointJacRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType, mat)), arg);
     }
   };
@@ -481,7 +481,7 @@ namespace pinocchio
       lgo.difference(
         jmodel.jointConfigFromNqSelector(q0.derived()),
         jmodel.jointConfigFromNqSelector(q1.derived()),
-        jmodel.jointVelocitySelector(PINOCCHIO_EIGEN_CONST_CAST(TangentVectorOut, result)));
+        jmodel.jointVelocityFromNvSelector(PINOCCHIO_EIGEN_CONST_CAST(TangentVectorOut, result)));
     }
   };
 

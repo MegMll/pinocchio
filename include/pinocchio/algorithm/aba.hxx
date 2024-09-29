@@ -169,13 +169,13 @@ namespace pinocchio
 
         Force & fi = data.of[i];
 
-        jmodel.jointVelocitySelector(data.u).noalias() -= Jcols.transpose() * fi.toVector();
+        jmodel.jointVelocityFromDofSelector(data.u).noalias() -= Jcols.transpose() * fi.toVector();
 
         jdata.U().noalias() = Ia * Jcols;
         jdata.StU().noalias() = Jcols.transpose() * jdata.U();
 
         // Account for the rotor inertia contribution
-        jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+        jdata.StU().diagonal() += jmodel.jointVelocityFromDofSelector(model.armature);
 
         ::pinocchio::internal::PerformStYSInversion<Scalar>::run(jdata.StU(), jdata.Dinv());
         jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
@@ -185,7 +185,7 @@ namespace pinocchio
           Ia.noalias() -= jdata.UDinv() * jdata.U().transpose();
 
           fi.toVector().noalias() +=
-            Ia * data.oa_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+            Ia * data.oa_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocityFromDofSelector(data.u);
           data.oYaba[parent] += Ia;
           data.of[parent] += fi;
         }
@@ -220,10 +220,10 @@ namespace pinocchio
         const JointIndex parent = model.parents[i];
 
         data.oa_gf[i] += data.oa_gf[parent]; // does take into account the gravity field
-        jmodel.jointVelocitySelector(data.ddq).noalias() =
-          jdata.Dinv() * jmodel.jointVelocitySelector(data.u)
+        jmodel.jointVelocityFromDofSelector(data.ddq).noalias() =
+          jdata.Dinv() * jmodel.jointVelocityFromDofSelector(data.u)
           - jdata.UDinv().transpose() * data.oa_gf[i].toVector();
-        data.oa_gf[i].toVector().noalias() += J_cols * jmodel.jointVelocitySelector(data.ddq);
+        data.oa_gf[i].toVector().noalias() += J_cols * jmodel.jointVelocityFromDofSelector(data.ddq);
 
         // Handle consistent output
         data.oa[i] = data.oa_gf[i] + model.gravity;
@@ -423,15 +423,15 @@ namespace pinocchio
         const JointIndex parent = model.parents[i];
         typename Inertia::Matrix6 & Ia = data.Yaba[i];
 
-        jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose() * data.f[i];
+        jmodel.jointVelocityFromDofSelector(data.u) -= jdata.S().transpose() * data.f[i];
         jmodel.calc_aba(
-          jdata.derived(), jmodel.jointVelocitySelector(model.armature), Ia, parent > 0);
+          jdata.derived(), jmodel.jointVelocityFromDofSelector(model.armature), Ia, parent > 0);
 
         if (parent > 0)
         {
           Force & pa = data.f[i];
           pa.toVector().noalias() +=
-            Ia * data.a_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+            Ia * data.a_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocityFromDofSelector(data.u);
           data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
           data.f[parent] += data.liMi[i].act(pa);
         }
@@ -461,10 +461,10 @@ namespace pinocchio
         const JointIndex parent = model.parents[i];
 
         data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
-        jmodel.jointVelocitySelector(data.ddq).noalias() =
-          jdata.Dinv() * jmodel.jointVelocitySelector(data.u)
+        jmodel.jointVelocityFromDofSelector(data.ddq).noalias() =
+          jdata.Dinv() * jmodel.jointVelocityFromDofSelector(data.u)
           - jdata.UDinv().transpose() * data.a_gf[i].toVector();
-        data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
+        data.a_gf[i] += jdata.S() * jmodel.jointVelocityFromDofSelector(data.ddq);
 
         data.a[i] = data.a_gf[i];
         data.a[i].linear().noalias() += data.oMi[i].rotation().transpose() * model.gravity.linear();
@@ -680,7 +680,7 @@ namespace pinocchio
         jdata.StU().noalias() = J_cols.transpose() * jdata.U();
 
         // Account for the rotor inertia contribution
-        jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+        jdata.StU().diagonal() += jmodel.jointVelocityFromDofSelector(model.armature);
 
         ::pinocchio::internal::PerformStYSInversion<Scalar>::run(jdata.StU(), jdata.Dinv());
         jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();

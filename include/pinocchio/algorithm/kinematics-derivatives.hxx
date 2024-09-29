@@ -76,7 +76,7 @@ namespace pinocchio
         if (parent > 0)
           vi += data.liMi[i].actInv(data.v[parent]);
 
-        ai = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (vi ^ jdata.v());
+        ai = jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c() + (vi ^ jdata.v());
         if (parent > 0)
           ai += data.liMi[i].actInv(data.a[parent]);
 

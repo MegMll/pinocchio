@@ -127,7 +127,7 @@ namespace pinocchio
         jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() =
           J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
-        jmodel.jointVelocitySelector(data.nle) = jdata.S().transpose() * data.f[i];
+        jmodel.jointVelocityFromDofSelector(data.nle) += jdata.S().transpose() * data.f[i];
 
         data.oYcrb[parent] += data.oYcrb[i];
         data.doYcrb[parent] += data.doYcrb[i];
@@ -160,6 +160,7 @@ namespace pinocchio
 
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
+      data.nle.setZero();
       data.v[0].setZero();
       data.a[0].setZero();
       data.h[0].setZero();

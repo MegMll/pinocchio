@@ -82,7 +82,7 @@ namespace pinocchio
         ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
         const typename Data::TangentVectorType & a = data.ddq;
         data.a[i] =
-          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
         oa = data.oMi[i].act(data.a[i]);
@@ -102,7 +102,7 @@ namespace pinocchio
         Motion & odvparent = data.oa[parent];
         const typename Data::TangentVectorType & dimpulse = data.ddq;
         // Temporary calculation of J(dq_after)
-        odv = J_cols * jmodel.jointVelocitySelector(dimpulse);
+        odv = J_cols * jmodel.jointVelocityFromDofSelector(dimpulse);
         if (parent > 0)
           odv += odvparent;
         motionSet::motionAction(odvparent, J_cols, dAdq_cols);

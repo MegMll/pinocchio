@@ -30,7 +30,7 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       data.kinetic_energy += model.inertias[i].vtiv(data.v[i]);
       data.kinetic_energy +=
-        (jmodel.jointVelocitySelector(model.armature).array() * jdata.joint_v().array().square())
+        (jmodel.jointVelocityFromDofSelector(model.armature).array() * jdata.joint_v().array().square())
           .sum();
     }
   };

@@ -209,24 +209,24 @@ namespace pinocchio
           parent_id,
           jmodel_inter, // Use the intermediate joint (jmodel_inter) with updates id, idx, ...
           pMi * modelAB.jointPlacements[joint_id_in], modelAB.names[joint_id_in],
-          jmodel_in.jointVelocitySelector(
+          jmodel_in.jointVelocityFromNvSelector(
             modelAB
               .effortLimit), // Need to select the vector base on the origin idxs, so use jmodel_in.
-          jmodel_in.jointVelocitySelector(modelAB.velocityLimit),
+          jmodel_in.jointVelocityFromNvSelector(modelAB.velocityLimit),
           jmodel_in.jointConfigFromNqSelector(modelAB.lowerPositionLimit),
           jmodel_in.jointConfigFromNqSelector(modelAB.upperPositionLimit),
-          jmodel_in.jointVelocitySelector(modelAB.friction),
-          jmodel_in.jointVelocitySelector(modelAB.damping));
+          jmodel_in.jointVelocityFromNvSelector(modelAB.friction),
+          jmodel_in.jointVelocityFromNvSelector(modelAB.damping));
         assert(joint_id_out < model.joints.size());
 
         model.appendBodyToJoint(joint_id_out, modelAB.inertias[joint_id_in]);
 
         typename Model::JointModel & jmodel_out = model.joints[joint_id_out];
 
-        jmodel_out.jointVelocitySelector(model.rotorInertia) =
-          jmodel_in.jointVelocitySelector(modelAB.rotorInertia);
-        jmodel_out.jointVelocitySelector(model.rotorGearRatio) =
-          jmodel_in.jointVelocitySelector(modelAB.rotorGearRatio);
+        jmodel_out.jointVelocityFromNvSelector(model.rotorInertia) =
+          jmodel_in.jointVelocityFromNvSelector(modelAB.rotorInertia);
+        jmodel_out.jointVelocityFromNvSelector(model.rotorGearRatio) =
+          jmodel_in.jointVelocityFromNvSelector(modelAB.rotorGearRatio);
 
         // Add all frames whose parent is this joint.
         for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid)
@@ -642,22 +642,22 @@ namespace pinocchio
         JointIndex reduced_joint_id = reduced_model.addJoint(
           reduced_parent_joint_index, joint_input_model,
           parent_frame_placement * input_model.jointPlacements[joint_id], joint_name,
-          joint_input_model.jointVelocitySelector(input_model.effortLimit),
-          joint_input_model.jointVelocitySelector(input_model.velocityLimit),
+          joint_input_model.jointVelocityFromNvSelector(input_model.effortLimit),
+          joint_input_model.jointVelocityFromNvSelector(input_model.velocityLimit),
           joint_input_model.jointConfigFromNqSelector(input_model.lowerPositionLimit),
           joint_input_model.jointConfigFromNqSelector(input_model.upperPositionLimit),
-          joint_input_model.jointVelocitySelector(input_model.friction),
-          joint_input_model.jointVelocitySelector(input_model.damping));
+          joint_input_model.jointVelocityFromNvSelector(input_model.friction),
+          joint_input_model.jointVelocityFromNvSelector(input_model.damping));
         // Append inertia
         reduced_model.appendBodyToJoint(
           reduced_joint_id, input_model.inertias[joint_id], SE3::Identity());
 
         // Copy other kinematics and dynamics properties
         const typename Model::JointModel & jmodel_out = reduced_model.joints[reduced_joint_id];
-        jmodel_out.jointVelocitySelector(reduced_model.rotorInertia) =
-          joint_input_model.jointVelocitySelector(input_model.rotorInertia);
-        jmodel_out.jointVelocitySelector(reduced_model.rotorGearRatio) =
-          joint_input_model.jointVelocitySelector(input_model.rotorGearRatio);
+        jmodel_out.jointVelocityFromNvSelector(reduced_model.rotorInertia) =
+          joint_input_model.jointVelocityFromNvSelector(input_model.rotorInertia);
+        jmodel_out.jointVelocityFromNvSelector(reduced_model.rotorGearRatio) =
+          joint_input_model.jointVelocityFromNvSelector(input_model.rotorGearRatio);
       }
     }
 

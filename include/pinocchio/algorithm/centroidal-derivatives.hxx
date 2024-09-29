@@ -78,7 +78,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         data.a[i] =
-          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
         {
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
@@ -168,7 +168,7 @@ namespace pinocchio
         ColsBlock dFda_cols = jmodel.jointVelCols(data.dFda);
 
         // tau
-        jmodel.jointVelocitySelector(data.tau).noalias() =
+        jmodel.jointVelocityFromDofSelector(data.tau).noalias() =
           J_cols.transpose() * data.of[i].toVector();
 
         // dtau/da similar to data.M

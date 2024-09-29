@@ -121,12 +121,12 @@ namespace pinocchio
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
         const ColBlock J_cols = jmodel.jointJacCols(data.J);
 
-        jmodel.jointVelocitySelector(data.u).noalias() -= J_cols.transpose() * fi.toVector();
+        jmodel.jointVelocityFromNvSelector(data.u).noalias() -= J_cols.transpose() * fi.toVector();
 
         jdata.U().noalias() = Ia * J_cols;
         jdata.StU().noalias() = J_cols.transpose() * jdata.U();
 
-        jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+        jdata.StU().diagonal() += jmodel.jointVelocityFromNvSelector(model.armature);
 
         ::pinocchio::internal::PerformStYSInversion<Scalar>::run(jdata.StU(), jdata.Dinv());
         jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
@@ -163,7 +163,7 @@ namespace pinocchio
           Ia.noalias() -= jdata.UDinv() * jdata.U().transpose();
 
           fi.toVector().noalias() +=
-            Ia * data.oa_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+            Ia * data.oa_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocityFromNvSelector(data.u);
           data.oYaba[parent] += Ia;
           data.of[parent] += fi;
         }
@@ -207,11 +207,11 @@ namespace pinocchio
         ColsBlock J_cols = jmodel.jointJacCols(data.J);
 
         oa_gf += data.oa_gf[parent];
-        jmodel.jointVelocitySelector(data.ddq).noalias() =
-          jdata.Dinv() * jmodel.jointVelocitySelector(data.u)
+        jmodel.jointVelocityFromNvSelector(data.ddq).noalias() =
+          jdata.Dinv() * jmodel.jointVelocityFromNvSelector(data.u)
           - jdata.UDinv().transpose() * oa_gf.toVector();
 
-        oa_gf.toVector().noalias() += J_cols * jmodel.jointVelocitySelector(data.ddq);
+        oa_gf.toVector().noalias() += J_cols * jmodel.jointVelocityFromNvSelector(data.ddq);
         oa = oa_gf + model.gravity;
         of = data.oYcrb[i] * oa_gf + ov.cross(data.oh[i]);
 

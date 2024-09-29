@@ -344,14 +344,14 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocitySelector(const Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector(const Eigen::MatrixBase<D> & a) const
     {
-      return derived().jointVelocitySelector_impl(a.derived());
+      return derived().jointVelocityFromDofSelector_impl(a.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return SizeDepType<NV>::segment(a.derived(), idx_v(), nv());
     }
@@ -359,14 +359,44 @@ namespace pinocchio
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocitySelector(Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector(Eigen::MatrixBase<D> & a) const
     {
-      return derived().jointVelocitySelector_impl(a.derived());
+      return derived().jointVelocityFromDofSelector_impl(a.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      return SizeDepType<NV>::segment(a.derived(), idx_v(), nv());
+    }
+
+    // Const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointVelocityFromNvSelector(const Eigen::MatrixBase<D> & a) const
+    {
+      return derived().jointVelocityFromNvSelector_impl(a.derived());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointVelocityFromNvSelector_impl(const Eigen::MatrixBase<D> & a) const
+    {
+      return SizeDepType<NV>::segment(a.derived(), idx_v(), nv());
+    }
+
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointVelocityFromNvSelector(Eigen::MatrixBase<D> & a) const
+    {
+      return derived().jointVelocityFromNvSelector_impl(a.derived());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointVelocityFromNvSelector_impl(Eigen::MatrixBase<D> & a) const
     {
       return SizeDepType<NV>::segment(a.derived(), idx_v(), nv());
     }

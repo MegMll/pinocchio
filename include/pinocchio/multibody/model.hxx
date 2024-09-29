@@ -128,24 +128,24 @@ namespace pinocchio
     idx_js.push_back(joint_idx_j);
 
     effortLimit.conservativeResize(nv);
-    jmodel.jointVelocitySelector(effortLimit) = max_effort;
+    jmodel.jointVelocityFromNvSelector(effortLimit) = max_effort;
     velocityLimit.conservativeResize(nv);
-    jmodel.jointVelocitySelector(velocityLimit) = max_velocity;
+    jmodel.jointVelocityFromNvSelector(velocityLimit) = max_velocity;
     lowerPositionLimit.conservativeResize(nq);
     jmodel.jointConfigFromNqSelector(lowerPositionLimit) = min_config;
     upperPositionLimit.conservativeResize(nq);
     jmodel.jointConfigFromNqSelector(upperPositionLimit) = max_config;
 
     armature.conservativeResize(nv);
-    jmodel.jointVelocitySelector(armature).setZero();
+    jmodel.jointVelocityFromNvSelector(armature).setZero();
     rotorInertia.conservativeResize(nv);
-    jmodel.jointVelocitySelector(rotorInertia).setZero();
+    jmodel.jointVelocityFromNvSelector(rotorInertia).setZero();
     rotorGearRatio.conservativeResize(nv);
-    jmodel.jointVelocitySelector(rotorGearRatio).setOnes();
+    jmodel.jointVelocityFromNvSelector(rotorGearRatio).setOnes();
     friction.conservativeResize(nv);
-    jmodel.jointVelocitySelector(friction) = joint_friction;
+    jmodel.jointVelocityFromNvSelector(friction) = joint_friction;
     damping.conservativeResize(nv);
-    jmodel.jointVelocitySelector(damping) = joint_damping;
+    jmodel.jointVelocityFromNvSelector(damping) = joint_damping;
 
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));

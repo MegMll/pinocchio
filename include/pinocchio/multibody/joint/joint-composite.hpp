@@ -503,13 +503,26 @@ namespace pinocchio
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocitySelector(const Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocitySelector(Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector(Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_v, nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointVelocityFromNvSelector(const Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_v, nv());
+    }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointVelocityFromNvSelector(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
@@ -567,13 +580,26 @@ namespace pinocchio
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
-    jointVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
-    jointVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_v, nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
+    jointVelocityFromNvSelector_impl(const Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_v, nv());
+    }
+    template<typename D>
+    typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
+    jointVelocityFromNvSelector_impl(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
