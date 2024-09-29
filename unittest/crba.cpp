@@ -125,6 +125,61 @@ BOOST_AUTO_TEST_CASE(test_crba)
 #endif // ifndef NDEBUG
 }
 
+BOOST_AUTO_TEST_CASE(test_crba_mimic)
+{
+  pinocchio::Model model_mimic, model_full;
+  pinocchio::buildModels::humanoidRandom(model_mimic, true, true);
+  pinocchio::buildModels::humanoidRandom(model_full, true, false);
+
+  // HumanoidRandom constants
+  const int primary_idxq = model_mimic.nq - 1;
+  const int primary_idxv = model_mimic.nv - 1;
+  const int secondary_idxq = model_full.nq - 1;
+  const int secondary_idxv = model_full.nv - 1;
+  const double ratio = 2.5;
+  const double offset = 0.75;
+  Eigen::MatrixXd G = Eigen::MatrixXd::Zero(model_full.nv, model_mimic.nv);
+  G.topLeftCorner(model_mimic.nv, model_mimic.nv).setIdentity();
+  G(secondary_idxv, primary_idxv) = ratio;
+
+  // Make both model match
+  for (size_t i = 0; i < model_full.njoints; i++)
+  {
+    model_full.inertias[i] = model_mimic.inertias[i];
+    model_full.jointPlacements[i] = model_mimic.jointPlacements[i];
+  }
+
+  pinocchio::Data data_mimic(model_mimic);
+  pinocchio::Data data_full(model_full);
+
+  // Prepare test data
+  Eigen::VectorXd q_mimic = Eigen::VectorXd::Ones(model_mimic.nq);
+  q_mimic.segment<4>(3).normalize();
+  Eigen::VectorXd v_mimic = Eigen::VectorXd::Zero(model_mimic.nv);
+  Eigen::VectorXd a_mimic = Eigen::VectorXd::Zero(model_mimic.nv);
+
+  Eigen::VectorXd q_full(model_full.nq), v_full(model_full.nv), a_full(model_full.nv);
+  q_full.head(model_mimic.nq) = q_mimic;
+  v_full.head(model_mimic.nv) = v_mimic;
+  a_full.head(model_mimic.nv) = a_mimic;
+
+  q_full[secondary_idxq] = q_mimic[primary_idxq] * ratio + offset;
+  v_full[secondary_idxv] = v_mimic[primary_idxv] * ratio;
+  a_full[secondary_idxv] = a_mimic[primary_idxv] * ratio;
+
+  // Run crba
+  pinocchio::crba(model_mimic, data_mimic, q_mimic);
+  pinocchio::crba(model_full, data_full, q_full);
+
+  // Compute other half of matrix
+  data_mimic.M.triangularView<Eigen::StrictlyLower>() =
+    data_mimic.M.transpose().triangularView<Eigen::StrictlyLower>();
+  data_full.M.triangularView<Eigen::StrictlyLower>() =
+    data_full.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+  BOOST_CHECK(data_mimic.M.isApprox(G.transpose() * data_full.M * G, 1e-12));
+}
+
 BOOST_AUTO_TEST_CASE(test_minimal_crba)
 {
   pinocchio::Model model;
