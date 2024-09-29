@@ -159,8 +159,8 @@ void test_mimic_against_full_model(
   Eigen::VectorXd a_mimic = Eigen::VectorXd::Random(model_mimic.nv);
 
   // World vs local
-  // pinocchio::crba(model_mimic, data_ref_mimic, q_mimic);
-  pinocchio::crba(model_mimic, data_mimic, q_mimic, pinocchio::Convention::WORLD);
+  pinocchio::crba(model_mimic, data_ref_mimic, q_mimic, pinocchio::Convention::WORLD);
+  pinocchio::crba(model_mimic, data_mimic, q_mimic, pinocchio::Convention::LOCAL);
 
   BOOST_CHECK(data_ref_mimic.M.isApprox(data_mimic.M));
 
