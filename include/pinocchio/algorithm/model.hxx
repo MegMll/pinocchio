@@ -154,6 +154,31 @@ namespace pinocchio
         ArgsType;
 
       template<typename JointModel>
+      static typename std::enable_if<
+        !std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value,
+        void>::type
+      updateMimicIds(JointModel & jmodel, const Model & old_model, const Model & new_model)
+      {
+      }
+
+      template<typename JointModel>
+      static typename std::enable_if<
+        std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value,
+        void>::type
+      updateMimicIds(
+        JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+        const Model & old_model,
+        const Model & new_model)
+      {
+        const JointIndex mimicked_old_id = jmodel.jmodel().id();
+        const std::string mimicked_name = old_model.names[mimicked_old_id];
+        const JointIndex mimicked_new_id = new_model.getJointId(mimicked_name);
+        jmodel.jmodel().setIndexes(
+          mimicked_new_id, new_model.joints[mimicked_new_id].idx_q(),
+          new_model.joints[mimicked_new_id].idx_v(), new_model.joints[mimicked_new_id].idx_j());
+      }
+
+      template<typename JointModel>
       static void algo(
         const JointModelBase<JointModel> & jmodel_in,
         const Model & modelAB,
@@ -185,7 +210,11 @@ namespace pinocchio
 
         model.appendBodyToJoint(joint_id_out, modelAB.inertias[joint_id_in]);
 
-        const typename Model::JointModel & jmodel_out = model.joints[joint_id_out];
+        typename Model::JointModel & jmodel_out = model.joints[joint_id_out];
+
+        // For mimic joints, update the reference joint id
+        updateMimicIds<JointModel>(boost::get<JointModel>(jmodel_out), modelAB, model);
+
         jmodel_out.jointVelocitySelector(model.rotorInertia) =
           jmodel_in.jointVelocitySelector(modelAB.rotorInertia);
         jmodel_out.jointVelocitySelector(model.rotorGearRatio) =
