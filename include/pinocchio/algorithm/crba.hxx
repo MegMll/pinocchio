@@ -153,7 +153,7 @@ namespace pinocchio
 
         /* F[1:6,i] = Y*S */
         // data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
-        jmodel.jointVelCols(data.Fcrb[i]) += data.Ycrb[i] * jdata.S();
+        jmodel.jointVelCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
 
         /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
         jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
@@ -168,7 +168,7 @@ namespace pinocchio
           /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
           Block jF = data.Fcrb[parent].middleCols(jmodel.idx_v(), data.nvSubtree[i]);
           Block iF = data.Fcrb[i].middleCols(jmodel.idx_v(), data.nvSubtree[i]);
-          forceSet::se3Action<ADDTO>(data.liMi[i], iF, jF);
+          forceSet::se3Action(data.liMi[i], iF, jF);
         }
       }
     };
@@ -198,10 +198,6 @@ namespace pinocchio
       }
 
       data.M.setZero();
-      for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
-      {
-        data.Fcrb[i].setZero();
-      }
       typedef CrbaLocalConventionBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
@@ -240,10 +236,6 @@ namespace pinocchio
       }
 
       data.M.setZero();
-      for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
-      {
-        data.Fcrb[i].setZero();
-      }
       typedef CrbaWorldConventionBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
