@@ -511,7 +511,6 @@ namespace pinocchio
           const Scalar offset)
         {
           auto mimiced_joint = model.joints[getJointId(mimiced_name)];
-          std::cout << mimiced_joint << std::endl;
           auto mimic_joint = model.joints[getJointId(mimic_name)];
 
           CartesianAxis axisType = extractCartesianAxis(axis);
