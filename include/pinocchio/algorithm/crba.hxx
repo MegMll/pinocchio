@@ -9,6 +9,7 @@
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/algorithm/model.hpp"
 
 /// @cond DEV
 
@@ -79,14 +80,40 @@ namespace pinocchio
       const JointIndex secondary_id = jmodel.id();
       const JointIndex primary_id = jmodel.derived().jmodel().id();
 
-      if (secondary_id <= primary_id + data.nvSubtree[primary_id])
+      JointIndex ancestor_prim, ancestor_sec;
+      JointIndex j_id =
+        findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
+
+      // Same branch of the tree
+      if (j_id == primary_id)
         for (JointIndex i = primary_id; i < secondary_id; i++)
         {
           jmodel.jointVelRows(data.M)
-            .middleCols(model.joints[i].idx_v(), jmodel.derived().jmodel().nv())
+            .middleCols(model.joints[i].idx_v(), model.joints[i].nv())
             .noalias() += model.joints.at(i).jointJacCols(data.J).transpose()
                           * data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv());
         }
+      else
+      {
+        for (JointIndex j = ancestor_sec; j < model.supports[secondary_id].size() - 1; j++)
+        {
+          j_id = model.supports[secondary_id].at(j);
+          jmodel.jointVelRows(data.M)
+            .middleCols(model.joints[j_id].idx_v(), model.joints[j_id].nv())
+            .noalias() +=
+            data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv()).transpose()
+            * model.joints.at(j_id).jointJacCols(data.J);
+        }
+        for (JointIndex j = ancestor_prim + 1; j < model.supports[primary_id].size(); j++)
+        {
+          j_id = model.supports[primary_id].at(j);
+          jmodel.jointVelRows(data.M)
+            .middleCols(model.joints[j_id].idx_v(), model.joints[j_id].nv())
+            .noalias() +=
+            data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv()).transpose()
+            * model.joints.at(j_id).jointJacCols(data.J);
+        }
+      }
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
