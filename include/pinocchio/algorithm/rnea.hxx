@@ -389,7 +389,7 @@ namespace pinocchio
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
 
-        jmodel.jointVelocityFromDofSelector(g) = jdata.S().transpose() * data.f[i];
+        jmodel.jointVelocityFromDofSelector(g) += jdata.S().transpose() * data.f[i];
         if (parent > 0)
           data.f[(size_t)parent] += data.liMi[i].act(data.f[i]);
       }
@@ -425,6 +425,7 @@ namespace pinocchio
           model.joints[i], data.joints[i], typename Pass1::ArgsType(model, data, q.derived()));
       }
 
+      data.g.setZero();
       typedef ComputeGeneralizedGravityBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
@@ -467,6 +468,7 @@ namespace pinocchio
         data.f[i] -= fext[i];
       }
 
+      data.g.setZero();
       typedef ComputeGeneralizedGravityBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
@@ -589,13 +591,17 @@ namespace pinocchio
         ColsBlock J_cols = jmodel.jointJacCols(data.J);
         ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
 
-        motionSet::inertiaAction(data.oYcrb[i], dJ_cols, jmodel.jointVelCols(data.dFdv));
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dJ_cols, jmodel.jointVelCols(data.dFdv));
         jmodel.jointVelCols(data.dFdv).noalias() += data.B[i] * J_cols;
 
         jmodel.jointVelRows(data.C).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
           J_cols.transpose() * data.dFdv.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
-        motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
+        std::cout
+          << data.parents_fromRow[(JointIndex)jmodel.idx_v()] << " "
+          << data.parents_fromRow[(JointIndex)data.parents_fromRow[(JointIndex)jmodel.idx_v()]]
+          << std::endl;
         for (int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()]; j >= 0;
              j = data.parents_fromRow[(JointIndex)j])
           jmodel.jointVelRows(data.C).col(j).noalias() += Ag_cols.transpose() * data.dJ.col(j);
@@ -643,6 +649,8 @@ namespace pinocchio
       }
 
       data.C.setZero();
+      data.dFdv.setZero();
+      data.Ag.setZero();
       typedef CoriolisMatrixBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
