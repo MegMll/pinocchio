@@ -80,6 +80,8 @@ namespace pinocchio
       const JointIndex secondary_id = jmodel.id();
       const JointIndex primary_id = jmodel.derived().jmodel().id();
 
+      assert(secondary_id > primary_id && "Mimicking joint id is before the primary.");
+
       JointIndex ancestor_prim, ancestor_sec;
       JointIndex j_id =
         findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
