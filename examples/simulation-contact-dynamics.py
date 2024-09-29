@@ -18,7 +18,7 @@ srdf_filename = "talos.srdf"
 srdf_full_path = model_path / "talos_data/srdf" / srdf_filename
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
-    urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
+    urdf_model_path, False, mesh_dir, pin.JointModelFreeFlyer()
 )
 
 # Start a new MeshCat server and client.
