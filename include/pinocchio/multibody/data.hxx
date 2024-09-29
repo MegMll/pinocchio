@@ -97,7 +97,7 @@ namespace pinocchio
   , vcom((std::size_t)model.njoints, Vector3::Zero())
   , acom((std::size_t)model.njoints, Vector3::Zero())
   , mass((std::size_t)model.njoints, (Scalar)(-1))
-  , Jcom(Matrix3x::Zero(3, model.nj))
+  , Jcom(Matrix3x::Zero(3, model.nv))
   , kinetic_energy(Scalar(0))
   , potential_energy(Scalar(0))
   , mechanical_energy(Scalar(0))
