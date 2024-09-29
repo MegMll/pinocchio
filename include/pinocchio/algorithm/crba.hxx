@@ -80,7 +80,7 @@ namespace pinocchio
         ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
         ColsBlock J_cols = jmodel.jointJacCols(data.J);
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
-        
+
         // Joint Space Inertia Matrix
         jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
           J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
@@ -122,6 +122,35 @@ namespace pinocchio
       }
     };
 
+    template<typename JointModel>
+    static inline void mimic_patch_CrbaLocalConventionBackwardStep(
+      const JointModelBase<JointModel> &, const Model &, Data &)
+    {
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    static inline void mimic_patch_CrbaLocalConventionBackwardStep(
+      const JointModelBase<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>> & jmodel,
+      const Model & model,
+      Data & data)
+    {
+      // For mimic joint, if i is the primary and j the scondary joint
+      // the resulting inertia of both joints is
+      // M = Mii + 2* Mij + Mjj
+      // But in this current implementation only M = Mii + Mij + Mjj is computed
+      // So an extra Mij is added here.
+      const JointIndex secondary_id = jmodel.id();
+      const JointIndex primary_id = jmodel.derived().jmodel().id();
+
+      // TODO do the transform in the general case
+      const SE3 jMi =
+        getRelativePlacement(model, data, primary_id, secondary_id, Convention::LOCAL);
+      Data::Matrix6x::ColsBlockXpr iF = jmodel.jointVelCols(data.Fcrb[secondary_id]);
+      Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Data::Matrix6x::Options, 6, 6> jF(6, jmodel.nj());
+      forceSet::se3Action<SETTO>(jMi, iF, jF);
+      jmodel.jointVelBlock(data.M).noalias() += data.joints[primary_id].S().transpose() * jF;
+    }
+
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     struct CrbaLocalConventionBackwardStep
     : public fusion::JointUnaryVisitorBase<
@@ -140,7 +169,7 @@ namespace pinocchio
         Data & data)
       {
         /*
-         * F[1:6,i] = Y*S
+         * F[1:6,i] += Y*S
          * M[i,SUBTREE] = S'*F[1:6,SUBTREE]
          * if li>0
          *   Yli += liXi Yi
@@ -170,6 +199,8 @@ namespace pinocchio
           Block iF = data.Fcrb[i].middleCols(jmodel.idx_v(), data.nvSubtree[i]);
           forceSet::se3Action<ADDTO>(data.liMi[i], iF, jF);
         }
+
+        mimic_patch_CrbaLocalConventionBackwardStep(jmodel, model, data);
       }
     };
 
