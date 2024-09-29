@@ -397,7 +397,8 @@ struct JointCollectionMimicableTpl
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     
     // typedef typename boost::make_variant_over<typename boost::mpl::filter_view<typename JointDataVariant::types, is_mimicable<boost::mpl::_1>>::type>::type MimicableJointDataVariant;
-    typedef JointDataTpl<_Scalar, _Options, JointCollectionMimicableTpl> RefJointData;
+    typedef JointDataTpl<_Scalar, _Options, JointCollectionTpl> RefJointData;
+    typedef typename RefJointData::JointDataVariant RefJointDataVariant;
 
     JointDataMimicTpl()
     : m_scaling((Scalar)0)
@@ -410,6 +411,18 @@ struct JointCollectionMimicableTpl
     // JointDataMimicTpl(const JointDataMimicTpl & other)
     // { *this = other; }
     
+    JointDataMimicTpl(const RefJointDataVariant & jdata,
+                   const Scalar & scaling, 
+                   const Scalar & nq,
+                   const Scalar & nv)
+    : m_jdata_ref(jdata)
+    , m_scaling(scaling)
+    , S(m_jdata_ref.S(),scaling)
+    {
+      m_q_transform.resize(nq, 1);
+      m_v_transform.resize(nv, 1);
+    }
+
     JointDataMimicTpl(const RefJointData & jdata,
                    const Scalar & scaling, 
                    const Scalar & nq,
@@ -568,8 +581,8 @@ struct JointCollectionMimicableTpl
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
-    typedef JointModelTpl<Scalar,Options,JointCollectionMimicableTpl> JointModel;
-    typedef JointModel JointModelVariant;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
+    typedef typename JointModel::JointModelVariant JointModelVariant;
     // typedef typename boost::make_variant_over<typename boost::mpl::filter_view<typename JointModelVariant::types, is_mimicable<boost::mpl::_1>>::type>::type MimicableJointModelVariant;
     // typedef JointModelTpl<_Scalar, _Options, JointCollectionMimicableTpl> MimicableJointModel;
 
@@ -590,6 +603,16 @@ struct JointCollectionMimicableTpl
     JointModelMimicTpl()
     {}
     
+
+    JointModelMimicTpl(const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel,
+                    const Scalar & scaling,
+                    const Scalar & offset)
+    : m_jmodel_ref(jmodel)
+    , m_scaling(scaling)
+    , m_offset(offset)
+    { }
+    
+
     template<typename JointModel>
     JointModelMimicTpl(const JointModelBase<JointModel> & jmodel,
                     const Scalar & scaling,

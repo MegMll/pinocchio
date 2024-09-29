@@ -460,45 +460,49 @@ namespace pinocchio
               const Scalar multiplier, 
               const Scalar offset)
           {
-            CartesianAxis axisType = extractCartesianAxis(axis);
             auto joint_mimic = model.joints[model.getJointId(mimic_name)];
-            switch (axisType)
-            {
-              case AXIS_X:
-                return model.addJoint(frame.parent, 
-                    typename JointCollection::JointModelMimic(boost::get<TypeX>(joint_mimic), multiplier, offset),
+            return model.addJoint(frame.parentJoint, 
+                    typename JointCollection::JointModelMimic(joint_mimic.toVariant(), multiplier, offset),
                     frame.placement * placement, joint_name,
                     max_effort,max_velocity,min_config,max_config,
                     friction, damping);
-                break;
+            // switch (axisType)
+            // {
+            //   case AXIS_X:
+            //     return model.addJoint(frame.parent, 
+            //         typename JointCollection::JointModelMimic(boost::get<TypeX>(joint_mimic), multiplier, offset),
+            //         frame.placement * placement, joint_name,
+            //         max_effort,max_velocity,min_config,max_config,
+            //         friction, damping);
+            //     break;
 
-              case AXIS_Y:
-                return model.addJoint(frame.parent, 
-                    typename JointCollection::JointModelMimic(boost::get<TypeY>(joint_mimic), multiplier, offset),
-                    frame.placement * placement, joint_name,
-                    max_effort,max_velocity,min_config,max_config,
-                    friction, damping);
-                break;
+            //   case AXIS_Y:
+            //     return model.addJoint(frame.parent, 
+            //         typename JointCollection::JointModelMimic(boost::get<TypeY>(joint_mimic), multiplier, offset),
+            //         frame.placement * placement, joint_name,
+            //         max_effort,max_velocity,min_config,max_config,
+            //         friction, damping);
+            //     break;
 
-              case AXIS_Z:
-                return model.addJoint(frame.parent, 
-                    typename JointCollection::JointModelMimic(boost::get<TypeZ>(joint_mimic), multiplier, offset),
-                    frame.placement * placement, joint_name,
-                    max_effort,max_velocity,min_config,max_config,
-                    friction, damping);
-                break;
+            //   case AXIS_Z:
+            //     return model.addJoint(frame.parent, 
+            //         typename JointCollection::JointModelMimic(boost::get<TypeZ>(joint_mimic), multiplier, offset),
+            //         frame.placement * placement, joint_name,
+            //         max_effort,max_velocity,min_config,max_config,
+            //         friction, damping);
+            //     break;
 
-              case AXIS_UNALIGNED:
-                return model.addJoint(frame.parent, 
-                    typename JointCollection::JointModelMimic(boost::get<TypeUnaligned>(joint_mimic), multiplier, offset),
-                    frame.placement * placement, joint_name,
-                    max_effort,max_velocity,min_config,max_config,
-                    friction, damping);
-                break;
-              default:
-                PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The axis type of the joint is of wrong type.");
-                break;
-            }
+            //   case AXIS_UNALIGNED:
+            //     return model.addJoint(frame.parent, 
+            //         typename JointCollection::JointModelMimic(boost::get<TypeUnaligned>(joint_mimic), multiplier, offset),
+            //         frame.placement * placement, joint_name,
+            //         max_effort,max_velocity,min_config,max_config,
+            //         friction, damping);
+            //     break;
+            //   default:
+            //     PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The axis type of the joint is of wrong type.");
+            //     break;
+            // }
           }
       
 
