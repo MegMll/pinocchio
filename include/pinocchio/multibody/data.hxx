@@ -79,9 +79,9 @@ namespace pinocchio
   , parents_fromRow((std::size_t)model.nv, -1)
   , supports_fromRow((std::size_t)model.nv)
   , nvSubtree_fromRow((std::size_t)model.nv, -1)
-  , J(Matrix6x::Zero(6, model.nv))
-  , dJ(Matrix6x::Zero(6, model.nv))
-  , ddJ(Matrix6x::Zero(6, model.nv))
+  , J(Matrix6x::Zero(6, model.nj))
+  , dJ(Matrix6x::Zero(6, model.nj))
+  , ddJ(Matrix6x::Zero(6, model.nj))
   , psid(Matrix6x::Zero(6, model.nv))
   , psidd(Matrix6x::Zero(6, model.nv))
   , dVdq(Matrix6x::Zero(6, model.nv))
@@ -97,7 +97,7 @@ namespace pinocchio
   , vcom((std::size_t)model.njoints, Vector3::Zero())
   , acom((std::size_t)model.njoints, Vector3::Zero())
   , mass((std::size_t)model.njoints, (Scalar)(-1))
-  , Jcom(Matrix3x::Zero(3, model.nv))
+  , Jcom(Matrix3x::Zero(3, model.nj))
   , kinetic_energy(Scalar(0))
   , potential_energy(Scalar(0))
   , mechanical_energy(Scalar(0))
@@ -200,10 +200,17 @@ namespace pinocchio
       if (lastChild[(Index)i] == -1)
         lastChild[(Index)i] = i;
       const Index & parent = model.parents[(Index)i];
-      lastChild[parent] = std::max<int>(lastChild[(Index)i], lastChild[parent]);
+
+      lastChild[parent] = std::max<int>(lastChild[(Index)i],lastChild[parent]);
+      Scalar nv_;
+
+      if(boost::get<JointModelMimic>(&model.joints[(Index)lastChild[(Index)i]]) && lastChild[(Index)i] != i) 
+        nv_ = boost::get<JointModelMimic>(model.joints[(Index)lastChild[(Index)i]]).jmodel().nv();
+      else
+        nv_ = nv(model.joints[(Index)lastChild[(Index)i]]);
 
       nvSubtree[(Index)i] = model.joints[(Index)lastChild[(Index)i]].idx_v()
-                            + model.joints[(Index)lastChild[(Index)i]].nv()
+                            + nv_
                             - model.joints[(Index)i].idx_v();
     }
   }
