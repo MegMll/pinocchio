@@ -353,6 +353,9 @@ namespace pinocchio
     // Joint Translation
     typedef JointModelTranslationTpl<Scalar, Options> JointModelTranslation;
 
+    // Joint FreeFlyer
+    typedef JointModelFreeFlyerTpl<Scalar, Options> JointModelFreeFlyer;
+
     typedef boost::variant<
       JointModelRX,
       JointModelRY,
@@ -366,7 +369,8 @@ namespace pinocchio
       JointModelRUBX,
       JointModelRUBY,
       JointModelRUBZ,
-      JointModelRevoluteUnboundedUnaligned>
+      JointModelRevoluteUnboundedUnaligned, 
+      JointModelFreeFlyer>
       JointModelVariant;
 
     // Joint Revolute
@@ -397,6 +401,9 @@ namespace pinocchio
     // Joint Translation
     typedef JointDataTranslationTpl<Scalar, Options> JointDataTranslation;
 
+    // Joint FreeFlyer
+    typedef JointDataFreeFlyerTpl<Scalar, Options> JointDataFreeFlyer;
+
     typedef boost::variant<
       JointDataRX,
       JointDataRY,
@@ -410,7 +417,8 @@ namespace pinocchio
       JointDataRUBX,
       JointDataRUBY,
       JointDataRUBZ,
-      JointDataRevoluteUnboundedUnaligned>
+      JointDataRevoluteUnboundedUnaligned, 
+      JointDataFreeFlyer>
       JointDataVariant;
   };
 
