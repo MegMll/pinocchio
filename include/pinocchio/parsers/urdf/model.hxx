@@ -36,8 +36,7 @@ namespace pinocchio
           FLOATING,
           PLANAR,
           SPHERICAL,
-          MIMIC_REVOLUTE,
-          MIMIC_PRISMATIC
+          MIMIC
         };
 
         typedef enum ::pinocchio::FrameType FrameType;
@@ -265,28 +264,13 @@ namespace pinocchio
               frame.placement * placement, joint_name, max_effort, max_velocity, min_config,
               max_config, friction, damping);
             break;
-          case Base::MIMIC_REVOLUTE:
-            joint_id = addMimicJoint<
-                  typename JointCollection::JointModelRX,
-                  typename JointCollection::JointModelRY,
-                  typename JointCollection::JointModelRZ,
-                  typename JointCollection::JointModelRevoluteUnaligned> (
-                      axis, frame, placement, joint_name,
-                      max_effort, max_velocity, min_config, max_config,
-                      friction, damping,
-                      mimic_name, multiplier, offset);
+          case Base::MIMIC:
+            joint_id = model.addJoint(frame.parentJoint, 
+                    typename JointCollection::JointModelMimic(model.joints[model.getJointId(mimic_name)], multiplier, offset),
+                    frame.placement * placement, joint_name,
+                    max_effort,max_velocity,min_config,max_config,
+                    friction, damping);
             break;
-          case Base::MIMIC_PRISMATIC:
-                joint_id = addMimicJoint<
-                  typename JointCollection::JointModelPX,
-                  typename JointCollection::JointModelPY,
-                  typename JointCollection::JointModelPZ,
-                  typename JointCollection::JointModelPrismaticUnaligned> (
-                      axis, frame, placement, joint_name,
-                      max_effort, max_velocity, min_config, max_config,
-                      friction, damping,
-                      mimic_name, multiplier, offset);
-                break;
           default:
             PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The joint type is not correct.");
           };
@@ -442,69 +426,6 @@ namespace pinocchio
             break;
           }
         }
-
-      template <typename TypeX, typename TypeY, typename TypeZ,
-                   typename TypeUnaligned>
-          JointIndex addMimicJoint(
-              const Vector3& axis,
-              const Frame & frame,
-              const SE3 & placement,
-              const std::string & joint_name,
-              const VectorConstRef& max_effort,
-              const VectorConstRef& max_velocity,
-              const VectorConstRef& min_config,
-              const VectorConstRef& max_config,
-              const VectorConstRef& friction,
-              const VectorConstRef& damping, 
-              const std::string &mimic_name,
-              const Scalar multiplier, 
-              const Scalar offset)
-          {
-            auto joint_mimic = model.joints[model.getJointId(mimic_name)];
-            return model.addJoint(frame.parentJoint, 
-                    typename JointCollection::JointModelMimic(joint_mimic.toVariant(), multiplier, offset),
-                    frame.placement * placement, joint_name,
-                    max_effort,max_velocity,min_config,max_config,
-                    friction, damping);
-            // switch (axisType)
-            // {
-            //   case AXIS_X:
-            //     return model.addJoint(frame.parent, 
-            //         typename JointCollection::JointModelMimic(boost::get<TypeX>(joint_mimic), multiplier, offset),
-            //         frame.placement * placement, joint_name,
-            //         max_effort,max_velocity,min_config,max_config,
-            //         friction, damping);
-            //     break;
-
-            //   case AXIS_Y:
-            //     return model.addJoint(frame.parent, 
-            //         typename JointCollection::JointModelMimic(boost::get<TypeY>(joint_mimic), multiplier, offset),
-            //         frame.placement * placement, joint_name,
-            //         max_effort,max_velocity,min_config,max_config,
-            //         friction, damping);
-            //     break;
-
-            //   case AXIS_Z:
-            //     return model.addJoint(frame.parent, 
-            //         typename JointCollection::JointModelMimic(boost::get<TypeZ>(joint_mimic), multiplier, offset),
-            //         frame.placement * placement, joint_name,
-            //         max_effort,max_velocity,min_config,max_config,
-            //         friction, damping);
-            //     break;
-
-            //   case AXIS_UNALIGNED:
-            //     return model.addJoint(frame.parent, 
-            //         typename JointCollection::JointModelMimic(boost::get<TypeUnaligned>(joint_mimic), multiplier, offset),
-            //         frame.placement * placement, joint_name,
-            //         max_effort,max_velocity,min_config,max_config,
-            //         friction, damping);
-            //     break;
-            //   default:
-            //     PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The axis type of the joint is of wrong type.");
-            //     break;
-            // }
-          }
-      
 
       private:
         ///

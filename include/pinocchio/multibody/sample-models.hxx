@@ -110,7 +110,7 @@ namespace pinocchio
           Scalar multiplier = JC::JointModelRX::ConfigVector_t::Random(1)(0);
           Scalar offset = JC::JointModelRX::ConfigVector_t::Random(1)(0);
           
-          joint_id = addJointAndBody(model, typename JC::JointModelMimic(boost::get<typename JC::JointModelRX>(model.joints[joint_id]), multiplier, offset), 
+          joint_id = addJointAndBody(model, typename JC::JointModelMimic(model.joints[joint_id].derived(), multiplier, offset), 
                                      model.names[joint_id], pre+"wrist1_joint_mimic", Id4);
         }
         else

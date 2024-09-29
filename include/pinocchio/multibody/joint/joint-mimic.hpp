@@ -11,6 +11,10 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include <boost/variant.hpp>
 #include <boost/mpl/filter_view.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/contains.hpp>
+#include <boost/mpl/placeholders.hpp>
+#include <iostream>
 
 
 namespace pinocchio
@@ -334,6 +338,28 @@ struct JointCollectionMimicableTpl
   > JointDataVariant;
 };
 
+// Helper to check if a type is in the target variant
+template <typename TargetVariant, typename T>
+struct is_type_in_variant : boost::mpl::contains<typename TargetVariant::types, T> {};
+
+template <typename TargetVariant>
+struct TransferVisitor : public boost::static_visitor<void> {
+    TargetVariant& target;
+
+    TransferVisitor(TargetVariant& targetVariant) : target(targetVariant) {}
+
+    template <typename T>
+    typename std::enable_if<is_type_in_variant<TargetVariant, T>::value>::type
+    operator()(const T& value) const {
+        target = value;
+    }
+
+    template <typename T>
+    typename std::enable_if<!is_type_in_variant<TargetVariant, T>::value>::type
+    operator()(const T& value) const {
+        std::cout << "Type not supported in new variant\n";
+    }
+};
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl> struct JointMimicTpl;
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl> struct JointModelMimicTpl;
@@ -397,7 +423,7 @@ struct JointCollectionMimicableTpl
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     
     // typedef typename boost::make_variant_over<typename boost::mpl::filter_view<typename JointDataVariant::types, is_mimicable<boost::mpl::_1>>::type>::type MimicableJointDataVariant;
-    typedef JointDataTpl<_Scalar, _Options, JointCollectionTpl> RefJointData;
+    typedef JointDataTpl<_Scalar, _Options, JointCollectionMimicableTpl> RefJointData;
     typedef typename RefJointData::JointDataVariant RefJointDataVariant;
 
     JointDataMimicTpl()
@@ -581,7 +607,7 @@ struct JointCollectionMimicableTpl
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
-    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
+    typedef JointModelTpl<Scalar,Options,JointCollectionMimicableTpl> JointModel;
     typedef typename JointModel::JointModelVariant JointModelVariant;
     // typedef typename boost::make_variant_over<typename boost::mpl::filter_view<typename JointModelVariant::types, is_mimicable<boost::mpl::_1>>::type>::type MimicableJointModelVariant;
     // typedef JointModelTpl<_Scalar, _Options, JointCollectionMimicableTpl> MimicableJointModel;
@@ -607,17 +633,18 @@ struct JointCollectionMimicableTpl
     JointModelMimicTpl(const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel,
                     const Scalar & scaling,
                     const Scalar & offset)
-    : m_jmodel_ref(jmodel)
-    , m_scaling(scaling)
+    : m_scaling(scaling)
     , m_offset(offset)
-    { }
+    { 
+      boost::apply_visitor(TransferVisitor(m_jmodel_ref), jmodel);
+    }
     
 
     template<typename JointModel>
     JointModelMimicTpl(const JointModelBase<JointModel> & jmodel,
                     const Scalar & scaling,
                     const Scalar & offset)
-    : m_jmodel_ref(jmodel.derived())
+    : m_jmodel_ref((JointModelVariant)jmodel.derived())
     , m_scaling(scaling)
     , m_offset(offset)
     { }

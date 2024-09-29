@@ -151,7 +151,7 @@ namespace pinocchio
               Scalar multiplier = joint->mimic->multiplier;
               Scalar offset = joint->mimic->offset;
 
-              model.addJointAndBody(UrdfVisitorBase::MIMIC_REVOLUTE, axis,
+              model.addJointAndBody(UrdfVisitorBase::MIMIC, axis,
                                   parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,min_config,max_config,
@@ -225,7 +225,7 @@ namespace pinocchio
               Scalar multiplier = joint->mimic->multiplier;
               Scalar offset = joint->mimic->offset;
 
-              model.addJointAndBody(UrdfVisitorBase::MIMIC_PRISMATIC, axis,
+              model.addJointAndBody(UrdfVisitorBase::MIMIC, axis,
                                   parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,min_config,max_config,
