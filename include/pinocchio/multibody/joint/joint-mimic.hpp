@@ -650,6 +650,10 @@ namespace pinocchio
     typedef JointModelBase<JointModelMimicTpl> Base;
     typedef JointMimicTpl<_Scalar, _Options, JointCollectionTpl> JointDerived;
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
+    enum
+    {
+      MaxNJ = traits<JointDerived>::MaxNJ
+    };
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
     typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
