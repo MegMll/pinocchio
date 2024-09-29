@@ -38,10 +38,27 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, 6, Dim, Options, 6, _MaxDim> ReturnType;
   };
 
-  template<int Dim, typename Scalar, int Options, int _MaxDim, typename MotionDerived>
-  struct MotionAlgebraAction<JointMotionSubspaceTpl<Dim, Scalar, Options, _MaxDim>, MotionDerived>
+  template<int Dim, typename Scalar, int Options, int MaxDim, typename MotionDerived>
+  struct MotionAlgebraAction<JointMotionSubspaceTpl<Dim, Scalar, Options, MaxDim>, MotionDerived>
   {
-    typedef Eigen::Matrix<Scalar, 6, Dim, Options, 6, _MaxDim> ReturnType;
+    typedef Eigen::Matrix<Scalar, 6, Dim, Options, 6, MaxDim> ReturnType;
+  };
+
+  template<int Dim, typename Scalar, int Options, int MaxDim, typename ForceDerived>
+  struct ConstraintForceOp<JointMotionSubspaceTpl<Dim, Scalar, Options, MaxDim>, ForceDerived>
+  {
+    typedef
+      typename traits<JointMotionSubspaceTpl<Dim, Scalar, Options, MaxDim>>::DenseBase DenseBase;
+    typedef Eigen::Matrix<Scalar, Dim, Dim, Options, MaxDim, MaxDim> ReturnType;
+  };
+
+  template<int Dim, typename Scalar, int Options, int MaxDim, typename ForceSet>
+  struct ConstraintForceSetOp<JointMotionSubspaceTpl<Dim, Scalar, Options, MaxDim>, ForceSet>
+  {
+    typedef
+      typename traits<JointMotionSubspaceTpl<Dim, Scalar, Options, MaxDim>>::DenseBase DenseBase;
+    typedef
+      typename MatrixMatrixProduct<Eigen::Transpose<const DenseBase>, ForceSet>::type ReturnType;
   };
 
   template<int _Dim, typename _Scalar, int _Options, int _MaxDim>
@@ -119,17 +136,18 @@ namespace pinocchio
       {
       }
 
-      template<typename Derived>
-      JointForce operator*(const ForceDense<Derived> & f) const
+      template<typename ForceDerived>
+      typename ConstraintForceOp<JointMotionSubspaceTpl, ForceDerived>::ReturnType
+      operator*(const ForceDense<ForceDerived> & f) const
       {
         return (ref.S.transpose() * f.toVector()).eval();
       }
 
-      template<typename D>
-      typename Eigen::Matrix<Scalar, NV, Eigen::Dynamic, _Options, MaxNV, _MaxDim>
-      operator*(const Eigen::MatrixBase<D> & F)
+      template<typename ForceSet>
+      typename ConstraintForceSetOp<JointMotionSubspaceTpl, ForceSet>::ReturnType
+      operator*(const Eigen::MatrixBase<ForceSet> & F)
       {
-        return ref.S.transpose() * F;
+        return ref.S.transpose() * F.derived();
       }
     };
 

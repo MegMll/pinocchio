@@ -70,35 +70,23 @@ namespace pinocchio
   template<typename _Scalar, int _Options, int _MaxDim, typename ForceDerived>
   struct ConstraintForceOp<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>, ForceDerived>
   {
-    typedef typename traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>::
-      RefJointMotionSubspace::Scalar Scalar;
-    typedef Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options, _MaxDim, _MaxDim>
-      OriginalReturnType;
-
-    typedef typename ScalarMatrixProduct<Scalar, OriginalReturnType>::type IdealReturnType;
-    typedef Eigen::Matrix<
-      Scalar,
-      IdealReturnType::RowsAtCompileTime,
-      IdealReturnType::ColsAtCompileTime,
-      traits<
-        ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>::RefJointMotionSubspace::Options>
-      ReturnType;
+    typedef
+      typename ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>::RefJointMotionSubspace
+        RefJointMotionSubspace;
+    typedef
+      typename ConstraintForceOp<RefJointMotionSubspace, ForceDerived>::ReturnType RefReturnType;
+    typedef typename ScalarMatrixProduct<_Scalar, RefReturnType>::type ReturnType;
   };
 
   template<typename _Scalar, int _Options, int _MaxDim, typename ForceSet>
   struct ConstraintForceSetOp<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>, ForceSet>
   {
-    typedef ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim> MotionSubspace;
-    typedef typename traits<MotionSubspace>::RefJointMotionSubspace::Scalar Scalar;
-
-    typedef Eigen::Matrix<
-      Scalar,
-      Eigen::Dynamic,
-      Eigen::Dynamic,
-      traits<MotionSubspace>::RefJointMotionSubspace::Options | Eigen::RowMajor,
-      _MaxDim,
-      _MaxDim>
-      ReturnType;
+    typedef
+      typename ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>::RefJointMotionSubspace
+        RefJointMotionSubspace;
+    typedef
+      typename ConstraintForceSetOp<RefJointMotionSubspace, ForceSet>::ReturnType RefReturnType;
+    typedef typename ScalarMatrixProduct<_Scalar, RefReturnType>::type ReturnType;
   };
 
   template<typename _Scalar, int _Options, int _MaxDim>
