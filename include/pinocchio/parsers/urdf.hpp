@@ -59,6 +59,7 @@ namespace pinocchio
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = true,
       const bool verbose = false);
 
     ///
@@ -73,6 +74,7 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = true,
       const bool verbose = false);
 
     ///
@@ -92,6 +94,7 @@ namespace pinocchio
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = true,
       const bool verbose = false);
 
     ///
@@ -129,6 +132,7 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = true,
       const bool verbose = false);
 
     ///
@@ -169,6 +173,7 @@ namespace pinocchio
       const std::string & xml_stream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = true,
       const bool verbose = false);
 
     ///
@@ -185,6 +190,7 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xml_stream,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = true,
       const bool verbose = false);
 
     /**
