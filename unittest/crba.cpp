@@ -146,7 +146,9 @@ void test_mimic_against_full_model(
 
   // Prepare test data
   Eigen::MatrixXd G = Eigen::MatrixXd::Zero(model_full.nv, model_mimic.nv);
-  G.topLeftCorner(model_mimic.nv, model_mimic.nv).setIdentity();
+  G.topLeftCorner(secondary_idxv, secondary_idxv).setIdentity();
+  G.bottomRightCorner(model_mimic.nv - secondary_idxv, model_mimic.nv - secondary_idxv)
+    .setIdentity();
   G(secondary_idxv, primary_idxv) = ratio;
 
   Eigen::VectorXd q_mimic = pinocchio::randomConfiguration(model_mimic);
