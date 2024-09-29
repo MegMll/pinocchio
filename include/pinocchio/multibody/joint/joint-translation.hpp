@@ -599,7 +599,7 @@ namespace pinocchio
     template<typename ConfigVector>
     void calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      data.joint_q = this->jointConfigSelector(qs);
+      data.joint_q = this->jointConfigFromDofSelector(qs);
       data.M.translation() = data.joint_q;
     }
 

@@ -283,14 +283,14 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigSelector(const Eigen::MatrixBase<D> & a) const
+    jointConfigFromDofSelector(const Eigen::MatrixBase<D> & a) const
     {
-      return derived().jointConfigSelector_impl(a);
+      return derived().jointConfigFromDofSelector_impl(a);
     }
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigSelector_impl(const Eigen::MatrixBase<D> & a) const
+    jointConfigFromDofSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return SizeDepType<NQ>::segment(a.derived(), idx_q(), nq());
     }
@@ -298,14 +298,44 @@ namespace pinocchio
     // Non-const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigSelector(Eigen::MatrixBase<D> & a) const
+    jointConfigFromDofSelector(Eigen::MatrixBase<D> & a) const
     {
-      return derived().jointConfigSelector_impl(a);
+      return derived().jointConfigFromDofSelector_impl(a);
     }
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigSelector_impl(Eigen::MatrixBase<D> & a) const
+    jointConfigFromDofSelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      return SizeDepType<NQ>::segment(a, idx_q(), nq());
+    }
+
+    // Const access
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
+    jointConfigFromNqSelector(const Eigen::MatrixBase<D> & a) const
+    {
+      return derived().jointConfigFromNqSelector_impl(a);
+    }
+
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
+    jointConfigFromNqSelector_impl(const Eigen::MatrixBase<D> & a) const
+    {
+      return SizeDepType<NQ>::segment(a.derived(), idx_q(), nq());
+    }
+
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::Type
+    jointConfigFromNqSelector(Eigen::MatrixBase<D> & a) const
+    {
+      return derived().jointConfigFromNqSelector_impl(a);
+    }
+
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::Type
+    jointConfigFromNqSelector_impl(Eigen::MatrixBase<D> & a) const
     {
       return SizeDepType<NQ>::segment(a, idx_q(), nq());
     }

@@ -213,8 +213,8 @@ namespace pinocchio
             modelAB
               .effortLimit), // Need to select the vector base on the origin idxs, so use jmodel_in.
           jmodel_in.jointVelocitySelector(modelAB.velocityLimit),
-          jmodel_in.jointConfigSelector(modelAB.lowerPositionLimit),
-          jmodel_in.jointConfigSelector(modelAB.upperPositionLimit),
+          jmodel_in.jointConfigFromNqSelector(modelAB.lowerPositionLimit),
+          jmodel_in.jointConfigFromNqSelector(modelAB.upperPositionLimit),
           jmodel_in.jointVelocitySelector(modelAB.friction),
           jmodel_in.jointVelocitySelector(modelAB.damping));
         assert(joint_id_out < model.joints.size());
@@ -420,8 +420,8 @@ namespace pinocchio
         const typename Model::JointModel & joint_model = model.joints[joint_id];
         const typename Model::JointModel & joint_modelA = modelA.joints[joint_idA];
 
-        joint_model.jointConfigSelector(config_vector) =
-          joint_modelA.jointConfigSelector(config_vectorA);
+        joint_model.jointConfigFromNqSelector(config_vector) =
+          joint_modelA.jointConfigFromNqSelector(config_vectorA);
       }
 
       model.referenceConfigurations.insert(std::make_pair(config_name, config_vector));
@@ -449,8 +449,8 @@ namespace pinocchio
         const typename Model::JointModel & joint_model = model.joints[joint_id];
         const typename Model::JointModel & joint_modelB = modelB.joints[joint_idB];
 
-        joint_model.jointConfigSelector(config_vector) =
-          joint_modelB.jointConfigSelector(config_vectorB);
+        joint_model.jointConfigFromNqSelector(config_vector) =
+          joint_modelB.jointConfigFromNqSelector(config_vectorB);
       }
     }
 
@@ -644,8 +644,8 @@ namespace pinocchio
           parent_frame_placement * input_model.jointPlacements[joint_id], joint_name,
           joint_input_model.jointVelocitySelector(input_model.effortLimit),
           joint_input_model.jointVelocitySelector(input_model.velocityLimit),
-          joint_input_model.jointConfigSelector(input_model.lowerPositionLimit),
-          joint_input_model.jointConfigSelector(input_model.upperPositionLimit),
+          joint_input_model.jointConfigFromNqSelector(input_model.lowerPositionLimit),
+          joint_input_model.jointConfigFromNqSelector(input_model.upperPositionLimit),
           joint_input_model.jointVelocitySelector(input_model.friction),
           joint_input_model.jointVelocitySelector(input_model.damping));
         // Append inertia
@@ -679,8 +679,8 @@ namespace pinocchio
         const JointModel & input_joint_model = input_model.joints[input_joint_id];
         const JointModel & reduced_joint_model = reduced_model.joints[reduced_joint_id];
 
-        reduced_joint_model.jointConfigSelector(reduced_config_vector) =
-          input_joint_model.jointConfigSelector(input_config_vector);
+        reduced_joint_model.jointConfigFromNqSelector(reduced_config_vector) =
+          input_joint_model.jointConfigFromNqSelector(input_config_vector);
       }
 
       reduced_model.referenceConfigurations.insert(

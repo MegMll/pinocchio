@@ -142,9 +142,14 @@ void test_joint_methods(
   Model::ConfigVectorType vec(Model::ConfigVectorType::Ones(m));
   const Model::ConfigVectorType vec_const(Model::ConfigVectorType::Ones(m));
 
-  BOOST_CHECK(jmodel.jointConfigSelector(vec) == jmodel_composite.jointConfigSelector(vec));
+  BOOST_CHECK(jmodel.jointConfigFromDofSelector(vec) == jmodel_composite.jointConfigFromDofSelector(vec));
   BOOST_CHECK(
-    jmodel.jointConfigSelector(vec_const) == jmodel_composite.jointConfigSelector(vec_const));
+    jmodel.jointConfigFromDofSelector(vec_const) == jmodel_composite.jointConfigFromDofSelector(vec_const));
+
+  BOOST_CHECK(jmodel.jointConfigFromNqSelector(vec) == jmodel_composite.jointConfigFromNqSelector(vec));
+  BOOST_CHECK(
+    jmodel.jointConfigFromNqSelector(vec_const) == jmodel_composite.jointConfigFromNqSelector(vec_const));
+
 
   BOOST_CHECK(jmodel.jointVelocitySelector(vec) == jmodel_composite.jointVelocitySelector(vec));
   BOOST_CHECK(
