@@ -47,6 +47,11 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & a)
     {
+      assert(
+        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+         == false)
+        && "Algorithm not supported for mimic joints");
+
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       typedef typename Data::Inertia Inertia;
@@ -159,6 +164,10 @@ namespace pinocchio
       const Tensor3 & dtau_dqdv,
       const Tensor3 & dtau_dadq)
     {
+      assert(
+        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+         == false)
+        && "Algorithm not supported for mimic joints");
       typedef typename Data::Motion Motion;
       typedef typename Data::Force Force;
       typedef typename Data::Inertia Inertia;

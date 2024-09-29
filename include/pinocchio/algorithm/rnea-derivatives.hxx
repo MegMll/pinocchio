@@ -37,6 +37,11 @@ namespace pinocchio
         Data & data,
         const Eigen::MatrixBase<ConfigVectorType> & q)
       {
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
@@ -93,6 +98,11 @@ namespace pinocchio
         typename Data::VectorXs & g,
         const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
       {
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         typedef typename Model::JointIndex JointIndex;
         typedef Eigen::Matrix<
           Scalar, JointModel::NV, 6, Options, JointModel::NV == Eigen::Dynamic ? 6 : JointModel::NV,
@@ -268,6 +278,11 @@ namespace pinocchio
         const Eigen::MatrixBase<TangentVectorType1> & v,
         const Eigen::MatrixBase<TangentVectorType2> & a)
       {
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
@@ -382,6 +397,11 @@ namespace pinocchio
         const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
         const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
       {
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Matrix6x Matrix6x;
 
