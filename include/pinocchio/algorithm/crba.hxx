@@ -58,6 +58,24 @@ namespace pinocchio
     };
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    static inline void mimic_patch_CrbaWorldConventionBackwardStep(
+      const JointModelBase<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>> & jmodel,
+      const Model & model,
+      Data & data)
+    {
+      typedef typename Model::JointIndex JointIndex;
+
+      const JointIndex & i = jmodel.id();
+      typedef
+        typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
+          ColsBlock;
+      ColsBlock J_cols = jmodel.jointJacCols(data.J);
+      // Joint Space Inertia Matrix
+      jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
+        J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     struct CrbaWorldConventionBackwardStep
     : public fusion::JointUnaryVisitorBase<
         CrbaWorldConventionBackwardStep<Scalar, Options, JointCollectionTpl>>
@@ -70,11 +88,6 @@ namespace pinocchio
       template<typename JointModel>
       static void algo(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
       {
-        assert(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false)
-          && "WORLD convention not supported for mimic joints");
-
         typedef typename Model::JointIndex JointIndex;
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
@@ -87,8 +100,11 @@ namespace pinocchio
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
 
         // Joint Space Inertia Matrix
-        jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
-          J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
+        if (
+          std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+          == false)
+          jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
+            J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
         const JointIndex & parent = model.parents[i];
         data.oYcrb[parent] += data.oYcrb[i];
@@ -301,11 +317,18 @@ namespace pinocchio
 
       data.M.setZero();
       data.Ag.setZero();
+      JointIndex mimic = -1;
       typedef CrbaWorldConventionBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
+        if (boost::get<JointModelMimic>(&model.joints[i]))
+          mimic = i;
         Pass2::run(model.joints[i], typename Pass2::ArgsType(model, data));
       }
+
+      if (mimic != -1)
+        mimic_patch_CrbaWorldConventionBackwardStep(
+          boost::get<JointModelMimic>(model.joints[mimic]), model, data);
 
       // Add the armature contribution
       data.M.diagonal() += model.armature;

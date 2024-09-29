@@ -145,6 +145,7 @@ void test_mimic_against_full_model(
     model_full, primary_id, secondary_id, ratio, offset, model_mimic);
   pinocchio::Data data_full(model_full);
   pinocchio::Data data_mimic(model_mimic);
+  pinocchio::Data data_ref_mimic(model_mimic);
 
   // Prepare test data
   Eigen::MatrixXd G = Eigen::MatrixXd::Zero(model_full.nv, model_mimic.nv);
@@ -156,6 +157,12 @@ void test_mimic_against_full_model(
   Eigen::VectorXd q_mimic = pinocchio::randomConfiguration(model_mimic);
   Eigen::VectorXd v_mimic = Eigen::VectorXd::Random(model_mimic.nv);
   Eigen::VectorXd a_mimic = Eigen::VectorXd::Random(model_mimic.nv);
+
+  // World vs local
+  pinocchio::crba(model_mimic, data_ref_mimic, q_mimic);
+  pinocchio::crba(model_mimic, data_mimic, q_mimic, pinocchio::Convention::WORLD);
+
+  BOOST_CHECK(data_ref_mimic.M.isApprox(data_mimic.M));
 
   Eigen::VectorXd q_full = Eigen::VectorXd::Zero(model_full.nq);
   Eigen::VectorXd v_full = G * v_mimic;
