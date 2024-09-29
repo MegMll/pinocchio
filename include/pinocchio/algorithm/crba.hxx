@@ -129,6 +129,22 @@ namespace pinocchio
     {
     }
 
+    template<typename JointDataTpl, typename ReturnType>
+    struct GetMotionSubspaceTplNoMalloc : public boost::static_visitor<ReturnType>
+    {
+      template<typename JointDataDerived>
+      ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+      {
+        assert(jdata.S().nv() <= ReturnType::MaxColsAtCompileTime);
+        return ReturnType(jdata.S().matrix());
+      }
+
+      static ReturnType run(const JointDataTpl & jdata)
+      {
+        return boost::apply_visitor(GetMotionSubspaceTplNoMalloc(), jdata);
+      }
+    };
+
     /// \note For the case of a joint j mimicking a joint i
     ///       the resulting inertia of both joints is
     ///       M = Mii + 2* Mij + Mjj
@@ -150,7 +166,13 @@ namespace pinocchio
       Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Data::Matrix6x::Options, 6, JointModel::MaxNJ> jF(
         6, jmodel.nj());
       forceSet::se3Action<SETTO>(jMi, iF, jF);
-      jmodel.jointVelBlock(data.M).noalias() += data.joints[primary_id].S().transpose() * jF;
+
+      typedef typename Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options, 6, JointModel::MaxNJ>
+        MotionSubspace;
+      jmodel.jointVelBlock(data.M).noalias() +=
+        GetMotionSubspaceTplNoMalloc<Data::JointData, MotionSubspace>::run(data.joints[primary_id])
+          .transpose()
+        * jF;
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
