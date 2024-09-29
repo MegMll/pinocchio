@@ -20,7 +20,7 @@ namespace pinocchio
 
     extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void
     humanoidRandom<context::Scalar, context::Options, JointCollectionDefaultTpl>(
-      context::Model &, bool);
+      context::Model &, bool, bool);
   } // namespace buildModels
 } // namespace pinocchio
 

@@ -110,8 +110,8 @@ namespace pinocchio
           // Scalar multiplier = JC::JointModelRX::ConfigVector_t::Random(1)(0);
           // Scalar offset = JC::JointModelRX::ConfigVector_t::Random(1)(0);
 
-          Scalar multiplier = 1;
-          Scalar offset = 0;
+          Scalar multiplier = 2.5;
+          Scalar offset = 0.75;
           joint_id = addJointAndBody(
             model,
             typename JC::JointModelMimic(
@@ -233,7 +233,8 @@ namespace pinocchio
 #endif
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    void humanoidRandom(ModelTpl<Scalar, Options, JointCollectionTpl> & model, bool usingFF)
+    void
+    humanoidRandom(ModelTpl<Scalar, Options, JointCollectionTpl> & model, bool usingFF, bool mimic)
     {
       typedef JointCollectionTpl<Scalar, Options> JC;
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
@@ -288,8 +289,22 @@ namespace pinocchio
       addJointAndBody(model, typename JC::JointModelRY(), "larm1_joint", "larm2");
       addJointAndBody(model, typename JC::JointModelRZ(), "larm2_joint", "larm3");
       addJointAndBody(model, typename JC::JointModelRY(), "larm3_joint", "larm4");
-      addJointAndBody(model, typename JC::JointModelRY(), "larm4_joint", "larm5");
-      addJointAndBody(model, typename JC::JointModelRX(), "larm5_joint", "larm6");
+      Index joint_id = addJointAndBody(model, typename JC::JointModelRY(), "larm4_joint", "larm5");
+
+      if (mimic)
+      {
+        Scalar multiplier = 2.5;
+        Scalar offset = 0.75;
+        addJointAndBody(
+          model,
+          typename JC::JointModelMimic(
+            typename JC::JointModelRX(), model.joints[joint_id].derived(), multiplier, offset),
+          "larm5_joint", "larm6");
+      }
+      else
+      {
+        addJointAndBody(model, typename JC::JointModelRX(), "larm5_joint", "larm6");
+      }
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>

@@ -21,7 +21,7 @@ namespace pinocchio
 
     template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void
     humanoidRandom<context::Scalar, context::Options, JointCollectionDefaultTpl>(
-      context::Model &, bool);
+      context::Model &, bool, bool);
 
   } // namespace buildModels
 } // namespace pinocchio
