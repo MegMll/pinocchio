@@ -160,8 +160,8 @@ namespace pinocchio
 
     for (JointIndex j = 1; int(j) < model.njoints; ++j)
     {
-      if(boost::get<JointModelMimic>(&model.joints[j]))
-        continue ;
+      if (boost::get<JointModelMimic>(&model.joints[j]))
+        continue;
       JointIndex c = (JointIndex)data.lastChild[j];
       CHECK_DATA((int)c < model.njoints);
       int nv = model.joints[j].nv();
@@ -176,8 +176,7 @@ namespace pinocchio
         CHECK_DATA((model.parents[d] < j) || (model.parents[d] > c));
 
       int row = model.joints[j].idx_v();
-      
-        
+
       CHECK_DATA(data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)row]);
 
       const JointModel & jparent = model.joints[model.parents[j]];

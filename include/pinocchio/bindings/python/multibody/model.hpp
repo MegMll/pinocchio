@@ -91,8 +91,7 @@ namespace pinocchio
             "Starting index of the *i*th joint in the tangent configuration space.")
           .add_property("nvs", &Model::nvs, "Dimension of the *i*th joint tangent subspace.")
           .add_property(
-            "idx_js", &Model::idx_js,
-            "Starting index of the *i*th joint in the jacobian space.")
+            "idx_js", &Model::idx_js, "Starting index of the *i*th joint in the jacobian space.")
           .add_property("njs", &Model::njs, "Dimension of the *i*th joint jacobian subspace.")
           .add_property(
             "parents", &Model::parents,

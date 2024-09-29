@@ -24,13 +24,17 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         with self.model_path.open() as model:
             file_content = model.read()
 
-        model_ref = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer(), False)
+        model_ref = pin.buildModelFromUrdf(
+            self.model_path, pin.JointModelFreeFlyer(), False
+        )
         model = pin.buildModelFromXML(file_content, pin.JointModelFreeFlyer(), False)
 
         self.assertEqual(model, model_ref)
 
         model_self = pin.Model()
-        pin.buildModelFromXML(file_content, pin.JointModelFreeFlyer(), model_self, False)
+        pin.buildModelFromXML(
+            file_content, pin.JointModelFreeFlyer(), model_self, False
+        )
         self.assertEqual(model_self, model_ref)
 
     def test_pickle(self):

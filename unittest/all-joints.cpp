@@ -107,19 +107,19 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
   }
 };
 
-template<typename Scalar, int Options, template<typename,int> class JointCollection>
-struct init<pinocchio::JointModelMimicTpl<Scalar,Options,JointCollection> >
+template<typename Scalar, int Options, template<typename, int> class JointCollection>
+struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
 {
-  typedef pinocchio::JointModelMimicTpl<Scalar,Options,JointCollection> JointModel;
-  
+  typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
+
   static JointModel run()
   {
 
-    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModelRX jmodel_ref = init<JointModelRX>::run();
-    
-    JointModel jmodel(jmodel_ref,1.,0.);
-    jmodel.setIndexes(0,0,0,0);
+
+    JointModel jmodel(jmodel_ref, 1., 0.);
+    jmodel.setIndexes(0, 0, 0, 0);
     return jmodel;
   }
 };

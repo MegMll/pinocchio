@@ -114,7 +114,8 @@ namespace pinocchio
           Scalar offset = 0;
           joint_id = addJointAndBody(
             model,
-            typename JC::JointModelMimic(typename JC::JointModelRY(), model.joints[joint_id].derived(), multiplier, offset),
+            typename JC::JointModelMimic(
+              typename JC::JointModelRY(), model.joints[joint_id].derived(), multiplier, offset),
             model.names[joint_id], pre + "wrist1_mimic", Id4);
         }
         else

@@ -76,8 +76,8 @@ void test_jmodel_nq_against_nq_ref(const JointModelBase<JointModel> & jmodel, co
 }
 
 template<typename Scalar, int Options, template<typename, int> class JointCollection>
-void test_jmodel_nq_against_nq_ref(const JointModelMimicTpl<Scalar, Options, JointCollection> & jmodel,
-                                   const int & nq_ref)
+void test_jmodel_nq_against_nq_ref(
+  const JointModelMimicTpl<Scalar, Options, JointCollection> & jmodel, const int & nq_ref)
 {
   BOOST_CHECK(jmodel.jmodel().nq() == nq_ref);
 }
@@ -90,8 +90,14 @@ void test_nv_against_jmodel(
   BOOST_CHECK(constraint.nv() == jmodel.nv());
 }
 
-template<typename Scalar, int Options, template<typename, int> class JointCollection, typename ConstraintDerived>
-void test_nv_against_jmodel(const JointModelMimicTpl<Scalar, Options, JointCollection> & jmodel,
+template<
+  typename Scalar,
+  int Options,
+  template<typename, int>
+  class JointCollection,
+  typename ConstraintDerived>
+void test_nv_against_jmodel(
+  const JointModelMimicTpl<Scalar, Options, JointCollection> & jmodel,
   const JointMotionSubspaceBase<ConstraintDerived> & constraint)
 {
   BOOST_CHECK(constraint.nv() == jmodel.jmodel().nv());
@@ -269,9 +275,10 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
 }
 
 template<typename Scalar, int Options, template<typename, int> class JointCollection>
-void test_constraint_operations(const JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/)
-{ } // Disable test for JointMimic
-
+void test_constraint_operations(
+  const JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/)
+{
+} // Disable test for JointMimic
 
 template<typename JointModel_>
 struct init;
@@ -389,9 +396,9 @@ struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
 
   static JointModel run()
   {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModelRX jmodel_ref = init<JointModelRX>::run();
-    
+
     JointModel jmodel(jmodel_ref, 1., 0.);
     jmodel.setIndexes(0, 0, 0, 0);
 

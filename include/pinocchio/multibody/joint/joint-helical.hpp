@@ -735,7 +735,7 @@ namespace pinocchio
     enum
     {
       NQ = 1,
-      NV = 1, 
+      NV = 1,
       NJ = 1
     };
     typedef _Scalar Scalar;
@@ -836,9 +836,9 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelHelicalTpl> Base;
     using Base::id;
+    using Base::idx_j;
     using Base::idx_q;
     using Base::idx_v;
-    using Base::idx_j;
     using Base::setIndexes;
 
     typedef Eigen::Matrix<Scalar, 3, 1, _Options> Vector3;

@@ -204,8 +204,7 @@ namespace pinocchio
       lastChild[parent] = std::max<int>(lastChild[(Index)i], lastChild[parent]);
       Scalar nv_;
 
-      if (
-        boost::get<JointModelMimic>(&model.joints[(Index)lastChild[(Index)i]]))
+      if (boost::get<JointModelMimic>(&model.joints[(Index)lastChild[(Index)i]]))
         nv_ = boost::get<JointModelMimic>(model.joints[(Index)lastChild[(Index)i]]).jmodel().nv();
       else
         nv_ = nv(model.joints[(Index)lastChild[(Index)i]]);

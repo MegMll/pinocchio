@@ -576,9 +576,9 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelTranslationTpl> Base;
     using Base::id;
+    using Base::idx_j;
     using Base::idx_q;
     using Base::idx_v;
-    using Base::idx_j;
     using Base::setIndexes;
 
     JointDataDerived createData() const

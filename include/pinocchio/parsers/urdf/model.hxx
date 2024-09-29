@@ -27,7 +27,7 @@ namespace pinocchio
 
       template<typename _Scalar, int Options>
       struct MimicInfo;
-    
+
       template<typename _Scalar, int Options>
       class UrdfVisitorBaseTpl
       {
@@ -113,9 +113,16 @@ namespace pinocchio
 
         virtual bool existFrame(const std::string & frame_name, const FrameType type) const = 0;
 
-        virtual void addMimicInfo(const std::string & mimic_name, const std::string & mimiced_name, const Vector3 & axis, const Scalar multiplier, const Scalar offset, JointType jointType) = 0;
+        virtual void addMimicInfo(
+          const std::string & mimic_name,
+          const std::string & mimiced_name,
+          const Vector3 & axis,
+          const Scalar multiplier,
+          const Scalar offset,
+          JointType jointType) = 0;
 
-        virtual void convertMimicJoint(const std::string & mimic_name, const MimicInfo<Scalar, Options> & mimic_info) = 0;
+        virtual void convertMimicJoint(
+          const std::string & mimic_name, const MimicInfo<Scalar, Options> & mimic_info) = 0;
 
         UrdfVisitorBaseTpl()
         : log(NULL)
@@ -144,20 +151,28 @@ namespace pinocchio
         std::string mimiced_name;
         Scalar multiplier;
         Scalar offset;
-        
+
         // Use the JointType from UrdfVisitorBaseTpl
         typedef typename UrdfVisitorBaseTpl<_Scalar, Options>::JointType JointType;
         JointType jointType;
 
-        MimicInfo(){}
+        MimicInfo()
+        {
+        }
 
-        MimicInfo(std::string _mimiced_name, Scalar _multiplier, Scalar _offset, Vector3 _axis, JointType _jointType):
-        mimiced_name(_mimiced_name), 
-        multiplier(_multiplier),
-        offset(_offset),
-        axis(_axis),
-        jointType(_jointType)
-        {}
+        MimicInfo(
+          std::string _mimiced_name,
+          Scalar _multiplier,
+          Scalar _offset,
+          Vector3 _axis,
+          JointType _jointType)
+        : mimiced_name(_mimiced_name)
+        , multiplier(_multiplier)
+        , offset(_offset)
+        , axis(_axis)
+        , jointType(_jointType)
+        {
+        }
       };
 
       template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -286,11 +301,11 @@ namespace pinocchio
               max_config, friction, damping);
             break;
           case Base::MIMIC:
-            joint_id = model.addJoint(frame.parentJoint, 
-                    typename JointCollection::JointModelMimic(model.joints.at(1), 1, 0),
-                    frame.placement * placement, joint_name,
-                    max_effort,max_velocity,min_config,max_config,
-                    friction, damping);
+            joint_id = model.addJoint(
+              frame.parentJoint,
+              typename JointCollection::JointModelMimic(model.joints.at(1), 1, 0),
+              frame.placement * placement, joint_name, max_effort, max_velocity, min_config,
+              max_config, friction, damping);
             break;
           default:
             PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The joint type is not correct.");
@@ -448,34 +463,52 @@ namespace pinocchio
           }
         }
 
-        void addMimicInfo(const std::string & mimic_name, const std::string & mimiced_name, const Vector3 & axis, const Scalar multiplier, const Scalar offset, JointType jointType)
+        void addMimicInfo(
+          const std::string & mimic_name,
+          const std::string & mimiced_name,
+          const Vector3 & axis,
+          const Scalar multiplier,
+          const Scalar offset,
+          JointType jointType)
         {
           MimicInfo<Scalar, Options> mimic_info(mimiced_name, multiplier, offset, axis, jointType);
           this->mimicInfo_map.insert(std::make_pair(mimic_name, mimic_info));
         }
 
-        void convertMimicJoint(const std::string & mimic_name, const MimicInfo<Scalar, Options> & mimic_info)
+        void convertMimicJoint(
+          const std::string & mimic_name, const MimicInfo<Scalar, Options> & mimic_info)
         {
-          switch(mimic_info.jointType)
+          switch (mimic_info.jointType)
           {
-            case Base::REVOLUTE:
-              createMimicJoint<typename JointCollection::JointModelRX, typename JointCollection::JointModelRY,
+          case Base::REVOLUTE:
+            createMimicJoint<
+              typename JointCollection::JointModelRX, typename JointCollection::JointModelRY,
               typename JointCollection::JointModelRZ,
-              typename JointCollection::JointModelRevoluteUnaligned>(mimic_name, mimic_info.mimiced_name, mimic_info.axis, mimic_info.multiplier, mimic_info.offset);
+              typename JointCollection::JointModelRevoluteUnaligned>(
+              mimic_name, mimic_info.mimiced_name, mimic_info.axis, mimic_info.multiplier,
+              mimic_info.offset);
             break;
-            case Base::PRISMATIC:
-              createMimicJoint<typename JointCollection::JointModelPX, typename JointCollection::JointModelPY,
+          case Base::PRISMATIC:
+            createMimicJoint<
+              typename JointCollection::JointModelPX, typename JointCollection::JointModelPY,
               typename JointCollection::JointModelPZ,
-              typename JointCollection::JointModelPrismaticUnaligned>(mimic_name, mimic_info.mimiced_name, mimic_info.axis, mimic_info.multiplier, mimic_info.offset);
-              break;
+              typename JointCollection::JointModelPrismaticUnaligned>(
+              mimic_name, mimic_info.mimiced_name, mimic_info.axis, mimic_info.multiplier,
+              mimic_info.offset);
+            break;
 
-            default:
-              PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The joint type is not correct.");
+          default:
+            PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The joint type is not correct.");
           }
         }
 
         template<typename TypeX, typename TypeY, typename TypeZ, typename TypeUnaligned>
-        void createMimicJoint(const std::string & mimic_name, const std::string & mimiced_name, const Vector3 & axis, const Scalar multiplier, const Scalar offset)
+        void createMimicJoint(
+          const std::string & mimic_name,
+          const std::string & mimiced_name,
+          const Vector3 & axis,
+          const Scalar multiplier,
+          const Scalar offset)
         {
           auto mimiced_joint = model.joints[getJointId(mimiced_name)];
           std::cout << mimiced_joint << std::endl;
@@ -485,19 +518,23 @@ namespace pinocchio
           switch (axisType)
           {
           case AXIS_X:
-            mimic_joint = typename JointCollection::JointModelMimic(TypeX(), mimiced_joint, multiplier, offset);
+            mimic_joint =
+              typename JointCollection::JointModelMimic(TypeX(), mimiced_joint, multiplier, offset);
             break;
 
           case AXIS_Y:
-            mimic_joint = typename JointCollection::JointModelMimic(TypeY(), mimiced_joint, multiplier, offset);
+            mimic_joint =
+              typename JointCollection::JointModelMimic(TypeY(), mimiced_joint, multiplier, offset);
             break;
 
           case AXIS_Z:
-            mimic_joint = typename JointCollection::JointModelMimic(TypeZ(), mimiced_joint, multiplier, offset);
+            mimic_joint =
+              typename JointCollection::JointModelMimic(TypeZ(), mimiced_joint, multiplier, offset);
             break;
 
           case AXIS_UNALIGNED:
-            mimic_joint = typename JointCollection::JointModelMimic(TypeUnaligned(), mimiced_joint, multiplier, offset);
+            mimic_joint = typename JointCollection::JointModelMimic(
+              TypeUnaligned(), mimiced_joint, multiplier, offset);
             break;
 
           default:
@@ -582,14 +619,14 @@ namespace pinocchio
 
       typedef UrdfVisitorBaseTpl<double, 0> UrdfVisitorBase;
 
-      PINOCCHIO_PARSERS_DLLAPI void
-      parseRootTree(const ::urdf::ModelInterface * urdfTree, UrdfVisitorBase & model, const bool mimic = true);
+      PINOCCHIO_PARSERS_DLLAPI void parseRootTree(
+        const ::urdf::ModelInterface * urdfTree, UrdfVisitorBase & model, const bool mimic = true);
 
       PINOCCHIO_PARSERS_DLLAPI void
       parseRootTree(const std::string & filename, UrdfVisitorBase & model, const bool mimic = true);
 
-      PINOCCHIO_PARSERS_DLLAPI void
-      parseRootTreeFromXML(const std::string & xmlString, UrdfVisitorBase & model, const bool mimic = true);
+      PINOCCHIO_PARSERS_DLLAPI void parseRootTreeFromXML(
+        const std::string & xmlString, UrdfVisitorBase & model, const bool mimic = true);
     } // namespace details
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>

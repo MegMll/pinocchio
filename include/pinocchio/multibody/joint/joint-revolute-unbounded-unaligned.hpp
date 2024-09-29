@@ -24,7 +24,7 @@ namespace pinocchio
     enum
     {
       NQ = 2,
-      NV = 1, 
+      NV = 1,
       NJ = 1
     };
     typedef _Scalar Scalar;
@@ -140,9 +140,9 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelRevoluteUnboundedUnalignedTpl> Base;
     using Base::id;
+    using Base::idx_j;
     using Base::idx_q;
     using Base::idx_v;
-    using Base::idx_j;
     using Base::setIndexes;
 
     JointModelRevoluteUnboundedUnalignedTpl()

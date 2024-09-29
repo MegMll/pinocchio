@@ -146,7 +146,6 @@ namespace pinocchio
     jmodel.jointVelocitySelector(friction) = joint_friction;
     damping.conservativeResize(nv);
     jmodel.jointVelocitySelector(damping) = joint_damping;
-    
 
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
@@ -300,7 +299,8 @@ namespace pinocchio
                && other.children == children && other.names == names && other.subtrees == subtrees
                && other.gravity == gravity && other.name == name;
 
-    res &= other.idx_qs == idx_qs && other.nqs == nqs && other.idx_vs == idx_vs && other.nvs == nvs && other.idx_js == idx_js && other.njs == njs;
+    res &= other.idx_qs == idx_qs && other.nqs == nqs && other.idx_vs == idx_vs && other.nvs == nvs
+           && other.idx_js == idx_js && other.njs == njs;
 
     if (other.referenceConfigurations.size() != referenceConfigurations.size())
       return false;

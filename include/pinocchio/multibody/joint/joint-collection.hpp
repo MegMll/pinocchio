@@ -107,8 +107,7 @@ namespace pinocchio
       JointModelHelicalUnaligned,
       JointModelUniversal,
       boost::recursive_wrapper<JointModelComposite>,
-      boost::recursive_wrapper<JointModelMimic>
-      >
+      boost::recursive_wrapper<JointModelMimic>>
       JointModelVariant;
 
     // Joint Revolute

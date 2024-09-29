@@ -139,7 +139,6 @@ namespace pinocchio
     /// \brief Dimension of the *i*th joint jacobian subspace.
     std::vector<int> njs;
 
-
     /// \brief Vector of parent joint indexes. The parent of joint *i*, denoted *li*, corresponds to
     /// li==parents[i].
     std::vector<JointIndex> parents;

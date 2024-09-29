@@ -29,7 +29,7 @@ namespace pinocchio
     {
       Options = _Options,
       NQ = Eigen::Dynamic, // Dynamic because unknown at compile time
-      NV = Eigen::Dynamic, 
+      NV = Eigen::Dynamic,
       NJ = Eigen::Dynamic
     };
 

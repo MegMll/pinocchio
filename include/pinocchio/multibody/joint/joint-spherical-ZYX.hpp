@@ -279,7 +279,7 @@ namespace pinocchio
     enum
     {
       NQ = 3,
-      NV = 3, 
+      NV = 3,
       NJ = 3
     };
     typedef _Scalar Scalar;
@@ -378,9 +378,9 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelSphericalZYXTpl> Base;
     using Base::id;
+    using Base::idx_j;
     using Base::idx_q;
     using Base::idx_v;
-    using Base::idx_j;
     using Base::setIndexes;
 
     JointDataDerived createData() const

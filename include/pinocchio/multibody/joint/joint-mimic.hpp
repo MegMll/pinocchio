@@ -369,7 +369,7 @@ namespace pinocchio
       JointModelRUBX,
       JointModelRUBY,
       JointModelRUBZ,
-      JointModelRevoluteUnboundedUnaligned, 
+      JointModelRevoluteUnboundedUnaligned,
       JointModelFreeFlyer>
       JointModelVariant;
 
@@ -417,7 +417,7 @@ namespace pinocchio
       JointDataRUBX,
       JointDataRUBY,
       JointDataRUBZ,
-      JointDataRevoluteUnboundedUnaligned, 
+      JointDataRevoluteUnboundedUnaligned,
       JointDataFreeFlyer>
       JointDataVariant;
   };
@@ -831,10 +831,11 @@ namespace pinocchio
     }
 
     template<typename JointModelMimicking>
-    JointModelMimicTpl(const JointModelBase<JointModelMimicking> & jmodel_mimicking,
-                       const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel_mimicked,
-                       const Scalar & scaling,
-                       const Scalar & offset)
+    JointModelMimicTpl(
+      const JointModelBase<JointModelMimicking> & jmodel_mimicking,
+      const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel_mimicked,
+      const Scalar & scaling,
+      const Scalar & offset)
     : m_jmodel_ref((JointModelVariant)jmodel_mimicking.derived())
     , m_scaling(scaling)
     , m_offset(offset)
@@ -843,7 +844,9 @@ namespace pinocchio
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
       assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
 
-      m_jmodel_ref.setIndexes(jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(), jmodel_mimicked.idx_j());
+      m_jmodel_ref.setIndexes(
+        jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
+        jmodel_mimicked.idx_j());
     }
 
     Base & base()
@@ -927,8 +930,8 @@ namespace pinocchio
         qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
         jdata.m_q_transform);
       jdata.m_v_transform = m_scaling * vs.segment(m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
-      
-      m_jmodel_ref.calc(jdata.m_jdata_ref, qs , vs);
+
+      m_jmodel_ref.calc(jdata.m_jdata_ref, qs, vs);
     }
 
     template<typename VectorLike, typename Matrix6Like>
@@ -1041,7 +1044,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
     jointVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NV>::segment(a.derived(), m_jmodel_ref.idx_v(),  m_jmodel_ref.nv());
+      return SizeDepType<NV>::segment(a.derived(), m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
     }
 
     // Non-const access

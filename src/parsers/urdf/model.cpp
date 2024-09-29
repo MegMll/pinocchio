@@ -137,23 +137,23 @@ namespace pinocchio
               friction << joint->dynamics->friction;
               damping << joint->dynamics->damping;
             }
-            if(joint->mimic && mimic)
+            if (joint->mimic && mimic)
             {
-              max_effort   = Vector::Constant(0, infty);
+              max_effort = Vector::Constant(0, infty);
               max_velocity = Vector::Constant(0, infty);
-              min_config   = Vector::Constant(0,-infty);
-              max_config   = Vector::Constant(0, infty);
+              min_config = Vector::Constant(0, -infty);
+              max_config = Vector::Constant(0, infty);
 
               friction = Vector::Constant(0, 0.);
               damping = Vector::Constant(0, 0.);
-              
-              model.addMimicInfo(joint->name, joint->mimic->joint_name, axis, joint->mimic->multiplier, joint->mimic->offset,UrdfVisitorBase::REVOLUTE);
 
-              model.addJointAndBody(UrdfVisitorBase::MIMIC, axis,
-                                  parentFrameId,jointPlacement,joint->name,
-                                  Y,link->name,
-                                  max_effort,max_velocity,min_config,max_config,
-                                  friction,damping);
+              model.addMimicInfo(
+                joint->name, joint->mimic->joint_name, axis, joint->mimic->multiplier,
+                joint->mimic->offset, UrdfVisitorBase::REVOLUTE);
+
+              model.addJointAndBody(
+                UrdfVisitorBase::MIMIC, axis, parentFrameId, jointPlacement, joint->name, Y,
+                link->name, max_effort, max_velocity, min_config, max_config, friction, damping);
             }
             else
               model.addJointAndBody(
@@ -209,24 +209,23 @@ namespace pinocchio
               friction << joint->dynamics->friction;
               damping << joint->dynamics->damping;
             }
-            if(joint->mimic && mimic)
+            if (joint->mimic && mimic)
             {
-              max_effort   = Vector::Constant(0, infty);
+              max_effort = Vector::Constant(0, infty);
               max_velocity = Vector::Constant(0, infty);
-              min_config   = Vector::Constant(0,-infty);
-              max_config   = Vector::Constant(0, infty);
+              min_config = Vector::Constant(0, -infty);
+              max_config = Vector::Constant(0, infty);
 
               friction = Vector::Constant(0, 0.);
               damping = Vector::Constant(0, 0.);
 
-              model.addMimicInfo(joint->name, joint->mimic->joint_name, axis, joint->mimic->multiplier, joint->mimic->offset,UrdfVisitorBase::PRISMATIC);
+              model.addMimicInfo(
+                joint->name, joint->mimic->joint_name, axis, joint->mimic->multiplier,
+                joint->mimic->offset, UrdfVisitorBase::PRISMATIC);
 
-              model.addJointAndBody(UrdfVisitorBase::MIMIC, axis,
-                                  parentFrameId,jointPlacement,joint->name,
-                                  Y,link->name,
-                                  max_effort,max_velocity,min_config,max_config,
-                                  friction,damping);
-              
+              model.addJointAndBody(
+                UrdfVisitorBase::MIMIC, axis, parentFrameId, jointPlacement, joint->name, Y,
+                link->name, max_effort, max_velocity, min_config, max_config, friction, damping);
             }
             else
               model.addJointAndBody(
@@ -300,7 +299,8 @@ namespace pinocchio
       /// \param[in] link The current URDF link.
       /// \param[in] model The model where the link must be added.
       ///
-      void parseRootTree(const ::urdf::ModelInterface * urdfTree, UrdfVisitorBase & model, const bool mimic)
+      void parseRootTree(
+        const ::urdf::ModelInterface * urdfTree, UrdfVisitorBase & model, const bool mimic)
       {
         model.setName(urdfTree->getName());
 
@@ -311,7 +311,7 @@ namespace pinocchio
         {
           parseTree(child, model, mimic);
         }
-        if(mimic)
+        if (mimic)
         {
           for (const auto & entry : model.mimicInfo_map)
             model.convertMimicJoint(entry.first, entry.second);
@@ -330,7 +330,8 @@ namespace pinocchio
               "contain a valid URDF model.");
       }
 
-      void parseRootTreeFromXML(const std::string & xmlString, UrdfVisitorBase & model, const bool mimic)
+      void
+      parseRootTreeFromXML(const std::string & xmlString, UrdfVisitorBase & model, const bool mimic)
       {
         ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDF(xmlString);
         if (urdfTree)

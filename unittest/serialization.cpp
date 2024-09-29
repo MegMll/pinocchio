@@ -397,18 +397,18 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
   }
 };
 
-template<typename Scalar, int Options, template<typename,int> class JointCollection>
-struct init<pinocchio::JointModelMimicTpl<Scalar,Options,JointCollection> >
+template<typename Scalar, int Options, template<typename, int> class JointCollection>
+struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
 {
-  typedef pinocchio::JointModelMimicTpl<Scalar,Options,JointCollection> JointModel;
-  
+  typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
+
   static JointModel run()
   {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModelRX jmodel_ref = init<JointModelRX>::run();
-    
-    JointModel jmodel(jmodel_ref,1.,0.);
-    
+
+    JointModel jmodel(jmodel_ref, 1., 0.);
+
     return jmodel;
   }
 };
@@ -472,7 +472,7 @@ struct TestJointTransform
     // Do nothing
   }
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollection>
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
   void operator()(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> &)
   {
     // typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModelMimic;
@@ -484,23 +484,23 @@ struct TestJointTransform
     // JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
     // typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModel;
     // JointModel jmodel = init<JointModel>::run();
-    
+
     // JointDataMimic jdata_mimic = jmodel_mimic.createData();
     // JointDataBase & jdata_mimic_base = static_cast<JointDataBase &>(jdata_mimic);
-    
+
     // typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
     // LieGroupType lg;
-    
+
     // Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
     // Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
-    
+
     // Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
-    
+
     // jmodel_mimic.calc(jdata_mimic,q_random);
     // // Copy Transform (and don't take ref) as non const ref of mimic buffers trigger assert
     // Transform m = const_cast<const JointDataBase &>(jdata_mimic_base).M();
     // test(m);
-    
+
     // // Copy Constraint (and don't take ref) as non const ref of mimic buffers trigger assert
     // Constraint S = const_cast<const JointDataBase &>(jdata_mimic_base).S();
     // test(S);
@@ -558,7 +558,7 @@ struct TestJointMotion
     // Do nothing
   }
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollection>
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
   void operator()(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> &)
   {
     // typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModelMimic;
@@ -570,25 +570,25 @@ struct TestJointMotion
     // JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
     // typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModel;
     // JointModel jmodel = init<JointModel>::run();
-    
+
     // JointDataMimic jdata_mimic = jmodel_mimic.createData();
     // JointDataBase & jdata_mimic_base = static_cast<JointDataBase &>(jdata_mimic);
-    
+
     // typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
     // LieGroupType lg;
-    
+
     // Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
     // Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
-    
+
     // Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
     // Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
-    
+
     // jmodel_mimic.calc(jdata_mimic,q_random,v_random);
 
     // // Copy Motion (and don't take ref) as non const ref of mimic buffers trigger assert
     // Motion m = const_cast<const JointDataBase &>(jdata_mimic_base).v();
     // test(m);
-    
+
     // // Copy Bias (and don't take ref) as non const ref of mimic buffers trigger assert
     // Bias b = const_cast<const JointDataBase &>(jdata_mimic_base).c();
     // test(b);
@@ -661,28 +661,28 @@ struct TestJointData
     test(jdata);
   }
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollection>
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
   void operator()(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> &)
   {
     // typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModelMimic;
     // typedef typename JointModelMimic::JointDerived JointDerived;
     // typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointDataMimic;
     // JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
-  
+
     // typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModel;
     // JointModel jmodel = init<JointModel>::run();
-    
+
     // JointDataMimic jdata_mimic = jmodel_mimic.createData();
 
     // typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
     // LieGroupType lg;
-    
+
     // Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
     // Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
-    
+
     // Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
     // Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
-    
+
     // jmodel_mimic.calc(jdata_mimic,q_random,v_random);
     // pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
     // jmodel_mimic.calc_aba(jdata_mimic, Eigen::VectorXd::Zero(jmodel.nv()), I, false);
