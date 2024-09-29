@@ -64,6 +64,7 @@ namespace pinocchio
       typedef DataTpl<Scalar, Options> Data;
 
       typedef JointCollectionDefaultTpl<Scalar, Options> JointCollectionDefault;
+      typedef JointCollectionMimicableTpl<Scalar, Options> JointCollectionMimicable;
 
       // Joints
       typedef JointModelTpl<Scalar, Options> JointModel;
@@ -140,6 +141,8 @@ namespace pinocchio
 
       typedef JointModelMimicTpl<Scalar> JointModelMimic;
       typedef JointDataMimicTpl<Scalar> JointDataMimic;
+
+      typedef JointModelTpl<Scalar, Options, JointCollectionMimicableTpl> JointModelMimicable;
 
       // Algorithm
       typedef ProximalSettingsTpl<Scalar> ProximalSettings;
