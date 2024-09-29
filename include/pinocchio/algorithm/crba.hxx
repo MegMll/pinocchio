@@ -206,11 +206,10 @@ namespace pinocchio
       }
     };
 
-    /// \note For the case of a joint j mimicking a joint i
-    ///       the resulting inertia of both joints is
-    ///       M = Mii + 2* Mij + Mjj
-    ///       But in this current implementation only M = Mii + Mij + Mjj is computed
-    ///       So an extra Mij is added here.
+    /// \note For each joint the crba computation is done only for the sub cols/rows
+    /// from idx_v to joint.nvSubtree. In the case of the joint j=(i+n) mimicking the joint i,
+    /// the joints i+[1..n-1] will have idx_v greater than the joint j. This patch compute
+    /// this "left out" part of the M matrix.
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     static inline void mimic_patch_CrbaLocalConventionBackwardStep(
       const JointModelBase<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>> & jmodel,
@@ -218,58 +217,63 @@ namespace pinocchio
       Data & data)
     {
       typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModel;
+      typedef typename Eigen::Matrix<
+        Scalar, 6, Eigen::Dynamic, Data::Matrix6x::Options, 6, JointModel::MaxNJ>
+        SpatialForcesX;
+      typedef typename Data::Matrix6x::ColsBlockXpr SpatialForcesBlock;
       typedef typename Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options, 6, JointModel::MaxNJ>
         MotionSubspace;
+      typedef GetMotionSubspaceTplNoMalloc<Data::JointData, MotionSubspace> GetSNoMalloc;
+
       const JointIndex secondary_id = jmodel.id();
       const JointIndex primary_id = jmodel.derived().jmodel().id();
 
       assert(secondary_id > primary_id && "Mimicking joint id is before the primary.");
 
       JointIndex ancestor_prim, ancestor_sec;
-      JointIndex j_id =
-        findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
+      findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
 
-      Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Data::Matrix6x::Options, 6, JointModel::MaxNJ> jF(
-        6, jmodel.nj());
-      Data::Matrix6x::ColsBlockXpr iF = jmodel.jointVelCols(data.Fcrb[secondary_id]);
+      SpatialForcesBlock jF = jmodel.jointVelCols(data.Fcrb[secondary_id]); // Mimic joint forces
+      SpatialForcesX iF(6, jmodel.nj());                                    // Current joint forces
+      SE3 iMj = SE3::Identity(); // Transform from current joint to mimic joint
 
-      JointIndex start = ancestor_sec;
-      if (j_id != primary_id)
-        start += 1;
-      for (JointIndex j = start; j < model.supports[secondary_id].size() - 1; j++)
+      // Traverse the kinematic tree backward from mimicking (secondary) joint parent to common
+      // ancestor
+      for (int k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
       {
-        j_id = model.supports[secondary_id].at(j);
+        const JointIndex i = model.supports[secondary_id].at(k);
+        const JointIndex ui =
+          model.supports[secondary_id].at(k + 1); // Child link to compute placement
+        iMj = data.liMi[ui].act(iMj);
 
-        const SE3 jMi = getRelativePlacement(model, data, j_id, secondary_id, Convention::LOCAL);
-        forceSet::se3Action(jMi, iF, jF);
+        // Skip the common ancestor if it's not the primary id
+        // as this computation would be canceled by the next loop forward
+        if (k == ancestor_sec && i != primary_id)
+          continue;
+
+        forceSet::se3Action(iMj, jF, iF);
 
         jmodel.jointVelRows(data.M)
-          .middleCols(model.joints[j_id].idx_v(), model.joints[j_id].nv())
-          .noalias() +=
-          GetMotionSubspaceTplNoMalloc<Data::JointData, MotionSubspace>::run(data.joints[j_id])
-            .transpose()
-          * jF;
+          .middleCols(model.joints[i].idx_v(), model.joints[i].nv())
+          .noalias() += GetSNoMalloc::run(data.joints[i]).transpose() * iF;
       }
-      for (JointIndex j = ancestor_prim + 1; j < model.supports[primary_id].size(); j++)
+      // Traverse the kinematic tree forward from common ancestor to mimicked (primary) joint
+      for (int k = ancestor_prim + 1; k < model.supports[primary_id].size(); k++)
       {
-        j_id = model.supports[primary_id].at(j);
+        const JointIndex i = model.supports[primary_id].at(k);
+        iMj = data.liMi[i].actInv(iMj);
 
-        const SE3 jMi = getRelativePlacement(model, data, j_id, secondary_id, Convention::LOCAL);
-        forceSet::se3Action(jMi, iF, jF);
+        forceSet::se3Action(iMj, jF, iF);
 
         jmodel.jointVelCols(data.M)
-          .middleRows(model.joints[j_id].idx_v(), model.joints[j_id].nv())
-          .noalias() -=
-          jF.transpose()
-          * GetMotionSubspaceTplNoMalloc<Data::JointData, MotionSubspace>::run(data.joints[j_id]);
+          .middleRows(model.joints[i].idx_v(), model.joints[i].nv())
+          .noalias() -= iF.transpose() * GetSNoMalloc::run(data.joints[i]);
       }
 
       if (model.parents[secondary_id] != primary_id)
       {
-        const SE3 jMi =
-          getRelativePlacement(model, data, primary_id, secondary_id, Convention::LOCAL);
         forceSet::se3Action<ADDTO>(
-          jMi, data.Fcrb[secondary_id].col(jmodel.idx_v()),
+          iMj, data.Fcrb[secondary_id].col(jmodel.idx_v()),
           data.Fcrb[primary_id].col(jmodel.idx_v()));
       }
     }
