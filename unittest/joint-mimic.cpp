@@ -237,12 +237,16 @@ BOOST_AUTO_TEST_CASE(test_transform_linear_affine)
   LinearAffineTransform::run(q0, scaling, offset, q1);
   BOOST_CHECK(q0 == q1);
 
-  offset = 2.;
+  scaling = 2.5;
+  offset = 1.5;
   LinearAffineTransform::run(ConfigVectorType::Zero(), scaling, offset, q1);
   BOOST_CHECK(q1 == ConfigVectorType::Constant(offset));
+
+  LinearAffineTransform::run(q0, scaling, offset, q1);
+  BOOST_CHECK((scaling * q0 + ConfigVectorType::Ones() * offset) == q1);
 }
 
-BOOST_AUTO_TEST_CASE(test_transform_linear_revolute)
+BOOST_AUTO_TEST_CASE(test_transform_linear_revolute_unbounded)
 {
   typedef JointModelRUBX::ConfigVector_t ConfigVectorType;
   double scaling = 1., offset = 0.;
@@ -252,9 +256,24 @@ BOOST_AUTO_TEST_CASE(test_transform_linear_revolute)
   UnboundedRevoluteAffineTransform::run(q0, scaling, offset, q1);
   BOOST_CHECK(q0.isApprox(q1));
 
-  offset = 2.;
-  UnboundedRevoluteAffineTransform::run(ConfigVectorType::Zero(), scaling, offset, q1);
-  BOOST_CHECK(q1 == ConfigVectorType(math::cos(offset), math::sin(offset)));
+  scaling = 2.5;
+  offset = 1.5;
+  UnboundedRevoluteAffineTransform::run(q0, scaling, offset, q1);
+  const double theta = atan2(q0[1], q0[0]);
+  BOOST_CHECK(
+    q1
+    == ConfigVectorType(math::cos(theta * scaling + offset), math::sin(theta * scaling + offset)));
+}
+
+BOOST_AUTO_TEST_CASE(test_transform_no_affine)
+{
+  typedef JointModelRX::ConfigVector_t ConfigVectorType;
+  double scaling = 1., offset = 0.;
+
+  ConfigVectorType q0 = ConfigVectorType::Random();
+  ConfigVectorType q1;
+  NoAffineTransform::run(q0, scaling, offset, q1);
+  BOOST_CHECK(q0 == q1);
 }
 
 BOOST_AUTO_TEST_CASE(test_joint_generic_cast)
