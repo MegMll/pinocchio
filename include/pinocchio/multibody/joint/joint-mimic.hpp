@@ -437,17 +437,29 @@ struct TransferVisitor : public boost::static_visitor<void> {
     // JointDataMimicTpl(const JointDataMimicTpl & other)
     // { *this = other; }
     
-    JointDataMimicTpl(const RefJointDataVariant & jdata,
-                   const Scalar & scaling, 
-                   const Scalar & nq,
-                   const Scalar & nv)
-    : m_jdata_ref(jdata)
-    , m_scaling(scaling)
+    JointDataMimicTpl(const JointDataTpl<Scalar, Options, JointCollectionTpl > & jdata,
+                    const Scalar & scaling,
+                    const Scalar & nq,
+                    const Scalar & nv)
+    : m_scaling(scaling)
     , S(m_jdata_ref.S(),scaling)
-    {
+    { 
       m_q_transform.resize(nq, 1);
       m_v_transform.resize(nv, 1);
+      boost::apply_visitor(TransferVisitor(m_jdata_ref), jdata);
     }
+    
+
+    // JointDataMimicTpl(const RefJointDataVariant & jdata,
+    //                const Scalar & scaling, 
+    //                const Scalar & nq,
+    //                const Scalar & nv)
+    // : m_jdata_ref(jdata)
+    // , m_scaling(scaling)
+    // , S(m_jdata_ref.S(),scaling)
+    // {
+
+    // }
 
     JointDataMimicTpl(const RefJointData & jdata,
                    const Scalar & scaling, 
