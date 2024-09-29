@@ -360,6 +360,44 @@ namespace pinocchio
 
         ;
     }
+
+    // Specialization for JointModelMimic
+    struct JointModelMimicConstructorVisitor
+    : public boost::static_visitor<context::JointModelMimic *>
+    {
+      const context::Scalar & m_scaling;
+      const context::Scalar & m_offset;
+
+      JointModelMimicConstructorVisitor(const context::Scalar & scaling, const context::Scalar & offset)
+      : m_scaling(scaling)
+      , m_offset(offset)
+      {
+      }
+
+      template<typename JointModelDerived>
+      context::JointModelMimic * operator()(JointModelDerived & jmodel) const
+      {
+        return new context::JointModelMimic(jmodel, m_scaling, m_offset);
+      }
+    }; // struct JointModelMimicConstructorVisitor
+
+    static context::JointModelMimic * init_proxy(const context::JointModel & jmodel, const context::Scalar & scaling, const context::Scalar & offset)
+    {
+      return boost::apply_visitor(
+        JointModelMimicConstructorVisitor(scaling, offset), jmodel);
+    }
+
+    template<>
+    bp::class_<context::JointModelMimic> &
+    expose_joint_model<context::JointModelMimic>(bp::class_<context::JointModelMimic> & cl)
+    {
+      return cl
+        .def(
+          "__init__",
+          bp::make_constructor(init_proxy, bp::default_call_policies(), bp::args("joint_model", "scaling", "offset")),
+          "Init JointModelMimic from an existing joint with scaling and offset.");
+    }
+
   } // namespace python
 } // namespace pinocchio
 
