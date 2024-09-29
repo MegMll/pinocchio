@@ -176,7 +176,7 @@ namespace pinocchio
         const JointIndex mimicked_old_id = res.jmodel().id();
         const std::string mimicked_name = old_model.names[mimicked_old_id];
         const JointIndex mimicked_new_id = new_model.getJointId(mimicked_name);
-        res.jmodel().setIndexes(
+        res.setMimicIndexes(
           mimicked_new_id, new_model.joints[mimicked_new_id].idx_q(),
           new_model.joints[mimicked_new_id].idx_v(), new_model.joints[mimicked_new_id].idx_j());
         return res;

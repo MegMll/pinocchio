@@ -812,9 +812,9 @@ namespace pinocchio
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
       assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
 
-      m_jmodel_ref.setIndexes(0, 0, 0, 0);
-      Base::i_q = jmodel_mimicked.idx_q();
-      Base::i_v = jmodel_mimicked.idx_v();
+      setMimicIndexes(
+        jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
+        jmodel_mimicked.idx_j());
     }
 
     template<typename JointModel>
@@ -838,9 +838,9 @@ namespace pinocchio
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
       assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
 
-      m_jmodel_ref.setIndexes(0, 0, 0, 0);
-      Base::i_q = jmodel_mimicked.idx_q();
-      Base::i_v = jmodel_mimicked.idx_v();
+      setMimicIndexes(
+        jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
+        jmodel_mimicked.idx_j());
     }
 
     template<typename JointModelMimicking>
@@ -857,9 +857,9 @@ namespace pinocchio
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
       assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
 
-      m_jmodel_ref.setIndexes(0, 0, 0, 0);
-      Base::i_q = jmodel_mimicked.idx_q();
-      Base::i_v = jmodel_mimicked.idx_v();
+      setMimicIndexes(
+        jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
+        jmodel_mimicked.idx_j());
     }
 
     Base & base()
@@ -884,13 +884,24 @@ namespace pinocchio
       return m_jmodel_ref.nj();
     }
 
-    void setIndexes_impl(JointIndex id, int q, int v, int j)
+    void setIndexes_impl(JointIndex id, int /*q*/, int /*v*/, int j)
     {
       Base::i_id = id;
       // When setting the indexes q and v should remain on the mimicked joint
       // Base::i_q = q;
       // Base::i_v = v;
       Base::i_j = j;
+    }
+
+    // Specific way for mimic joints to set the mimicked q,v indexes.
+    // Used for manipulating tree (e.g. appendModel)
+    void setMimicIndexes(JointIndex id, int q, int v, int j)
+    {
+      // Set idx_q, idx_v to zero so that only sub segment of q,v can be passed to ref joint
+      m_jmodel_ref.setIndexes(id, 0, 0, j);
+      // idx_q, idx_v kept separately
+      Base::i_q = q;
+      Base::i_v = v;
     }
 
     JointDataDerived createData() const
