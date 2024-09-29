@@ -105,31 +105,34 @@ namespace pinocchio
           model, typename JC::JointModelRX(), model.names[joint_id], pre + "wrist1", Marm);
         model.inertias[joint_id] = Ijoint;
 
-        if(mimic)
+        if (mimic)
         {
           Scalar multiplier = JC::JointModelRX::ConfigVector_t::Random(1)(0);
           Scalar offset = JC::JointModelRX::ConfigVector_t::Random(1)(0);
-          
-          joint_id = addJointAndBody(model, typename JC::JointModelMimic(model.joints[joint_id].derived(), multiplier, offset), 
-                                     model.names[joint_id], pre+"wrist1_joint_mimic", Id4);
+
+          joint_id = addJointAndBody(
+            model,
+            typename JC::JointModelMimic(model.joints[joint_id].derived(), multiplier, offset),
+            model.names[joint_id], pre + "wrist1_joint_mimic", Id4);
         }
         else
-        {        
+        {
           joint_id = addJointAndBody(
             model, typename JC::JointModelRY(), model.names[joint_id], pre + "wrist2", Id4);
         }
 
         model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre + "effector_body", joint_id);
+        const int nq = mimic ? 5 : 6;
 
         const JointModel & base_joint = model.joints[root_joint_id];
         const int idx_q = base_joint.idx_q();
         const int idx_v = base_joint.idx_v();
 
-        model.lowerPositionLimit.template segment<6>(idx_q).fill(qmin);
-        model.upperPositionLimit.template segment<6>(idx_q).fill(qmax);
-        model.velocityLimit.template segment<6>(idx_v).fill(vmax);
-        model.effortLimit.template segment<6>(idx_v).fill(taumax);
+        model.lowerPositionLimit.segment(idx_q, nq).fill(qmin);
+        model.upperPositionLimit.segment(idx_q, nq).fill(qmax);
+        model.velocityLimit.segment(idx_v, nq).fill(vmax);
+        model.effortLimit.segment(idx_v, nq).fill(taumax);
       }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
