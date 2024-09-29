@@ -223,6 +223,8 @@ namespace pinocchio
 
     for (Index joint = 1; joint < (Index)(model.njoints); joint++)
     {
+      if (boost::get<JointModelMimic>(&model.joints[joint]))
+        continue; // Mimic joints should not override mimicked joint fromRow values
       const Index & parent = model.parents[joint];
       const int nvj = model.joints[joint].nv();
       const int idx_vj = model.joints[joint].idx_v();

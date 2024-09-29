@@ -156,26 +156,30 @@ namespace pinocchio
       template<typename JointModel>
       static typename std::enable_if<
         !std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value,
-        void>::type
-      updateMimicIds(JointModel & jmodel, const Model & old_model, const Model & new_model)
+        JointModel>::type
+      updateMimicIds(const JointModel & jmodel, const Model & old_model, const Model & new_model)
       {
+        JointModel res(jmodel);
+        return res;
       }
 
       template<typename JointModel>
       static typename std::enable_if<
         std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value,
-        void>::type
+        JointModel>::type
       updateMimicIds(
-        JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+        const JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & jmodel,
         const Model & old_model,
         const Model & new_model)
       {
-        const JointIndex mimicked_old_id = jmodel.jmodel().id();
+        JointModel res(jmodel);
+        const JointIndex mimicked_old_id = res.jmodel().id();
         const std::string mimicked_name = old_model.names[mimicked_old_id];
         const JointIndex mimicked_new_id = new_model.getJointId(mimicked_name);
-        jmodel.jmodel().setIndexes(
+        res.jmodel().setIndexes(
           mimicked_new_id, new_model.joints[mimicked_new_id].idx_q(),
           new_model.joints[mimicked_new_id].idx_v(), new_model.joints[mimicked_new_id].idx_j());
+        return res;
       }
 
       template<typename JointModel>
@@ -198,9 +202,16 @@ namespace pinocchio
           !model.existJointName(modelAB.names[joint_id_in]),
           "The two models have conflicting joint names.");
 
+        // For mimic joints, update the reference joint id
+        JointModel jmodel_inter = updateMimicIds<JointModel>(jmodel_in.derived(), modelAB, model);
+
         JointIndex joint_id_out = model.addJoint(
-          parent_id, jmodel_in, pMi * modelAB.jointPlacements[joint_id_in],
-          modelAB.names[joint_id_in], jmodel_in.jointVelocitySelector(modelAB.effortLimit),
+          parent_id,
+          jmodel_inter, // Use the intermediate joint (jmodel_inter) with updates id, idx, ...
+          pMi * modelAB.jointPlacements[joint_id_in], modelAB.names[joint_id_in],
+          jmodel_in.jointVelocitySelector(
+            modelAB
+              .effortLimit), // Need to select the vector base on the origin idxs, so use jmodel_in.
           jmodel_in.jointVelocitySelector(modelAB.velocityLimit),
           jmodel_in.jointConfigSelector(modelAB.lowerPositionLimit),
           jmodel_in.jointConfigSelector(modelAB.upperPositionLimit),
@@ -211,9 +222,6 @@ namespace pinocchio
         model.appendBodyToJoint(joint_id_out, modelAB.inertias[joint_id_in]);
 
         typename Model::JointModel & jmodel_out = model.joints[joint_id_out];
-
-        // For mimic joints, update the reference joint id
-        updateMimicIds<JointModel>(boost::get<JointModel>(jmodel_out), modelAB, model);
 
         jmodel_out.jointVelocitySelector(model.rotorInertia) =
           jmodel_in.jointVelocitySelector(modelAB.rotorInertia);
