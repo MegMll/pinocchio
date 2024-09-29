@@ -885,4 +885,69 @@ BOOST_AUTO_TEST_CASE(test_has_configuration_limit)
   BOOST_CHECK((model_cf_limits_tangent == expected_cf_limits_tangent_model));
 }
 
+BOOST_AUTO_TEST_CASE(test_has_transform_to_mimic)
+{
+  Model humanoid_model, humanoid_mimic;
+  buildModels::humanoid(humanoid_model);
+
+  JointIndex index_p = humanoid_model.getJointId("rleg_shoulder3_joint");
+  JointIndex index_s = humanoid_model.getJointId("lleg_shoulder3_joint");
+
+  transformJointIntoMimic(humanoid_model, index_p, index_s, 2.0, 0.4, humanoid_mimic);
+
+  BOOST_CHECK(humanoid_mimic.nq == (humanoid_model.nq - humanoid_model.nqs[index_s]));
+  BOOST_CHECK(humanoid_mimic.nv == (humanoid_model.nv - humanoid_model.nvs[index_s]));
+  BOOST_CHECK(humanoid_model.nj == humanoid_mimic.nj);
+  BOOST_CHECK(humanoid_mimic.njoints == humanoid_model.njoints);
+
+  for (int i = 1; i < humanoid_model.names.size(); i++)
+  {
+    JointIndex full_id = humanoid_model.getJointId(humanoid_model.names[i]);
+    JointIndex mim_id = humanoid_mimic.getJointId(humanoid_model.names[i]);
+
+    BOOST_CHECK(full_id == mim_id);
+
+    const JointModel & jmodel_mim = humanoid_mimic.joints[mim_id];
+    const JointModel & jmodel_full = humanoid_model.joints[full_id];
+
+    BOOST_CHECK(jmodel_mim.idx_v() == humanoid_mimic.idx_vs[mim_id]);
+    BOOST_CHECK(jmodel_mim.nv() == humanoid_mimic.nvs[mim_id]);
+    BOOST_CHECK(jmodel_mim.idx_q() == humanoid_mimic.idx_qs[mim_id]);
+    BOOST_CHECK(jmodel_mim.nq() == humanoid_mimic.nqs[mim_id]);
+
+    if (mim_id != index_s)
+    {
+      BOOST_CHECK(
+        jmodel_mim.jointVelocityFromNvSelector(humanoid_mimic.effortLimit)
+        == jmodel_full.jointVelocityFromNvSelector(humanoid_model.effortLimit));
+      BOOST_CHECK(
+        jmodel_mim.jointVelocityFromNvSelector(humanoid_mimic.velocityLimit)
+        == jmodel_full.jointVelocityFromNvSelector(humanoid_model.velocityLimit));
+
+      BOOST_CHECK(
+        jmodel_mim.jointConfigFromNqSelector(humanoid_mimic.lowerPositionLimit)
+        == jmodel_full.jointConfigFromNqSelector(humanoid_model.lowerPositionLimit));
+      BOOST_CHECK(
+        jmodel_mim.jointConfigFromNqSelector(humanoid_mimic.upperPositionLimit)
+        == jmodel_full.jointConfigFromNqSelector(humanoid_model.upperPositionLimit));
+
+      BOOST_CHECK(
+        jmodel_mim.jointVelocityFromNvSelector(humanoid_mimic.armature)
+        == jmodel_full.jointVelocityFromNvSelector(humanoid_model.armature));
+      BOOST_CHECK(
+        jmodel_mim.jointVelocityFromNvSelector(humanoid_mimic.rotorInertia)
+        == jmodel_full.jointVelocityFromNvSelector(humanoid_model.rotorInertia));
+      BOOST_CHECK(
+        jmodel_mim.jointVelocityFromNvSelector(humanoid_mimic.rotorGearRatio)
+        == jmodel_full.jointVelocityFromNvSelector(humanoid_model.rotorGearRatio));
+      BOOST_CHECK(
+        jmodel_mim.jointVelocityFromNvSelector(humanoid_mimic.friction)
+        == jmodel_full.jointVelocityFromNvSelector(humanoid_model.friction));
+      BOOST_CHECK(
+        jmodel_mim.jointVelocityFromNvSelector(humanoid_mimic.damping)
+        == jmodel_full.jointVelocityFromNvSelector(humanoid_model.damping));
+    }
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
