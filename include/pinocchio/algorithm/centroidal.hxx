@@ -140,7 +140,7 @@ namespace pinocchio
         J_cols = data.oMi[i].act(jdata.S());
 
         ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
-        motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
         data.oYcrb[parent] += data.oYcrb[i];
       }
 

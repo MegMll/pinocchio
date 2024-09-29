@@ -79,8 +79,8 @@ namespace pinocchio
         // Centroidal momentum map
         ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
         ColsBlock J_cols = jmodel.jointJacCols(data.J);
-        motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
-
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
+        
         // Joint Space Inertia Matrix
         jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
           J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
@@ -240,6 +240,7 @@ namespace pinocchio
       }
 
       data.M.setZero();
+      data.Ag.setZero();
       typedef CrbaWorldConventionBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
