@@ -95,7 +95,7 @@ namespace pinocchio
         }
       else
       {
-        for (JointIndex j = ancestor_sec; j < model.supports[secondary_id].size() - 1; j++)
+        for (JointIndex j = ancestor_sec + 1; j < model.supports[secondary_id].size() - 1; j++)
         {
           j_id = model.supports[secondary_id].at(j);
           jmodel.jointVelRows(data.M)
@@ -107,11 +107,10 @@ namespace pinocchio
         for (JointIndex j = ancestor_prim + 1; j < model.supports[primary_id].size(); j++)
         {
           j_id = model.supports[primary_id].at(j);
-          jmodel.jointVelRows(data.M)
-            .middleCols(model.joints[j_id].idx_v(), model.joints[j_id].nv())
-            .noalias() +=
-            data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv()).transpose()
-            * model.joints.at(j_id).jointJacCols(data.J);
+          jmodel.jointVelCols(data.M)
+            .middleRows(model.joints[j_id].idx_v(), model.joints[j_id].nv())
+            .noalias() -= model.joints.at(j_id).jointJacCols(data.J).transpose()
+                          * data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv());
         }
       }
     }
