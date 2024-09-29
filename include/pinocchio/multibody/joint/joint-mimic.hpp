@@ -398,22 +398,6 @@ namespace pinocchio
     // JointDataMimicTpl(const JointDataMimicTpl & other)
     // { *this = other; }
 
-    JointDataMimicTpl(
-      const RefJointData & jdata,
-      const Scalar & scaling,
-      const Scalar & nq,
-      const Scalar & nv)
-    : m_scaling(scaling)
-    , S(m_jdata_ref.S(), scaling)
-    , m_jdata_ref(
-        transferToVariant<JointDataTpl<Scalar, Options, JointCollectionTpl>, RefJointData>(jdata))
-    {
-      joint_q.resize(nq, 1);
-      joint_q_transformed.resize(nq, 1);
-      joint_v.resize(nv, 1);
-      joint_v_transformed.resize(nv, 1);
-    }
-
     // JointDataMimicTpl(const RefJointDataVariant & jdata,
     //                const Scalar & scaling,
     //                const Scalar & nq,
@@ -427,10 +411,9 @@ namespace pinocchio
 
     JointDataMimicTpl(
       const RefJointData & jdata, const Scalar & scaling, const Scalar & nq, const Scalar & nv)
-    : m_jdata_ref(jdata.derived())
+    : m_jdata_ref(checkMimic(jdata.derived()))
     , m_scaling(scaling)
     , S(m_jdata_ref.S(), scaling)
-        checkMimic(jdata))
     {
       joint_q.resize(nq, 1);
       joint_q_transformed.resize(nq, 1);
@@ -679,7 +662,7 @@ namespace pinocchio
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
     typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
     typedef typename JointModel::JointModelVariant JointModelVariant;
-    
+
     typedef SE3Tpl<Scalar, Options> SE3;
     typedef MotionTpl<Scalar, Options> Motion;
     typedef InertiaTpl<Scalar, Options> Inertia;
@@ -717,7 +700,6 @@ namespace pinocchio
       assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
       assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
-      
 
       setMimicIndexes(
         jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
