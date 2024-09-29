@@ -25,7 +25,7 @@ namespace pinocchio
   template<typename _Scalar, int _Options>
   struct traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>
   {
-    typedef JointMotionSubspacePreallocTpl<6, _Scalar, _Options> RefJointMotionSubspace;
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic, _Scalar, _Options, 6> RefJointMotionSubspace;
     typedef typename traits<RefJointMotionSubspace>::Scalar Scalar;
     enum
     {
