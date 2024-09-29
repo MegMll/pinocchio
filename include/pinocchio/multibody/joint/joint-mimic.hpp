@@ -506,7 +506,6 @@ namespace pinocchio
     {
       m_q_transform.resize(nq, 1);
       m_v_transform.resize(nv, 1);
-      // boost::apply_visitor(TransferVisitor(m_jdata_ref), jdata);
     }
 
     // JointDataMimicTpl(const RefJointDataVariant & jdata,
@@ -853,6 +852,35 @@ namespace pinocchio
       return m_jmodel_ref.idx_v();
     }
 
+<<<<<<< HEAD
+=======
+    template<typename JointModelMimicking>
+    JointModelMimicTpl(const JointModelBase<JointModelMimicking> & jmodel_mimicking,
+                       const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel_mimicked,
+                       const Scalar & scaling,
+                       const Scalar & offset)
+    : m_jmodel_ref((JointModelVariant)jmodel_mimicking.derived())
+    , m_scaling(scaling)
+    , m_offset(offset)
+    {
+      assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
+      assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
+      assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
+
+      m_jmodel_ref.setIndexes(jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(), jmodel_mimicked.idx_j());
+    }
+
+    Base & base() { return *static_cast<Base*>(this); }
+    const Base & base() const { return *static_cast<const Base*>(this); }
+    
+    inline int nq_impl() const { return 0; }
+    inline int nv_impl() const { return 0; }
+    inline int nj_impl() const { return m_jmodel_ref.nj(); }
+    
+    inline int idx_q_impl() const { return m_jmodel_ref.idx_q(); }
+    inline int idx_v_impl() const { return m_jmodel_ref.idx_v(); }
+    
+>>>>>>> deb5d640 ([URDF] Modified the way mimic joint are added (still broken for romeo....))
     void setIndexes_impl(JointIndex id, int q, int v, int j)
     {
       Base::i_id = id; // Only the id of the joint in the model is different.
@@ -863,9 +891,13 @@ namespace pinocchio
 
     JointDataDerived createData() const
     {
+<<<<<<< HEAD
 
       return JointDataDerived(
         m_jmodel_ref.createData(), scaling(), m_jmodel_ref.nq(), m_jmodel_ref.nv());
+=======
+      return JointDataDerived(m_jmodel_ref.createData(),scaling(), m_jmodel_ref.nq(), m_jmodel_ref.nv());
+>>>>>>> deb5d640 ([URDF] Modified the way mimic joint are added (still broken for romeo....))
     }
 
     const std::vector<bool> hasConfigurationLimit() const
