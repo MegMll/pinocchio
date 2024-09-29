@@ -13,7 +13,7 @@ namespace pinocchio
   namespace buildModels
   {
     template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void
-    manipulator<context::Scalar, context::Options, JointCollectionDefaultTpl>(context::Model &);
+    manipulator<context::Scalar, context::Options, JointCollectionDefaultTpl>(context::Model &, bool);
 
     template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void
     humanoid<context::Scalar, context::Options, JointCollectionDefaultTpl>(context::Model &, bool);

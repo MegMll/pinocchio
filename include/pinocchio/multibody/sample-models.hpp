@@ -18,7 +18,7 @@ namespace pinocchio
      * \param model: model, typically given empty, where the kinematic chain is added.
      */
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    void manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model);
+    void manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model, const bool mimic = false);
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by manipulator function.

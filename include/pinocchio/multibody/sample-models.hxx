@@ -57,6 +57,7 @@ namespace pinocchio
       template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
       static void addManipulator(
         ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+        const bool mimic = false,
         typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex root_joint_idx = 0,
         const typename ModelTpl<Scalar, Options, JointCollectionTpl>::SE3 & Mroot =
           ModelTpl<Scalar, Options, JointCollectionTpl>::SE3::Identity(),
@@ -104,8 +105,20 @@ namespace pinocchio
           model, typename JC::JointModelRX(), model.names[joint_id], pre + "wrist1", Marm);
         model.inertias[joint_id] = Ijoint;
 
-        joint_id = addJointAndBody(
-          model, typename JC::JointModelRY(), model.names[joint_id], pre + "wrist2", Id4);
+        if(mimic)
+        {
+          Scalar multiplier = JC::JointModelRX::ConfigVector_t::Random(1)(0);
+          Scalar offset = JC::JointModelRX::ConfigVector_t::Random(1)(0);
+          
+          joint_id = addJointAndBody(model, typename JC::JointModelMimic(boost::get<typename JC::JointModelRX>(model.joints[joint_id]), multiplier, offset), 
+                                     model.names[joint_id], pre+"wrist1_joint_mimic", Id4);
+        }
+        else
+        {        
+          joint_id = addJointAndBody(
+            model, typename JC::JointModelRY(), model.names[joint_id], pre + "wrist2", Id4);
+        }
+
         model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre + "effector_body", joint_id);
 
@@ -199,9 +212,9 @@ namespace pinocchio
     } // namespace details
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    void manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model)
+    void manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model, const bool mimic)
     {
-      details::addManipulator(model);
+      details::addManipulator(model, mimic);
     }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -315,11 +328,11 @@ namespace pinocchio
       /* --- Lower limbs --- */
 
       details::addManipulator(
-        model, ffidx,
+        model, false, ffidx,
         SE3(details::rotate(pi, SE3::Vector3::UnitX()), typename SE3::Vector3(0, -0.2, -.1)),
         "rleg_");
       details::addManipulator(
-        model, ffidx,
+        model, false, ffidx,
         SE3(details::rotate(pi, SE3::Vector3::UnitX()), typename SE3::Vector3(0, 0.2, -.1)),
         "lleg_");
 
@@ -359,11 +372,11 @@ namespace pinocchio
 
       /* --- Upper Limbs --- */
       details::addManipulator(
-        model, chest,
+        model, false, chest,
         SE3(details::rotate(pi, SE3::Vector3::UnitX()), typename SE3::Vector3(0, -0.3, 1.)),
         "rarm_");
       details::addManipulator(
-        model, chest,
+        model, false, chest,
         SE3(details::rotate(pi, SE3::Vector3::UnitX()), typename SE3::Vector3(0, 0.3, 1.)),
         "larm_");
     }
