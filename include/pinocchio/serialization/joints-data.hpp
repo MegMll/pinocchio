@@ -233,11 +233,11 @@ namespace boost
       ar & make_nvp("base_variant", base_object<JointDataVariant>(joint));
     }
 
-    template<class Archive, typename JointData>
+    template <class Archive, typename Scalar, int Options, template<typename,int> typename JointCollection>
     void serialize(
-      Archive & ar, pinocchio::JointDataMimic<JointData> & joint, const unsigned int version)
+      Archive & ar, pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection> & joint, const unsigned int version)
     {
-      typedef pinocchio::JointDataMimic<JointData> JointType;
+      typedef pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection> JointType;
       fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint), version);
 
       ar & make_nvp("jdata", joint.jdata());
