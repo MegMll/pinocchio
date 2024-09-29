@@ -33,7 +33,7 @@ void test_joint_methods(
   JointData jdata = jmodel.createData();
   JointDataComposite jdata_composite = jmodel_composite.createData();
 
-  jmodel_composite.setIndexes(jmodel.id(), jmodel.idx_q(), jmodel.idx_v());
+  jmodel_composite.setIndexes(jmodel.id(), jmodel.idx_q(), jmodel.idx_v(), jmodel.idx_j());
 
   typedef typename JointModel::ConfigVector_t ConfigVector_t;
   typedef typename JointModel::TangentVector_t TangentVector_t;
@@ -161,7 +161,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -179,7 +179,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -187,7 +187,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
     test_joint_methods(jmodel);
   }
 };
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(chain)
 BOOST_AUTO_TEST_CASE(vsZYX)
 {
   JointModelSphericalZYX jmodel_spherical;
-  jmodel_spherical.setIndexes(0, 0, 0);
+  jmodel_spherical.setIndexes(0, 0, 0, 0);
 
   JointModelComposite jmodel_composite((JointModelRZ()));
   jmodel_composite.addJoint(JointModelRY());
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(vsZYX)
 BOOST_AUTO_TEST_CASE(vsTranslation)
 {
   JointModelTranslation jmodel_translation;
-  jmodel_translation.setIndexes(0, 0, 0);
+  jmodel_translation.setIndexes(0, 0, 0, 0);
 
   JointModelComposite jmodel_composite((JointModelPX()));
   jmodel_composite.addJoint(JointModelPY());
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(test_copy)
   JointModelComposite jmodel_composite_planar((JointModelPX()));
   jmodel_composite_planar.addJoint(JointModelPY());
   jmodel_composite_planar.addJoint(JointModelRZ());
-  jmodel_composite_planar.setIndexes(0, 0, 0);
+  jmodel_composite_planar.setIndexes(0, 0, 0, 0);
 
   JointDataComposite jdata_composite_planar = jmodel_composite_planar.createData();
 
