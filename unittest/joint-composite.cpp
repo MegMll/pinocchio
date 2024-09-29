@@ -154,13 +154,17 @@ void test_joint_methods(
     jmodel.jointConfigFromNqSelector(vec_const)
     == jmodel_composite.jointConfigFromNqSelector(vec_const));
 
-  BOOST_CHECK(jmodel.jointVelocityFromNvSelector(vec) == jmodel_composite.jointVelocityFromNvSelector(vec));
   BOOST_CHECK(
-    jmodel.jointVelocityFromNvSelector(vec_const) == jmodel_composite.jointVelocityFromNvSelector(vec_const));
+    jmodel.jointVelocityFromNvSelector(vec) == jmodel_composite.jointVelocityFromNvSelector(vec));
+  BOOST_CHECK(
+    jmodel.jointVelocityFromNvSelector(vec_const)
+    == jmodel_composite.jointVelocityFromNvSelector(vec_const));
 
-  BOOST_CHECK(jmodel.jointVelocityFromDofSelector(vec) == jmodel_composite.jointVelocityFromDofSelector(vec));
   BOOST_CHECK(
-    jmodel.jointVelocityFromDofSelector(vec_const) == jmodel_composite.jointVelocityFromDofSelector(vec_const));
+    jmodel.jointVelocityFromDofSelector(vec) == jmodel_composite.jointVelocityFromDofSelector(vec));
+  BOOST_CHECK(
+    jmodel.jointVelocityFromDofSelector(vec_const)
+    == jmodel_composite.jointVelocityFromDofSelector(vec_const));
 
   BOOST_CHECK(jmodel.jointVelCols(mat) == jmodel_composite.jointVelCols(mat));
   BOOST_CHECK(jmodel.jointVelCols(mat_const) == jmodel_composite.jointVelCols(mat_const));

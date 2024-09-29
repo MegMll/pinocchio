@@ -128,7 +128,8 @@ namespace pinocchio
           gravity_partial_dq_.middleRows(jmodel.idx_v(), jmodel.nv()).col(j).noalias() =
             Ag_cols.transpose() * data.dAdq.col(j);
 
-        jmodel.jointVelocityFromDofSelector(g).noalias() = J_cols.transpose() * data.of[i].toVector();
+        jmodel.jointVelocityFromDofSelector(g).noalias() =
+          J_cols.transpose() * data.of[i].toVector();
         if (parent > 0)
         {
           data.oYcrb[parent] += data.oYcrb[i];

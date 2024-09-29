@@ -93,7 +93,8 @@ namespace pinocchio
         ov, psid_cols,
         psidd_cols); // This ov here is v(p(i)) , psi_dotdot calcs
       ov += vJ;
-      oa += (ov ^ vJ) + data.oMi[i].act(jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c());
+      oa +=
+        (ov ^ vJ) + data.oMi[i].act(jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c());
       motionSet::motionAction(ov, J_cols, dJ_cols); // This here is phi_dot, here ov used is v(p(i))
                                                     // + vJ Composite rigid body inertia
       Inertia & oY = data.oYcrb[i];

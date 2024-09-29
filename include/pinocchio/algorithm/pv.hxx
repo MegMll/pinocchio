@@ -191,8 +191,8 @@ namespace pinocchio
 
       if (parent > 0)
       {
-        pa.toVector().noalias() +=
-          Ia * data.a_bias[i].toVector() + jdata.UDinv() * jmodel.jointVelocityFromDofSelector(data.u);
+        pa.toVector().noalias() += Ia * data.a_bias[i].toVector()
+                                   + jdata.UDinv() * jmodel.jointVelocityFromDofSelector(data.u);
         data.Yaba[parent] += impl::internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
@@ -236,8 +236,8 @@ namespace pinocchio
 
       if (parent > 0)
       {
-        pa.toVector() +=
-          Ia * data.a_bias[i].toVector() + jdata.UDinv() * jmodel.jointVelocityFromDofSelector(data.u);
+        pa.toVector() += Ia * data.a_bias[i].toVector()
+                         + jdata.UDinv() * jmodel.jointVelocityFromDofSelector(data.u);
         data.Yaba[parent] += impl::internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
@@ -257,7 +257,8 @@ namespace pinocchio
       for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
       {
         // Abusing previously unused data.tau for a role unrelated to its name below
-        jmodel.jointVelocityFromDofSelector(data.tau).noalias() = jdata.Dinv() * data.KAS[i].col(ind);
+        jmodel.jointVelocityFromDofSelector(data.tau).noalias() =
+          jdata.Dinv() * data.KAS[i].col(ind);
         for (int ind2 = ind; ind2 < data.constraints_supported_dim[i]; ind2++)
         {
 
@@ -312,7 +313,8 @@ namespace pinocchio
       // Abusing otherwise unused data.tau below.
       jmodel.jointVelocityFromDofSelector(data.tau).noalias() = jdata.S().transpose() * data.f[i];
       jmodel.jointVelocityFromNvSelector(data.u) -= jmodel.jointVelocityFromNvSelector(data.tau);
-      data.f[i].toVector().noalias() -= jdata.UDinv() * jmodel.jointVelocityFromDofSelector(data.tau);
+      data.f[i].toVector().noalias() -=
+        jdata.UDinv() * jmodel.jointVelocityFromDofSelector(data.tau);
 
       if (parent > 0)
       {
