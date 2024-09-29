@@ -914,14 +914,7 @@ namespace pinocchio
 
       idx_q += jmodel_output.nq();
       idx_v += jmodel_output.nv();
-      if (joint_id == index_secondary)
-      {
-        output_model.idx_qs[index_secondary] = output_model.joints[index_secondary].idx_q();
-        output_model.idx_vs[index_secondary] = output_model.joints[index_secondary].idx_v();
-        output_model.nqs[index_secondary] = 0;
-        output_model.nvs[index_secondary] = 0;
-      }
-      else
+      if (joint_id != index_secondary)
       {
         jmodel_output.jointVelocityFromNvSelector(output_model.effortLimit) =
           jmodel_input.jointVelocityFromNvSelector(input_model.effortLimit);
