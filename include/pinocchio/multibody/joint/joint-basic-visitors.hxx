@@ -915,6 +915,29 @@ namespace pinocchio
     return Algo::run(jdata_generic, typename Algo::ArgsType(boost::ref(jdata.derived())));
   }
 
+  template <typename TargetVariant>
+  struct TransferVisitor : public boost::static_visitor<TargetVariant> {
+
+      template <typename ValueType>
+      typename boost::enable_if<boost::mpl::contains<typename TargetVariant::types, ValueType>, TargetVariant>::type
+      operator()(const ValueType& value) const {
+          return TargetVariant(value);
+      }
+
+      template <typename ValueType>
+      typename boost::disable_if<boost::mpl::contains<typename TargetVariant::types, ValueType>, TargetVariant>::type
+      operator()(const ValueType& value) const {
+          assert(false && "Type not supported in new variant");
+          return TargetVariant();
+      }
+  };
+
+  template<typename VariantSrc, typename VariantDst>
+  VariantDst transferToVariant(const VariantSrc & value)
+  {
+    return boost::apply_visitor(TransferVisitor<VariantDst>(), value);
+  }
+
   /// @endcond
 
 } // namespace pinocchio

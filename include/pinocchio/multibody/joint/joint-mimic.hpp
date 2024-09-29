@@ -9,6 +9,7 @@
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include <boost/variant.hpp>
 #include <boost/mpl/filter_view.hpp>
 #include <boost/mpl/vector.hpp>
@@ -338,27 +339,6 @@ struct JointCollectionMimicableTpl
   > JointDataVariant;
 };
 
-// Helper to check if a type is in the target variant
-template <typename TargetVariant, typename T>
-struct is_type_in_variant : boost::mpl::contains<typename TargetVariant::types, T> {};
-
-template <typename TargetVariant>
-struct TransferVisitor : public boost::static_visitor<TargetVariant> {
-    
-    template <typename T>
-    typename std::enable_if<is_type_in_variant<TargetVariant, T>::value, TargetVariant>::type
-    operator()(const T& value) const {
-        return TargetVariant(value);
-    }
-
-    template <typename T>
-    typename std::enable_if<!is_type_in_variant<TargetVariant, T>::value, TargetVariant>::type
-    operator()(const T& value) const {
-        std::cout << "Type not supported in new variant\n";
-        return TargetVariant();
-    }
-};
-
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl> struct JointMimicTpl;
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl> struct JointModelMimicTpl;
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl> struct JointDataMimicTpl;
@@ -441,7 +421,7 @@ struct TransferVisitor : public boost::static_visitor<TargetVariant> {
                     const Scalar & nv)
     : m_scaling(scaling)
     , S(m_jdata_ref.S(),scaling)
-    , m_jdata_ref(boost::apply_visitor(TransferVisitor<RefJointDataVariant>(), jdata))
+    , m_jdata_ref(transferToVariant<JointDataTpl<Scalar, Options, JointCollectionTpl>, RefJointData>(jdata))
     { 
       m_q_transform.resize(nq, 1);
       m_v_transform.resize(nv, 1);
@@ -636,10 +616,9 @@ struct TransferVisitor : public boost::static_visitor<TargetVariant> {
     using Base::nv;
     using Base::nj;
     using Base::setIndexes;
-    
+
     JointModelMimicTpl()
     {}
-    
 
     JointModelMimicTpl(const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel,
                     const Scalar & scaling,
@@ -653,7 +632,7 @@ struct TransferVisitor : public boost::static_visitor<TargetVariant> {
                        const Scalar & offset)
     : m_scaling(scaling)
     , m_offset(offset)
-    , m_jmodel_ref(boost::apply_visitor(TransferVisitor<JointModelVariant>(), jmodel_mimicking))
+    , m_jmodel_ref(transferToVariant<JointModelTpl<Scalar, Options, JointCollectionTpl>, JointModel>(jmodel_mimicking))
     {
       assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
