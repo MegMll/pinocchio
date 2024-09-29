@@ -19,17 +19,17 @@
 
 namespace pinocchio
 {
-  template<typename _Scalar, int _Options>
+  template<typename _Scalar, int _Options, int MaxDim>
   struct ScaledJointMotionSubspaceTpl;
 
-  template<typename _Scalar, int _Options>
-  struct traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>
+  template<typename _Scalar, int _Options, int _MaxDim>
+  struct traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>
   {
     enum
     {
-      MaxDim = 6
+      MaxDim = _MaxDim
     };
-    typedef JointMotionSubspaceTpl<Eigen::Dynamic, _Scalar, _Options, MaxDim>
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic, _Scalar, _Options, _MaxDim>
       RefJointMotionSubspace;
     typedef typename traits<RefJointMotionSubspace>::Scalar Scalar;
     enum
@@ -48,34 +48,31 @@ namespace pinocchio
     typedef typename traits<RefJointMotionSubspace>::ConstMatrixReturnType ConstMatrixReturnType;
   }; // traits ScaledJointMotionSubspaceTpl
 
-  template<typename _Scalar, int _Options>
-  struct SE3GroupAction<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>
+  template<typename _Scalar, int _Options, int _MaxDim>
+  struct SE3GroupAction<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>
   {
-    typedef
-      typename SE3GroupAction<typename traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::
-                                RefJointMotionSubspace>::ReturnType ReturnType;
+    typedef typename SE3GroupAction<typename traits<
+      ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>::RefJointMotionSubspace>::ReturnType
+      ReturnType;
   };
 
-  template<typename _Scalar, int _Options, typename MotionDerived>
-  struct MotionAlgebraAction<ScaledJointMotionSubspaceTpl<_Scalar, _Options>, MotionDerived>
+  template<typename _Scalar, int _Options, int _MaxDim, typename MotionDerived>
+  struct MotionAlgebraAction<
+    ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>,
+    MotionDerived>
   {
     typedef typename MotionAlgebraAction<
-      typename traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::RefJointMotionSubspace,
+      typename traits<
+        ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>::RefJointMotionSubspace,
       MotionDerived>::ReturnType ReturnType;
   };
 
-  template<typename _Scalar, int _Options, typename ForceDerived>
-  struct ConstraintForceOp<ScaledJointMotionSubspaceTpl<_Scalar, _Options>, ForceDerived>
+  template<typename _Scalar, int _Options, int _MaxDim, typename ForceDerived>
+  struct ConstraintForceOp<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>, ForceDerived>
   {
-    typedef typename traits<
-      ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::RefJointMotionSubspace::Scalar Scalar;
-    typedef Eigen::Matrix<
-      _Scalar,
-      Eigen::Dynamic,
-      Eigen::Dynamic,
-      _Options,
-      traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::MaxDim,
-      traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::MaxDim>
+    typedef typename traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>::
+      RefJointMotionSubspace::Scalar Scalar;
+    typedef Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options, _MaxDim, _MaxDim>
       OriginalReturnType;
 
     typedef typename ScalarMatrixProduct<Scalar, OriginalReturnType>::type IdealReturnType;
@@ -83,14 +80,15 @@ namespace pinocchio
       Scalar,
       IdealReturnType::RowsAtCompileTime,
       IdealReturnType::ColsAtCompileTime,
-      traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::RefJointMotionSubspace::Options>
+      traits<
+        ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>::RefJointMotionSubspace::Options>
       ReturnType;
   };
 
-  template<typename _Scalar, int _Options, typename ForceSet>
-  struct ConstraintForceSetOp<ScaledJointMotionSubspaceTpl<_Scalar, _Options>, ForceSet>
+  template<typename _Scalar, int _Options, int _MaxDim, typename ForceSet>
+  struct ConstraintForceSetOp<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>, ForceSet>
   {
-    typedef ScaledJointMotionSubspaceTpl<_Scalar, _Options> MotionSubspace;
+    typedef ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim> MotionSubspace;
     typedef typename traits<MotionSubspace>::RefJointMotionSubspace::Scalar Scalar;
 
     typedef Eigen::Matrix<
@@ -98,32 +96,28 @@ namespace pinocchio
       Eigen::Dynamic,
       Eigen::Dynamic,
       traits<MotionSubspace>::RefJointMotionSubspace::Options | Eigen::RowMajor,
-      traits<MotionSubspace>::MaxDim,
-      traits<MotionSubspace>::MaxDim>
+      _MaxDim,
+      _MaxDim>
       ReturnType;
   };
 
-  template<typename _Scalar, int _Options>
+  template<typename _Scalar, int _Options, int _MaxDim>
   struct ScaledJointMotionSubspaceTpl
-  : JointMotionSubspaceBase<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>
+  : JointMotionSubspaceBase<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ScaledJointMotionSubspaceTpl)
     enum
     {
-      NV = Eigen::Dynamic
+      NV = Eigen::Dynamic,
+      MaxDim = _MaxDim
     };
     typedef JointMotionSubspaceBase<ScaledJointMotionSubspaceTpl> Base;
     using Base::nv;
 
-    typedef typename traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::RefJointMotionSubspace
-      RefJointMotionSubspace;
-    enum
-    {
-      MaxDim = traits < ScaledJointMotionSubspaceTpl < _Scalar,
-      _Options >> ::MaxDim
-    };
+    typedef typename traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options, _MaxDim>>::
+      RefJointMotionSubspace RefJointMotionSubspace;
     typedef typename SE3GroupAction<RefJointMotionSubspace>::ReturnType SE3ActionReturnType;
 
     ScaledJointMotionSubspaceTpl()
@@ -261,26 +255,24 @@ namespace pinocchio
     mutable DenseBase S;
   }; // struct ScaledJointMotionSubspaceTpl
 
-  template<typename S1, int O1, typename S2, int O2>
-  struct MultiplicationOp<InertiaTpl<S1, O1>, ScaledJointMotionSubspaceTpl<S2, O2>>
+  template<typename S1, int O1, typename S2, int O2, int MD2>
+  struct MultiplicationOp<InertiaTpl<S1, O1>, ScaledJointMotionSubspaceTpl<S2, O2, MD2>>
   {
     typedef InertiaTpl<S1, O1> Inertia;
-    typedef ScaledJointMotionSubspaceTpl<S2, O2> Constraint;
+    typedef ScaledJointMotionSubspaceTpl<S2, O2, MD2> Constraint;
     typedef typename Constraint::Scalar Scalar;
 
-    typedef Eigen::
-      Matrix<S2, 6, Eigen::Dynamic, O2, traits<Constraint>::MaxDim, traits<Constraint>::MaxDim>
-        ReturnType;
+    typedef Eigen::Matrix<S2, 6, Eigen::Dynamic, O2, 6, MD2> ReturnType;
   };
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   namespace impl
   {
-    template<typename S1, int O1, typename S2, int O2>
-    struct LhsMultiplicationOp<InertiaTpl<S1, O1>, ScaledJointMotionSubspaceTpl<S2, O2>>
+    template<typename S1, int O1, typename S2, int O2, int MD2>
+    struct LhsMultiplicationOp<InertiaTpl<S1, O1>, ScaledJointMotionSubspaceTpl<S2, O2, MD2>>
     {
       typedef InertiaTpl<S1, O1> Inertia;
-      typedef ScaledJointMotionSubspaceTpl<S2, O2> Constraint;
+      typedef ScaledJointMotionSubspaceTpl<S2, O2, MD2> Constraint;
       typedef typename MultiplicationOp<Inertia, Constraint>::ReturnType ReturnType;
 
       static inline ReturnType run(const Inertia & Y, const Constraint & scaled_constraint)
@@ -290,27 +282,20 @@ namespace pinocchio
     };
   } // namespace impl
 
-  template<typename M6Like, typename S2, int O2>
-  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledJointMotionSubspaceTpl<S2, O2>>
+  template<typename M6Like, typename S2, int O2, int MD2>
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledJointMotionSubspaceTpl<S2, O2, MD2>>
   {
-    typedef ScaledJointMotionSubspaceTpl<S2, O2> MotionSubspace;
-    typedef Eigen::Matrix<
-      S2,
-      6,
-      Eigen::Dynamic,
-      O2,
-      traits<MotionSubspace>::MaxDim,
-      traits<MotionSubspace>::MaxDim>
-      ReturnType;
+    typedef ScaledJointMotionSubspaceTpl<S2, O2, MD2> MotionSubspace;
+    typedef Eigen::Matrix<S2, 6, Eigen::Dynamic, O2, 6, MD2> ReturnType;
   };
 
   /* [ABA] operator* (Inertia Y,Constraint S) */
   namespace impl
   {
-    template<typename M6Like, typename S2, int O2>
-    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledJointMotionSubspaceTpl<S2, O2>>
+    template<typename M6Like, typename S2, int O2, int MD2>
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledJointMotionSubspaceTpl<S2, O2, MD2>>
     {
-      typedef ScaledJointMotionSubspaceTpl<S2, O2> Constraint;
+      typedef ScaledJointMotionSubspaceTpl<S2, O2, MD2> Constraint;
       typedef
         typename MultiplicationOp<Eigen::MatrixBase<M6Like>, Constraint>::ReturnType ReturnType;
 
@@ -339,13 +324,14 @@ namespace pinocchio
       Options = _Options,
       NQ = Eigen::Dynamic,
       NV = Eigen::Dynamic,
-      NJ = Eigen::Dynamic
+      NJ = Eigen::Dynamic,
+      MaxNJ = 6
     };
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
     typedef JointDataMimicTpl<Scalar, Options, JointCollectionTpl> JointDataDerived;
     typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelDerived;
-    typedef ScaledJointMotionSubspaceTpl<Scalar, Options> Constraint_t;
+    typedef ScaledJointMotionSubspaceTpl<Scalar, Options, MaxNJ> Constraint_t;
     typedef SE3Tpl<Scalar, Options> Transformation_t;
 
     typedef MotionTpl<Scalar, Options> Motion_t;

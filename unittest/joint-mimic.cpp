@@ -20,7 +20,7 @@ void test_constraint_mimic(const JointModelBase<JointModel> & jmodel)
   typedef typename traits<JointModel>::JointDerived Joint;
   typedef typename traits<Joint>::Constraint_t ConstraintType;
   typedef typename traits<Joint>::JointDataDerived JointData;
-  typedef ScaledJointMotionSubspaceTpl<double, 0> ScaledConstraint;
+  typedef ScaledJointMotionSubspaceTpl<double, 0, JointModel::NJ> ScaledConstraint;
   typedef JointMotionSubspaceTpl<Eigen::Dynamic, double, 0> ConstraintRef;
 
   JointData jdata = jmodel.createData();

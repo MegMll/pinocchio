@@ -110,10 +110,10 @@ namespace boost
       ar & make_nvp("matrix", S.matrix());
     }
 
-    template<class Archive, typename Scalar, int Options>
+    template<class Archive, typename Scalar, int Options, int MaxDim>
     void serialize(
       Archive & ar,
-      pinocchio::ScaledJointMotionSubspaceTpl<Scalar, Options> & S,
+      pinocchio::ScaledJointMotionSubspaceTpl<Scalar, Options, MaxDim> & S,
       const unsigned int /*version*/)
     {
       ar & make_nvp("scaling", S.scaling());
