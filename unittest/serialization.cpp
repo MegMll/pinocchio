@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE(test_model_serialization)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   generic_test(model, TEST_SERIALIZATION_FOLDER "/Model", "Model");
 }
@@ -717,7 +717,7 @@ BOOST_AUTO_TEST_CASE(test_throw_extension)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   const std::string & fake_filename = "this_is_a_fake_filename";
 
@@ -752,7 +752,7 @@ BOOST_AUTO_TEST_CASE(test_data_serialization)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   Data data(model);
 

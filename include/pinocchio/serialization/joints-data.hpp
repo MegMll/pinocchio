@@ -74,14 +74,18 @@ namespace boost
           joint_data,
         const unsigned int /*version*/)
       {
-        ar & make_nvp("S", joint_data.S());
-        // ar & make_nvp("M",joint_data.M());
-        // ar & make_nvp("v",joint_data.v());
-        // ar & make_nvp("c",joint_data.c());
+        ar & make_nvp("joint_q", joint_data.joint_q());
+        ar & make_nvp("joint_v", joint_data.joint_v());
 
-        // ar & make_nvp("U",joint_data.U());
-        // ar & make_nvp("Dinv",joint_data.Dinv());
-        // ar & make_nvp("UDinv",joint_data.UDinv());
+        ar & make_nvp("S", joint_data.S());
+        // ar & make_nvp("M", joint_data.M());
+        // ar & make_nvp("v", joint_data.v());
+        // ar & make_nvp("c", joint_data.c());
+
+        // ar & make_nvp("U", joint_data.U());
+        // ar & make_nvp("Dinv", joint_data.Dinv());
+        // ar & make_nvp("UDinv", joint_data.UDinv());
+        // ar & make_nvp("StU", joint_data.StU());
       }
 
     } // namespace fix
@@ -269,6 +273,9 @@ namespace boost
     {
       typedef pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection> JointType;
       fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint), version);
+
+      ar & make_nvp("m_q_transform", joint.q_transformed());
+      ar & make_nvp("m_v_transform", joint.v_transformed());
 
       ar & make_nvp("jdata", joint.jdata());
       ar & make_nvp("scaling", joint.scaling());
