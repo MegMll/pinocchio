@@ -918,11 +918,11 @@ namespace pinocchio
     return Algo::run(jdata_generic, typename Algo::ArgsType(boost::ref(jdata.derived())));
   }
 
-
   // Meta-function to check is_mimicable_t trait
   template<typename JointModel>
-  struct is_mimicable {
-      static constexpr bool value = traits<typename JointModel::JointDerived>::is_mimicable_t::value;
+  struct is_mimicable
+  {
+    static constexpr bool value = traits<typename JointModel::JointDerived>::is_mimicable_t::value;
   };
 
   template<typename JointModel>
@@ -932,15 +932,15 @@ namespace pinocchio
     typename boost::enable_if_c<is_mimicable<T>::value, JointModel>::type
     operator()(const T & value) const
     {
-        return value;
+      return value;
     }
 
     template<typename T>
     typename boost::disable_if_c<is_mimicable<T>::value, JointModel>::type
     operator()(const T & value) const
     {
-        assert(false && "Type not supported in new variant");
-        return value;
+      assert(false && "Type not supported in new variant");
+      return value;
     }
   };
 

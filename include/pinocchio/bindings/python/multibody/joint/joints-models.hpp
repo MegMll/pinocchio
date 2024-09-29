@@ -368,7 +368,8 @@ namespace pinocchio
       const context::Scalar & m_scaling;
       const context::Scalar & m_offset;
 
-      JointModelMimicConstructorVisitor(const context::Scalar & scaling, const context::Scalar & offset)
+      JointModelMimicConstructorVisitor(
+        const context::Scalar & scaling, const context::Scalar & offset)
       : m_scaling(scaling)
       , m_offset(offset)
       {
@@ -380,13 +381,15 @@ namespace pinocchio
 
         return new context::JointModelMimic(jmodel, m_scaling, m_offset);
       }
-      
+
     }; // struct JointModelMimicConstructorVisitor
 
-    static context::JointModelMimic * init_proxy(const context::JointModel & jmodel, const context::Scalar & scaling, const context::Scalar & offset)
+    static context::JointModelMimic * init_proxy(
+      const context::JointModel & jmodel,
+      const context::Scalar & scaling,
+      const context::Scalar & offset)
     {
-      return boost::apply_visitor(
-        JointModelMimicConstructorVisitor(scaling, offset), jmodel);
+      return boost::apply_visitor(JointModelMimicConstructorVisitor(scaling, offset), jmodel);
     }
 
     static context::Scalar get_scaling(context::JointModelMimic & jmodel)
@@ -406,9 +409,10 @@ namespace pinocchio
       return cl
         .def(
           "__init__",
-          bp::make_constructor(init_proxy, bp::default_call_policies(), bp::args("joint_model", "scaling", "offset")),
+          bp::make_constructor(
+            init_proxy, bp::default_call_policies(), bp::args("joint_model", "scaling", "offset")),
           "Init JointModelMimic from an existing joint with scaling and offset.")
-        .add_property("scaling",&get_scaling)
+        .add_property("scaling", &get_scaling)
         .add_property("offset", &get_offset);
     }
 
