@@ -918,33 +918,36 @@ namespace pinocchio
     return Algo::run(jdata_generic, typename Algo::ArgsType(boost::ref(jdata.derived())));
   }
 
-  template<typename TargetVariant>
-  struct TransferVisitor : public boost::static_visitor<TargetVariant>
-  {
 
-    template<typename ValueType>
-    typename boost::
-      enable_if<boost::mpl::contains<typename TargetVariant::types, ValueType>, TargetVariant>::type
-      operator()(const ValueType & value) const
+  // Meta-function to check is_mimicable_t trait
+  template<typename JointModel>
+  struct is_mimicable {
+      static constexpr bool value = traits<typename JointModel::JointDerived>::is_mimicable_t::value;
+  };
+
+  template<typename JointModel>
+  struct CheckMimicVisitor : public boost::static_visitor<JointModel>
+  {
+    template<typename T>
+    typename boost::enable_if_c<is_mimicable<T>::value, JointModel>::type
+    operator()(const T & value) const
     {
-      return TargetVariant(value);
+        return value;
     }
 
-    template<typename ValueType>
-    typename boost::disable_if<
-      boost::mpl::contains<typename TargetVariant::types, ValueType>,
-      TargetVariant>::type
-    operator()(const ValueType & value) const
+    template<typename T>
+    typename boost::disable_if_c<is_mimicable<T>::value, JointModel>::type
+    operator()(const T & value) const
     {
-      assert(false && "Type not supported in new variant");
-      return TargetVariant();
+        assert(false && "Type not supported in new variant");
+        return value;
     }
   };
 
-  template<typename VariantSrc, typename VariantDst>
-  VariantDst transferToVariant(const VariantSrc & value)
+  template<typename JointModel>
+  JointModel checkMimic(const JointModel & value)
   {
-    return boost::apply_visitor(TransferVisitor<VariantDst>(), value);
+    return boost::apply_visitor(CheckMimicVisitor<JointModel>(), value);
   }
 
   template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
