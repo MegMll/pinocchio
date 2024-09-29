@@ -276,6 +276,52 @@ namespace pinocchio
       }
     }
   } // namespace impl
+
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  SE3Tpl<Scalar, Options> getRelativePlacement(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    const DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const JointIndex jointIdRef,
+    const JointIndex jointIdTarget,
+    const Convention convention)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(jointIdRef >= 0 && jointIdRef < model.njoints && "invalid joint id");
+    assert(jointIdTarget >= 0 && jointIdTarget < model.njoints && "invalid joint id");
+    switch (convention)
+    {
+    case Convention::LOCAL: {
+      SE3Tpl<Scalar, Options> result;
+      const JointIndex child_id = std::max(jointIdRef, jointIdTarget);
+      const JointIndex parent_id = std::min(jointIdRef, jointIdTarget);
+      result.setIdentity();
+
+      // Traverse the kinematic chain from "tip" to "root"
+      JointIndex i = child_id;
+      while (i > parent_id)
+      {
+        result = data.liMi[i].act(result);
+        i = model.parents[i];
+      }
+
+      // The parent have been overshot, meaning it is in a different sub kinematic chain as the
+      // child
+      assert(i == parent_id && "Joints are not direct ancestor / descendants. Unsupported case.");
+
+      // Inverse the result if necessary
+      if (child_id == jointIdRef)
+      {
+        result = result.inverse();
+      }
+      return result;
+    }
+    case Convention::WORLD:
+      return data.oMi[jointIdRef].actInv(data.oMi[jointIdTarget]);
+    default:
+      throw std::invalid_argument("Bad convention.");
+    }
+  }
+
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   MotionTpl<Scalar, Options> getVelocity(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
