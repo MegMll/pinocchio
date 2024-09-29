@@ -644,24 +644,47 @@ struct TransferVisitor : public boost::static_visitor<TargetVariant> {
     JointModelMimicTpl(const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel,
                     const Scalar & scaling,
                     const Scalar & offset)
+    : JointModelMimicTpl(jmodel, jmodel, scaling, offset)
+    { }
+
+    JointModelMimicTpl(const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel_mimicking,
+                       const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel_mimicked,
+                       const Scalar & scaling,
+                       const Scalar & offset)
     : m_scaling(scaling)
     , m_offset(offset)
-    , m_jmodel_ref(boost::apply_visitor(TransferVisitor<JointModelVariant>(), jmodel))
-    { 
-      std::cout << jmodel << std::endl;
-      // m_jmodel_ref = boost::apply_visitor(TransferVisitor<>(m_jmodel_ref), jmodel);
+    , m_jmodel_ref(boost::apply_visitor(TransferVisitor<JointModelVariant>(), jmodel_mimicking))
+    {
+      assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
+      assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
+      assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
+
+      m_jmodel_ref.setIndexes(jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(), jmodel_mimicked.idx_j());
     }
-    
 
     template<typename JointModel>
     JointModelMimicTpl(const JointModelBase<JointModel> & jmodel,
                     const Scalar & scaling,
                     const Scalar & offset)
-    : m_jmodel_ref((JointModelVariant)jmodel.derived())
+    : JointModelMimicTpl(jmodel, jmodel, scaling, offset)
+    { }
+
+    template<typename JointModelMimicking, typename JointModelMimicked>
+    JointModelMimicTpl(const JointModelBase<JointModelMimicking> & jmodel_mimicking,
+                       const JointModelBase<JointModelMimicked> & jmodel_mimicked,
+                       const Scalar & scaling,
+                       const Scalar & offset)
+    : m_jmodel_ref((JointModelVariant)jmodel_mimicking.derived())
     , m_scaling(scaling)
     , m_offset(offset)
-    { }
-    
+    {
+      assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
+      assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
+      assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
+
+      m_jmodel_ref.setIndexes(jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(), jmodel_mimicked.idx_j());
+    }
+
     Base & base() { return *static_cast<Base*>(this); }
     const Base & base() const { return *static_cast<const Base*>(this); }
     
