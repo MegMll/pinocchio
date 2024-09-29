@@ -786,6 +786,11 @@ namespace pinocchio
   typedef JointDataPrismaticTpl<context::Scalar, context::Options, 2> JointDataPZ;
   typedef JointModelPrismaticTpl<context::Scalar, context::Options, 2> JointModelPZ;
 
+  template<typename Scalar, int Options, int axis>
+  struct ConfigVectorAffineTransform<JointPrismaticTpl<Scalar, Options, axis>>
+  {
+    typedef LinearAffineTransform Type;
+  };
 } // namespace pinocchio
 
 #include <boost/type_traits.hpp>

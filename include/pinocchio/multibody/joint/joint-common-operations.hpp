@@ -62,6 +62,45 @@ namespace pinocchio
     }
   };
 
+  struct UnboundedRevoluteAffineTransform
+  {
+    template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+    static void run(
+      const Eigen::MatrixBase<ConfigVectorIn> & q,
+      const Scalar & scaling,
+      const Scalar & offset,
+      const Eigen::MatrixBase<ConfigVectorOut> & dest)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(ConfigVectorIn, 2);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(ConfigVectorOut, 2);
+
+      const typename ConfigVectorIn::Scalar & ca = q(0);
+      const typename ConfigVectorIn::Scalar & sa = q(1);
+
+      const typename ConfigVectorIn::Scalar & theta = math::atan2(sa, ca);
+      const typename ConfigVectorIn::Scalar & theta_transform = scaling * theta + offset;
+
+      ConfigVectorOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, dest);
+      SINCOS(theta_transform, &dest_.coeffRef(1), &dest_.coeffRef(0));
+    }
+  };
+
+  struct NoAffineTransform
+  {
+    template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+    static void run(
+      const Eigen::MatrixBase<ConfigVectorIn> & q,
+      const Scalar & scaling,
+      const Scalar & offset,
+      const Eigen::MatrixBase<ConfigVectorOut> & dest)
+    {
+      assert(
+        scaling == 1.0 && offset == 0.
+        && "No ConfigVectorAffineTransform specialized for this joint type");
+      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, dest).noalias() = q;
+    }
+  };
+
   ///
   /// \brief Assign the correct configuration vector space affine transformation according to the
   /// joint type.
@@ -69,7 +108,7 @@ namespace pinocchio
   template<typename Joint>
   struct ConfigVectorAffineTransform
   {
-    typedef LinearAffineTransform Type;
+    typedef NoAffineTransform Type;
   };
 
 } // namespace pinocchio

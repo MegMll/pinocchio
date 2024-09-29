@@ -882,6 +882,11 @@ namespace pinocchio
   typedef JointDataRevoluteTpl<context::Scalar, context::Options, 2> JointDataRZ;
   typedef JointModelRevoluteTpl<context::Scalar, context::Options, 2> JointModelRZ;
 
+  template<typename Scalar, int Options, int axis>
+  struct ConfigVectorAffineTransform<JointRevoluteTpl<Scalar, Options, axis>>
+  {
+    typedef LinearAffineTransform Type;
+  };
 } // namespace pinocchio
 
 #include <boost/type_traits.hpp>

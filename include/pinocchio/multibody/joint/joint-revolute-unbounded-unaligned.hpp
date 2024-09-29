@@ -259,6 +259,11 @@ namespace pinocchio
     Vector3 axis;
   }; // struct JointModelRevoluteUnboundedUnalignedTpl
 
+  template<typename Scalar, int Options>
+  struct ConfigVectorAffineTransform<JointRevoluteUnboundedUnalignedTpl<Scalar, Options>>
+  {
+    typedef UnboundedRevoluteAffineTransform Type;
+  };
 } // namespace pinocchio
 
 #include <boost/type_traits.hpp>

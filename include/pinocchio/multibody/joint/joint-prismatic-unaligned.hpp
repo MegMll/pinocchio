@@ -708,6 +708,11 @@ namespace pinocchio
     Vector3 axis;
   }; // struct JointModelPrismaticUnalignedTpl
 
+  template<typename Scalar, int Options>
+  struct ConfigVectorAffineTransform<JointPrismaticUnalignedTpl<Scalar, Options>>
+  {
+    typedef LinearAffineTransform Type;
+  };
 } // namespace pinocchio
 
 #include <boost/type_traits.hpp>

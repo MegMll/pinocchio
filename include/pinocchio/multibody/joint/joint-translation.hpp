@@ -665,6 +665,11 @@ namespace pinocchio
 
   }; // struct JointModelTranslationTpl
 
+  template<typename Scalar, int Options>
+  struct ConfigVectorAffineTransform<JointTranslationTpl<Scalar, Options>>
+  {
+    typedef LinearAffineTransform Type;
+  };
 } // namespace pinocchio
 
 #include <boost/type_traits.hpp>
