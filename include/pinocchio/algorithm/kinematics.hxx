@@ -5,6 +5,7 @@
 #ifndef __pinocchio_kinematics_hxx__
 #define __pinocchio_kinematics_hxx__
 
+#include "model.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
@@ -297,19 +298,24 @@ namespace pinocchio
       result.setIdentity();
 
       // Traverse the kinematic chain from "tip" to "root"
-      JointIndex i = child_id;
-      while (i > parent_id)
+      size_t common_ancestor_parent, common_ancestor_child;
+      findCommonAncestor(model, parent_id, child_id, common_ancestor_parent, common_ancestor_child);
+
+      // Traverse the kinematic chain backward to the common ancestor
+      for (size_t i = model.supports[child_id].size() - 1; i > common_ancestor_child; i--)
       {
-        result = data.liMi[i].act(result);
-        i = model.parents[i];
+        const JointIndex j = model.supports[child_id][(size_t)i];
+        result = data.liMi[j].act(result);
+      }
+      // Then forward to the "parent"
+      for (size_t i = common_ancestor_parent + 1; i <= model.supports[parent_id].size() - 1; i++)
+      {
+        const JointIndex j = model.supports[parent_id][i];
+        result = data.liMi[j].actInv(result);
       }
 
-      // The parent have been overshot, meaning it is in a different sub kinematic chain as the
-      // child
-      assert(i == parent_id && "Joints are not direct ancestor / descendants. Unsupported case.");
-
       // Inverse the result if necessary
-      if (child_id == jointIdRef)
+      if (child_id == jointIdRef && jointIdRef != jointIdTarget)
       {
         result = result.inverse();
       }

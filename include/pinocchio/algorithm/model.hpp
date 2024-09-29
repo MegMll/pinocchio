@@ -232,8 +232,8 @@ namespace pinocchio
    *  \param[in] model the input model.
    *  \param[in] joint1_id index of the first joint.
    *  \param[in] joint2_id index of the second joint.
-   *  \param[out] index_ancestor_in_support1 index of the ancestor within model.support[joint1_id].
-   *  \param[out] index_ancestor_in_support2 index of the ancestor within model.support[joint2_id].
+   *  \param[out] index_ancestor_in_support1 index of the ancestor within model.supports[joint1_id].
+   *  \param[out] index_ancestor_in_support2 index of the ancestor within model.supports[joint2_id].
    *
    */
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
