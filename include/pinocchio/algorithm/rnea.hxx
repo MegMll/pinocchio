@@ -63,7 +63,7 @@ namespace pinocchio
         data.v[i] = jdata.v();
         if (parent > 0)
           data.v[i] += data.liMi[i].actInv(data.v[parent]);
-
+  
         data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
         data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(a);
         data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
@@ -99,9 +99,8 @@ namespace pinocchio
 
         const JointIndex i = jmodel.id();
         const JointIndex parent = model.parents[i];
-
-        jmodel.jointVelocitySelector(data.tau) = jdata.S().transpose() * data.f[i];
-
+        jmodel.jointVelocitySelector(data.tau) += jdata.S().transpose() * data.f[i];
+        
         if (parent > 0)
           data.f[parent] += data.liMi[i].act(data.f[i]);
       }
