@@ -386,7 +386,7 @@ namespace pinocchio
     static context::JointModelMimic * init_proxy(const context::JointModel & jmodel, const context::Scalar & scaling, const context::Scalar & offset)
     {
       return boost::apply_visitor(
-        JointModelMimicConstructorVisitor(scaling, offset), transferToVariant<context::JointModel, context::JointModelMimicable>(jmodel));
+        JointModelMimicConstructorVisitor(scaling, offset), jmodel);
     }
 
     static context::Scalar get_scaling(context::JointModelMimic & jmodel)
