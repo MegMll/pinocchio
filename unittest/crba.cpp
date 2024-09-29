@@ -127,7 +127,9 @@ BOOST_AUTO_TEST_CASE(test_crba)
 }
 
 void test_mimic_against_full_model(
-  const pinocchio::Model & model_full, int primary_id, int secondary_id)
+  const pinocchio::Model & model_full,
+  const pinocchio::JointIndex & primary_id,
+  const pinocchio::JointIndex & secondary_id)
 {
   // constants
   const int primary_idxq = model_full.joints[primary_id].idx_q();
