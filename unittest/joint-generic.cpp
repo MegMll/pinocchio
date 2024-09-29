@@ -477,10 +477,11 @@ struct TestJointOperatorEqual
     test(jdata);
   }
 
-  // template<typename JointModel>
-  // void operator()(const pinocchio::JointModelMimic<JointModel> &) const
-  // {
-  // }
+  template<typename Scalar, int Options, template<typename,int> class JointCollection>
+  void operator()(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & ) const
+  {
+
+  }
 
   template<typename JointData>
   static void test(const JointData & jdata)

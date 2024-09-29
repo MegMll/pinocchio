@@ -23,7 +23,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
             self.model_dir / "romeo_description/meshes/V1/collision/LHipPitch.dae"
         )
 
-        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
+        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer(), False)
         collision_model = pin.buildGeomFromUrdf(
             model, self.model_path, pin.GeometryType.COLLISION, hint_list
         )
@@ -36,7 +36,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
     def test_self_load(self):
         hint_list = [self.mesh_path]
 
-        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
+        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer(), False)
         collision_model_ref = pin.buildGeomFromUrdf(
             model, self.model_path, pin.GeometryType.COLLISION, hint_list
         )
@@ -82,7 +82,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
             self.model_dir / "romeo_description/meshes/V1/visual/LHipPitch.dae"
         )
 
-        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
+        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer(), False)
 
         collision_model = pin.buildGeomFromUrdf(
             model, self.model_path, pin.GeometryType.COLLISION, hint_list
