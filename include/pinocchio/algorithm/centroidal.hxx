@@ -141,6 +141,7 @@ namespace pinocchio
 
         ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
+
         data.oYcrb[parent] += data.oYcrb[i];
       }
 
@@ -173,6 +174,7 @@ namespace pinocchio
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
 
       typedef CcrbaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
+      data.Ag.setZero();
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
         Pass2::run(model.joints[i], data.joints[i], typename Pass2::ArgsType(model, data));

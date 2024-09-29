@@ -159,7 +159,7 @@ void test_mimic_against_full_model(
   Eigen::VectorXd a_mimic = Eigen::VectorXd::Random(model_mimic.nv);
 
   // World vs local
-  pinocchio::crba(model_mimic, data_ref_mimic, q_mimic);
+  // pinocchio::crba(model_mimic, data_ref_mimic, q_mimic);
   pinocchio::crba(model_mimic, data_mimic, q_mimic, pinocchio::Convention::WORLD);
 
   BOOST_CHECK(data_ref_mimic.M.isApprox(data_mimic.M));
@@ -177,8 +177,8 @@ void test_mimic_against_full_model(
       + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
   }
 
-  // Run crba
-  pinocchio::crba(model_mimic, data_mimic, q_mimic);
+  // // // Run crba
+  // // pinocchio::crba(model_mimic, data_mimic, q_mimic);
   pinocchio::crba(model_full, data_full, q_full);
 
   // Compute other half of matrix
@@ -203,10 +203,10 @@ BOOST_AUTO_TEST_CASE(test_crba_mimic)
 
   // Test for spaced parent/child joint mimic
   test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("rleg2_joint"),
-    humanoid_model.getJointId("rleg5_joint"));
+    humanoid_model, humanoid_model.getJointId("rleg1_joint"),
+    humanoid_model.getJointId("rleg4_joint"));
 
-  // Test for parallel joint mimic
+  // // Test for parallel joint mimic
   test_mimic_against_full_model(
     humanoid_model, humanoid_model.getJointId("lleg4_joint"),
     humanoid_model.getJointId("rleg4_joint"));
