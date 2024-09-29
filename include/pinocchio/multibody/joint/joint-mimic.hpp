@@ -25,7 +25,7 @@ namespace pinocchio
   template<typename _Scalar, int _Options>
   struct traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>
   {
-    typedef JointMotionSubspaceTpl<Eigen::Dynamic, _Scalar, _Options> RefJointMotionSubspace;
+    typedef JointMotionSubspacePreallocTpl<6, _Scalar, _Options> RefJointMotionSubspace;
     typedef typename traits<RefJointMotionSubspace>::Scalar Scalar;
     enum
     {
@@ -64,9 +64,8 @@ namespace pinocchio
   {
     typedef typename traits<
       ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::RefJointMotionSubspace::Scalar Scalar;
-    // typedef typename ConstraintForceOp<typename traits<ScaledJointMotionSubspaceTpl<_Scalar,
-    // _Options>>::RefJointMotionSubspace,ForceDerived>::ReturnType OriginalReturnType;
-    typedef Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options> OriginalReturnType;
+    typedef Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options, 6, 6>
+      OriginalReturnType;
 
     typedef typename ScalarMatrixProduct<Scalar, OriginalReturnType>::type IdealReturnType;
     typedef Eigen::Matrix<
@@ -82,16 +81,15 @@ namespace pinocchio
   {
     typedef typename traits<
       ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::RefJointMotionSubspace::Scalar Scalar;
-    // typedef typename ConstraintForceSetOp<typename traits<ScaledJointMotionSubspaceTpl<_Scalar,
-    // _Options>>::RefJointMotionSubspace, ForceSet>::ReturnType OriginalReturnType;
-    typedef Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options> OriginalReturnType;
-    typedef typename ScalarMatrixProduct<Scalar, OriginalReturnType>::type IdealReturnType;
+
     typedef Eigen::Matrix<
       Scalar,
-      traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::RefJointMotionSubspace::NV,
-      ForceSet::ColsAtCompileTime,
+      Eigen::Dynamic,
+      Eigen::Dynamic,
       traits<ScaledJointMotionSubspaceTpl<_Scalar, _Options>>::RefJointMotionSubspace::Options
-        | Eigen::RowMajor>
+        | Eigen::RowMajor,
+      6,
+      6>
       ReturnType;
   };
 
@@ -124,8 +122,8 @@ namespace pinocchio
     {
     }
 
-    ScaledJointMotionSubspaceTpl(
-      const RefJointMotionSubspace & constraint, const Scalar & scaling_factor)
+    template<typename ConstraintTpl>
+    ScaledJointMotionSubspaceTpl(const ConstraintTpl & constraint, const Scalar & scaling_factor)
     : m_constraint(constraint)
     , m_scaling_factor(scaling_factor)
     {
@@ -184,8 +182,6 @@ namespace pinocchio
       typename ConstraintForceOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType
       operator*(const ForceDense<Derived> & f) const
       {
-        // TODO: I don't know why, but we should a dense a return type, otherwise it failes at the
-        // evaluation level;
         typedef
           typename ConstraintForceOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType ReturnType;
         return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * f));
@@ -198,7 +194,8 @@ namespace pinocchio
       {
         typedef typename ConstraintForceSetOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType
           ReturnType;
-        return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * F));
+        ReturnType tmp = ref.m_constraint.transpose() * F;
+        return ReturnType(ref.m_scaling_factor * tmp);
       }
 
     }; // struct TransposeConst
@@ -268,7 +265,7 @@ namespace pinocchio
 
     // typedef typename MultiplicationOp<Inertia,typename Constraint::RefConstraint>::ReturnType
     // OriginalReturnType;
-    typedef Eigen::Matrix<S2, 6, Eigen::Dynamic, O2> ReturnType;
+    typedef Eigen::Matrix<S2, 6, Eigen::Dynamic, O2, 6, 6> ReturnType;
     // typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type ReturnType;
     // typedef OriginalReturnType ReturnType;
   };
@@ -285,7 +282,8 @@ namespace pinocchio
 
       static inline ReturnType run(const Inertia & Y, const Constraint & scaled_constraint)
       {
-        return scaled_constraint.scaling() * (Y * scaled_constraint.constraint());
+        ReturnType tmp = (Y * scaled_constraint.constraint());
+        return scaled_constraint.scaling() * tmp;
       }
     };
   } // namespace impl
@@ -293,9 +291,7 @@ namespace pinocchio
   template<typename M6Like, typename S2, int O2>
   struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledJointMotionSubspaceTpl<S2, O2>>
   {
-    typedef ScaledJointMotionSubspaceTpl<S2, O2> Constraint;
-    typedef typename MultiplicationOp<Inertia, Constraint>::ReturnType OriginalReturnType;
-    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(OriginalReturnType) ReturnType;
+    typedef Eigen::Matrix<S2, 6, Eigen::Dynamic, O2, 6, 6> ReturnType;
   };
 
   /* [ABA] operator* (Inertia Y,Constraint S) */
