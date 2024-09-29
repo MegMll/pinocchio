@@ -120,7 +120,7 @@ namespace pinocchio
         else
           data.oMi[i] = data.liMi[i];
 
-        jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+        jmodel.jointJacCols(data.J) = data.oMi[i].act(jdata.S());
 
         ov = data.oMi[i].act(jdata.v());
         if (parent > 0)
@@ -165,7 +165,7 @@ namespace pinocchio
         typename Inertia::Matrix6 & Ia = data.oYaba[i];
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
-        ColBlock Jcols = jmodel.jointCols(data.J);
+        ColBlock Jcols = jmodel.jointJacCols(data.J);
 
         Force & fi = data.of[i];
 
@@ -214,7 +214,7 @@ namespace pinocchio
         typedef typename Data::Matrix6x Matrix6x;
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
-        ColBlock J_cols = jmodel.jointCols(data.J);
+        ColBlock J_cols = jmodel.jointJacCols(data.J);
 
         const JointIndex i = jmodel.id();
         const JointIndex parent = model.parents[i];
@@ -636,7 +636,7 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
         J_cols = data.oMi[i].act(jdata.S());
 
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
@@ -674,7 +674,7 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
 
         jdata.U().noalias() = Ia * J_cols;
         jdata.StU().noalias() = J_cols.transpose() * jdata.U();
@@ -689,7 +689,7 @@ namespace pinocchio
         const int nv_children = data.nvSubtree[i] - jmodel.nv();
         if (nv_children > 0)
         {
-          ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
+          ColsBlock SDinv_cols = jmodel.jointVelCols(data.SDinv);
           SDinv_cols.noalias() = J_cols * jdata.Dinv();
 
           Minv.block(jmodel.idx_v(), jmodel.idx_v() + jmodel.nv(), jmodel.nv(), nv_children)
@@ -748,13 +748,13 @@ namespace pinocchio
             typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
               ColsBlock;
 
-          const ColsBlock J_cols = jmodel.jointCols(data.J);
+          const ColsBlock J_cols = jmodel.jointJacCols(data.J);
 
           Minv.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), jmodel.nv()) = jdata.Dinv();
           const int nv_children = data.nvSubtree[i] - jmodel.nv();
           if (nv_children > 0)
           {
-            ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
+            ColsBlock SDinv_cols = jmodel.jointVelCols(data.SDinv);
             SDinv_cols.noalias() = J_cols * jdata.Dinv();
             Minv.block(jmodel.idx_v(), jmodel.idx_v() + jmodel.nv(), jmodel.nv(), nv_children)
               .noalias() =
@@ -804,7 +804,7 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
 
         if (parent > 0)
         {

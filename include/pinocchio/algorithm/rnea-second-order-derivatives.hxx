@@ -77,11 +77,12 @@ namespace pinocchio
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
       ColsBlock J_cols =
-        jmodel.jointCols(data.J); // data.J has all the phi (in world frame) stacked in columns
-      ColsBlock psid_cols = jmodel.jointCols(data.psid); // psid_cols is the psi_dot in world frame
+        jmodel.jointJacCols(data.J); // data.J has all the phi (in world frame) stacked in columns
+      ColsBlock psid_cols =
+        jmodel.jointVelCols(data.psid); // psid_cols is the psi_dot in world frame
       ColsBlock psidd_cols =
-        jmodel.jointCols(data.psidd);                // psidd_cols is the psi_dotdot in world frame
-      ColsBlock dJ_cols = jmodel.jointCols(data.dJ); // This here is phi_dot in world frame
+        jmodel.jointVelCols(data.psidd); // psidd_cols is the psi_dotdot in world frame
+      ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ); // This here is phi_dot in world frame
 
       J_cols.noalias() =
         data.oMi[i].act(jdata.S()); // J_cols is just the phi in world frame for a joint

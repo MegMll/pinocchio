@@ -57,7 +57,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
-        jmodel.jointCols(J_) = data.oMi[i].act(jdata.S());
+        jmodel.jointVelCols(J_) = data.oMi[i].act(jdata.S());
       }
     };
 
@@ -113,7 +113,7 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
 
         const JointIndex & i = jmodel.id();
-        jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+        jmodel.jointJacCols(data.J) = data.oMi[i].act(jdata.S());
       }
     };
   } // namespace impl
@@ -320,7 +320,7 @@ namespace pinocchio
         data.iMf[parent] = data.liMi[i] * data.iMf[i];
 
         Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
-        jmodel.jointCols(J_) = data.iMf[i].actInv(jdata.S());
+        jmodel.jointVelCols(J_) = data.iMf[i].actInv(jdata.S());
       }
     };
 
@@ -412,7 +412,7 @@ namespace pinocchio
           oMi = data.liMi[i];
         }
 
-        jmodel.jointCols(data.J) = oMi.act(jdata.S());
+        jmodel.jointJacCols(data.J) = oMi.act(jdata.S());
 
         // Spatial velocity of joint i expressed in the global frame o
         data.ov[i] = oMi.act(vJ);
@@ -420,8 +420,8 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock dJcols = jmodel.jointCols(data.dJ);
-        ColsBlock Jcols = jmodel.jointCols(data.J);
+        ColsBlock dJcols = jmodel.jointJacCols(data.dJ);
+        ColsBlock Jcols = jmodel.jointJacCols(data.J);
 
         motionSet::motionAction(data.ov[i], Jcols, dJcols);
       }

@@ -94,11 +94,11 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
 
         J_cols = data.oMi[i].act(jdata.S());
         motionSet::motionAction(ov, J_cols, dJ_cols);
@@ -158,14 +158,14 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-        ColsBlock dHdq_cols = jmodel.jointCols(data.dHdq);
-        ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
-        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
-        ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
+        ColsBlock dHdq_cols = jmodel.jointVelCols(data.dHdq);
+        ColsBlock dFdq_cols = jmodel.jointVelCols(data.dFdq);
+        ColsBlock dFdv_cols = jmodel.jointVelCols(data.dFdv);
+        ColsBlock dFda_cols = jmodel.jointVelCols(data.dFda);
 
         // tau
         jmodel.jointVelocitySelector(data.tau).noalias() =
@@ -375,10 +375,10 @@ namespace pinocchio
         typename Data::Motion & vtmp = data.v[0];
         typename Data::Matrix6x & Ftmp = data.Fcrb[0];
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dHdq_cols = jmodel.jointCols(data.dHdq);
-        ColsBlock Ftmp_cols = jmodel.jointCols(Ftmp);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dHdq_cols = jmodel.jointVelCols(data.dHdq);
+        ColsBlock Ftmp_cols = jmodel.jointVelCols(Ftmp);
 
         const Vector3 mg = data.oYcrb[i].mass() * model.gravity.linear();
         for (Eigen::DenseIndex k = 0; k < jmodel.nv(); ++k)

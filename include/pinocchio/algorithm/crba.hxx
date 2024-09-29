@@ -51,7 +51,7 @@ namespace pinocchio
         else
           data.oMi[i] = data.liMi[i];
 
-        jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+        jmodel.jointJacCols(data.J) = data.oMi[i].act(jdata.S());
 
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       }
@@ -77,8 +77,8 @@ namespace pinocchio
         const JointIndex & i = jmodel.id();
 
         // Centroidal momentum map
-        ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
         motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
 
         // Joint Space Inertia Matrix
@@ -153,7 +153,7 @@ namespace pinocchio
 
         /* F[1:6,i] = Y*S */
         // data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
-        jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
+        jmodel.jointJacCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
 
         /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
         data.M.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =

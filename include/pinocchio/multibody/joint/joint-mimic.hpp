@@ -1012,67 +1012,59 @@ namespace pinocchio
 
     /* Acces to dedicated columns in a ForceSet or MotionSet matrix.*/
     // Const access
-    // template<typename D>
-    // typename SizeDepType<NV>::template ColsReturn<D>::ConstType
-    // jointCols_impl(const Eigen::MatrixBase<D> & A) const
-    // {
-    //   return SizeDepType<NV>::middleCols(A.derived(),
-    //                                      m_jmodel_ref.idx_v(),
-    //                                      m_jmodel_ref.nv());
-    // }
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType
+    jointVelCols_impl(const Eigen::MatrixBase<D> & A) const
+    {
+      return SizeDepType<NV>::middleCols(A.derived(), m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
+    }
 
-    // // Non-const access
-    // template<typename D>
-    // typename SizeDepType<NV>::template ColsReturn<D>::Type
-    // jointCols_impl(Eigen::MatrixBase<D> & A) const
-    // {
-    //   return SizeDepType<NV>::middleCols(A.derived(),
-    //                                      m_jmodel_ref.idx_v(),
-    //                                      m_jmodel_ref.nv());
-    // }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::Type
+    jointVelCols_impl(Eigen::MatrixBase<D> & A) const
+    {
+      return SizeDepType<NV>::middleCols(A.derived(), m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
+    }
 
-    // /* Acces to dedicated rows in a matrix.*/
-    // // Const access
-    // template<typename D>
-    // typename SizeDepType<NV>::template RowsReturn<D>::ConstType
-    // jointRows_impl(const Eigen::MatrixBase<D> & A) const
-    // {
-    //   return SizeDepType<NV>::middleRows(A.derived(),
-    //                                      m_jmodel_ref.idx_v(),
-    //                                      m_jmodel_ref.nv());
-    // }
+    /* Acces to dedicated rows in a matrix.*/
+    // Const access
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::ConstType
+    joinVeltRows_impl(const Eigen::MatrixBase<D> & A) const
+    {
+      return SizeDepType<NV>::middleRows(A.derived(), m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
+    }
 
-    // // Non-const access
-    // template<typename D>
-    // typename SizeDepType<NV>::template RowsReturn<D>::Type
-    // jointRows_impl(Eigen::MatrixBase<D> & A) const
-    // {
-    //   return SizeDepType<NV>::middleRows(A.derived(),
-    //                                      m_jmodel_ref.idx_v(),
-    //                                      m_jmodel_ref.nv());
-    // }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::Type
+    jointVelRows_impl(Eigen::MatrixBase<D> & A) const
+    {
+      return SizeDepType<NV>::middleRows(A.derived(), m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
+    }
 
     // /// \brief Returns a block of dimension nv()xnv() located at position idx_v(),idx_v() in the
     // matrix Mat
     // // Const access
-    // template<typename D>
-    // typename SizeDepType<NV>::template BlockReturn<D>::ConstType
-    // jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
-    // {
-    //   return SizeDepType<NV>::block(Mat.derived(),
-    //                                 m_jmodel_ref.idx_v(),m_jmodel_ref.idx_v(),
-    //                                 m_jmodel_ref.nv(),m_jmodel_ref.nv());
-    // }
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::ConstType
+    jointVelBlock_impl(const Eigen::MatrixBase<D> & Mat) const
+    {
+      return SizeDepType<NV>::block(
+        Mat.derived(), m_jmodel_ref.idx_v(), m_jmodel_ref.idx_v(), m_jmodel_ref.nv(),
+        m_jmodel_ref.nv());
+    }
 
-    // // Non-const access
-    // template<typename D>
-    // typename SizeDepType<NV>::template BlockReturn<D>::Type
-    // jointBlock_impl(Eigen::MatrixBase<D> & Mat) const
-    // {
-    //   return SizeDepType<NV>::block(Mat.derived(),
-    //                                 m_jmodel_ref.idx_v(),m_jmodel_ref.idx_v(),
-    //                                 m_jmodel_ref.nv(),m_jmodel_ref.nv());
-    // }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::Type
+    jointVelBlock_impl(Eigen::MatrixBase<D> & Mat) const
+    {
+      return SizeDepType<NV>::block(
+        Mat.derived(), m_jmodel_ref.idx_v(), m_jmodel_ref.idx_v(), m_jmodel_ref.nv(),
+        m_jmodel_ref.nv());
+    }
 
   }; // struct JointModelMimicTpl
 

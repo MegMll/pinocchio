@@ -150,8 +150,10 @@ void test_joint_methods(
   BOOST_CHECK(
     jmodel.jointVelocitySelector(vec_const) == jmodel_composite.jointVelocitySelector(vec_const));
 
-  BOOST_CHECK(jmodel.jointCols(mat) == jmodel_composite.jointCols(mat));
-  BOOST_CHECK(jmodel.jointCols(mat_const) == jmodel_composite.jointCols(mat_const));
+  BOOST_CHECK(jmodel.jointVelCols(mat) == jmodel_composite.jointVelCols(mat));
+  BOOST_CHECK(jmodel.jointVelCols(mat_const) == jmodel_composite.jointVelCols(mat_const));
+  BOOST_CHECK(jmodel.jointJacCols(mat) == jmodel_composite.jointJacCols(mat));
+  BOOST_CHECK(jmodel.jointJacCols(mat_const) == jmodel_composite.jointJacCols(mat_const));
 }
 
 struct TestJointComposite

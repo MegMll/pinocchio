@@ -530,11 +530,11 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
         J_cols = data.oMi[i].act(jdata.S()); // collection of S expressed at the world frame
 
         // computes vxS expressed at the world frame
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+        ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
         motionSet::motionAction(data.ov[i], J_cols, dJ_cols);
 
         data.B[i] = data.oYcrb[i].variation(Scalar(0.5) * data.ov[i]);
@@ -582,12 +582,12 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+        ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
 
-        motionSet::inertiaAction(data.oYcrb[i], dJ_cols, jmodel.jointCols(data.dFdv));
-        jmodel.jointCols(data.dFdv).noalias() += data.B[i] * J_cols;
+        motionSet::inertiaAction(data.oYcrb[i], dJ_cols, jmodel.jointVelCols(data.dFdv));
+        jmodel.jointVelCols(data.dFdv).noalias() += data.B[i] * J_cols;
 
         data.C.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
           J_cols.transpose() * data.dFdv.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
@@ -677,11 +677,11 @@ namespace pinocchio
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
-      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-      ColsBlock J_cols = jmodel.jointCols(data.J);
-      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+      ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
+      ColsBlock J_cols = jmodel.jointJacCols(data.J);
+      ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
       typename Data::Matrix6x & dFdv = data.Fcrb[0];
-      ColsBlock dFdv_cols = jmodel.jointCols(dFdv);
+      ColsBlock dFdv_cols = jmodel.jointVelCols(dFdv);
 
       motionSet::inertiaAction(data.oYcrb[i], dJ_cols, dFdv_cols);
       dFdv_cols.noalias() += data.B[i] * J_cols;

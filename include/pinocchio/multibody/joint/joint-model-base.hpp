@@ -345,28 +345,58 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType
-    jointCols(const Eigen::MatrixBase<D> & A) const
+    jointVelCols(const Eigen::MatrixBase<D> & A) const
     {
-      return derived().jointCols_impl(A.derived());
+      return derived().jointVelCols_impl(A.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType
-    jointCols_impl(const Eigen::MatrixBase<D> & A) const
+    jointJacCols(const Eigen::MatrixBase<D> & A) const
+    {
+      return derived().jointJacCols_impl(A.derived());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType
+    jointVelCols_impl(const Eigen::MatrixBase<D> & A) const
+    {
+      return SizeDepType<NV>::middleCols(A.derived(), idx_v(), nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType
+    jointJacCols_impl(const Eigen::MatrixBase<D> & A) const
     {
       return SizeDepType<NV>::middleCols(A.derived(), idx_j(), nj());
     }
 
     // Non-const access
+    // TODO rename Jac/Vel into Full/Red (for full system and reduced system ?)
     template<typename D>
-    typename SizeDepType<NV>::template ColsReturn<D>::Type jointCols(Eigen::MatrixBase<D> & A) const
+    typename SizeDepType<NV>::template ColsReturn<D>::Type
+    jointVelCols(Eigen::MatrixBase<D> & A) const
     {
-      return derived().jointCols_impl(A.derived());
+      return derived().jointVelCols_impl(A.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type
-    jointCols_impl(Eigen::MatrixBase<D> & A) const
+    jointJacCols(Eigen::MatrixBase<D> & A) const
+    {
+      return derived().jointJacCols_impl(A.derived());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::Type
+    jointVelCols_impl(Eigen::MatrixBase<D> & A) const
+    {
+      return SizeDepType<NV>::middleCols(A.derived(), idx_v(), nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::Type
+    jointJacCols_impl(Eigen::MatrixBase<D> & A) const
     {
       return SizeDepType<NV>::middleCols(A.derived(), idx_j(), nj());
     }
@@ -375,28 +405,57 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
-    jointRows(const Eigen::MatrixBase<D> & A) const
+    jointVelRows(const Eigen::MatrixBase<D> & A) const
     {
-      return derived().jointRows_impl(A.derived());
+      return derived().jointVelRows_impl(A.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
-    jointRows_impl(const Eigen::MatrixBase<D> & A) const
+    jointJacRows(const Eigen::MatrixBase<D> & A) const
+    {
+      return derived().jointJacRows_impl(A.derived());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::ConstType
+    jointVelRows_impl(const Eigen::MatrixBase<D> & A) const
+    {
+      return SizeDepType<NV>::middleRows(A.derived(), idx_v(), nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::ConstType
+    jointJacRows_impl(const Eigen::MatrixBase<D> & A) const
     {
       return SizeDepType<NV>::middleRows(A.derived(), idx_j(), nj());
     }
 
     // Non-const access
     template<typename D>
-    typename SizeDepType<NV>::template RowsReturn<D>::Type jointRows(Eigen::MatrixBase<D> & A) const
+    typename SizeDepType<NV>::template RowsReturn<D>::Type
+    jointVelRows(Eigen::MatrixBase<D> & A) const
     {
-      return derived().jointRows_impl(A.derived());
+      return derived().jointVelRows_impl(A.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
-    jointRows_impl(Eigen::MatrixBase<D> & A) const
+    jointJacRows(Eigen::MatrixBase<D> & A) const
+    {
+      return derived().jointJacRows_impl(A.derived());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::Type
+    jointVelRows_impl(Eigen::MatrixBase<D> & A) const
+    {
+      return SizeDepType<NV>::middleRows(A.derived(), idx_v(), nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::Type
+    jointJacRows_impl(Eigen::MatrixBase<D> & A) const
     {
       return SizeDepType<NV>::middleRows(A.derived(), idx_j(), nj());
     }
@@ -406,14 +465,28 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
-    jointBlock(const Eigen::MatrixBase<D> & Mat) const
+    jointVelBlock(const Eigen::MatrixBase<D> & Mat) const
     {
-      return derived().jointBlock_impl(Mat.derived());
+      return derived().jointVelBlock_impl(Mat.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
-    jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
+    jointJacBlock(const Eigen::MatrixBase<D> & Mat) const
+    {
+      return derived().jointJacBlock_impl(Mat.derived());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::ConstType
+    jointVelBlock_impl(const Eigen::MatrixBase<D> & Mat) const
+    {
+      return SizeDepType<NV>::block(Mat.derived(), idx_v(), idx_v(), nv(), nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::ConstType
+    jointJacBlock_impl(const Eigen::MatrixBase<D> & Mat) const
     {
       return SizeDepType<NV>::block(Mat.derived(), idx_j(), idx_j(), nj(), nj());
     }
@@ -421,14 +494,28 @@ namespace pinocchio
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
-    jointBlock(Eigen::MatrixBase<D> & Mat) const
+    jointVelBlock(Eigen::MatrixBase<D> & Mat) const
     {
-      return derived().jointBlock_impl(Mat.derived());
+      return derived().jointVelBlock_impl(Mat.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
-    jointBlock_impl(Eigen::MatrixBase<D> & Mat) const
+    jointJacBlock(Eigen::MatrixBase<D> & Mat) const
+    {
+      return derived().jointJacBlock_impl(Mat.derived());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::Type
+    jointVelBlock_impl(Eigen::MatrixBase<D> & Mat) const
+    {
+      return SizeDepType<NV>::block(Mat.derived(), idx_v(), idx_v(), nv(), nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::Type
+    jointJacBlock_impl(Eigen::MatrixBase<D> & Mat) const
     {
       return SizeDepType<NV>::block(Mat.derived(), idx_j(), idx_j(), nj(), nj());
     }
