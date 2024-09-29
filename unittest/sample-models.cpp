@@ -144,11 +144,10 @@ BOOST_AUTO_TEST_CASE(compare_mimic)
   // Test rnea
   pinocchio::Data dataBiasFull(model);
   pinocchio::nonLinearEffects(model, dataBiasFull, q_full, v_full);
-  Eigen::VectorXd C_full = dataBiasFull.tau;
+  Eigen::VectorXd C_full = dataBiasFull.nle;
 
   // // Use equation of motion to compute tau from a_reduced
-  Eigen::VectorXd tau_reduced_computed =
-    (G.transpose() * dataCRBAFull.M * G) * a_reduced + (G.transpose() * C_full);
+  Eigen::VectorXd tau_reduced_computed = M_reduced_computed * a_reduced + (G.transpose() * C_full);
 
   pinocchio::Data dataRneaRed(model_m);
   pinocchio::rnea(model_m, dataRneaRed, q_reduced, v_reduced, a_reduced);
