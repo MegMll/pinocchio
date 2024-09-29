@@ -351,6 +351,9 @@ namespace pinocchio
 
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> TangentVector_t;
+
+    typedef boost::mpl::false_ is_mimicable_t;
+
   };
 
   template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>

@@ -49,6 +49,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, NV, NV, Options> D_t;
     typedef Eigen::Matrix<Scalar, 6, NV, Options> UD_t;
 
+    typedef boost::mpl::true_ is_mimicable_t;
+
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 

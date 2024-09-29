@@ -25,6 +25,7 @@
   typedef TYPENAME traits<Joint>::U_t U_t;                                                         \
   typedef TYPENAME traits<Joint>::D_t D_t;                                                         \
   typedef TYPENAME traits<Joint>::UD_t UD_t;                                                       \
+  typedef TYPENAME traits<Joint>::is_mimicable_t is_mimicable_t;                                   \
   enum                                                                                             \
   {                                                                                                \
     Options = traits<Joint>::Options,                                                              \
