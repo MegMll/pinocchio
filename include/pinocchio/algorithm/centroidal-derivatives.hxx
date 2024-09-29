@@ -58,6 +58,11 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
         Motion & ov = data.ov[i];
@@ -78,7 +83,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         data.a[i] =
-          jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.jointVelocityFromNvSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
         {
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
@@ -149,6 +154,7 @@ namespace pinocchio
       template<typename JointModel>
       static void algo(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
       {
+        
         typedef typename Model::JointIndex JointIndex;
 
         const JointIndex & i = jmodel.id();
@@ -168,7 +174,7 @@ namespace pinocchio
         ColsBlock dFda_cols = jmodel.jointVelCols(data.dFda);
 
         // tau
-        jmodel.jointVelocityFromDofSelector(data.tau).noalias() =
+        jmodel.jointVelocityFromNvSelector(data.tau).noalias() =
           J_cols.transpose() * data.of[i].toVector();
 
         // dtau/da similar to data.M
@@ -368,6 +374,11 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
+
+          assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
 
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
