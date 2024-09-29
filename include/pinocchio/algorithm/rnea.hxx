@@ -184,6 +184,7 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
 
+      data.tau.setZero();
       data.v[0].setZero();
       data.a_gf[0] = -model.gravity;
 
