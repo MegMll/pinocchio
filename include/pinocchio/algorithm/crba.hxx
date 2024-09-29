@@ -82,7 +82,7 @@ namespace pinocchio
         motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
 
         // Joint Space Inertia Matrix
-        data.M.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
+        jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
           J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
         const JointIndex & parent = model.parents[i];
@@ -239,6 +239,11 @@ namespace pinocchio
           model.joints[i], data.joints[i], typename Pass1::ArgsType(model, data, q.derived()));
       }
 
+      data.M.setZero();
+      for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
+      {
+        data.Fcrb[i].setZero();
+      }
       typedef CrbaWorldConventionBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
