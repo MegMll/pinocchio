@@ -909,12 +909,9 @@ namespace pinocchio
     EIGEN_DONT_INLINE void
     calc(JointDataDerived & jdata, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      boost::apply_visitor(
-        ConfigVectorAffineTransformVisitor(
-          qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
-          jdata.m_q_transform),
-        m_jmodel_ref);
-
+      configVectorAffineTransform(
+        m_jmodel_ref, qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
+        jdata.m_q_transform);
       m_jmodel_ref.calc(jdata.m_jdata_ref, jdata.m_q_transform);
     }
 
@@ -924,12 +921,9 @@ namespace pinocchio
       const typename Eigen::MatrixBase<ConfigVector> & qs,
       const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      boost::apply_visitor(
-        ConfigVectorAffineTransformVisitor(
-          qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
-          jdata.m_q_transform),
-        m_jmodel_ref);
-
+      configVectorAffineTransform(
+        m_jmodel_ref, qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
+        jdata.m_q_transform);
       jdata.m_v_transform = m_scaling * vs.segment(m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
       m_jmodel_ref.calc(jdata.m_jdata_ref, jdata.m_q_transform, jdata.m_v_transform);
     }

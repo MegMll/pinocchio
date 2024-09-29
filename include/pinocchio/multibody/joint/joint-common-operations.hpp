@@ -52,14 +52,14 @@ namespace pinocchio
   {
     template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
     static void run(
-      const Eigen::MatrixBase<ConfigVectorIn> & q,
+      const Eigen::MatrixBase<ConfigVectorIn> & qIn,
       const Scalar & scaling,
       const Scalar & offset,
-      const Eigen::MatrixBase<ConfigVectorOut> & dest)
+      const Eigen::MatrixBase<ConfigVectorOut> & qOut)
     {
-      assert(q.size() == dest.size());
-      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, dest).noalias() =
-        scaling * q + ConfigVectorOut::Constant(dest.size(), offset);
+      assert(qIn.size() == qOut.size());
+      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, qOut).noalias() =
+        scaling * qIn + ConfigVectorOut::Constant(qOut.size(), offset);
     }
   };
 
@@ -67,21 +67,21 @@ namespace pinocchio
   {
     template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
     static void run(
-      const Eigen::MatrixBase<ConfigVectorIn> & q,
+      const Eigen::MatrixBase<ConfigVectorIn> & qIn,
       const Scalar & scaling,
       const Scalar & offset,
-      const Eigen::MatrixBase<ConfigVectorOut> & dest)
+      const Eigen::MatrixBase<ConfigVectorOut> & qOut)
     {
-      assert(q.size() == 2);
-      assert(dest.size() == 2);
+      assert(qIn.size() == 2);
+      assert(qOut.size() == 2);
 
-      const typename ConfigVectorIn::Scalar & ca = q(0);
-      const typename ConfigVectorIn::Scalar & sa = q(1);
+      const typename ConfigVectorIn::Scalar & ca = qIn(0);
+      const typename ConfigVectorIn::Scalar & sa = qIn(1);
 
       const typename ConfigVectorIn::Scalar & theta = math::atan2(sa, ca);
       const typename ConfigVectorIn::Scalar & theta_transform = scaling * theta + offset;
 
-      ConfigVectorOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, dest);
+      ConfigVectorOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, qOut);
       SINCOS(theta_transform, &dest_.coeffRef(1), &dest_.coeffRef(0));
     }
   };
@@ -90,15 +90,15 @@ namespace pinocchio
   {
     template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
     static void run(
-      const Eigen::MatrixBase<ConfigVectorIn> & q,
+      const Eigen::MatrixBase<ConfigVectorIn> & qIn,
       const Scalar & scaling,
       const Scalar & offset,
-      const Eigen::MatrixBase<ConfigVectorOut> & dest)
+      const Eigen::MatrixBase<ConfigVectorOut> & qOut)
     {
       assert(
         scaling == 1.0 && offset == 0.
         && "No ConfigVectorAffineTransform specialized for this joint type");
-      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, dest).noalias() = q;
+      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, qOut).noalias() = qIn;
     }
   };
 
@@ -110,36 +110,6 @@ namespace pinocchio
   struct ConfigVectorAffineTransform
   {
     typedef NoAffineTransform Type;
-  };
-
-  template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
-  struct ConfigVectorAffineTransformVisitor : public boost::static_visitor<void>
-  {
-  public:
-    const Eigen::MatrixBase<ConfigVectorIn> & q;
-    const Scalar & scaling;
-    const Scalar & offset;
-    const Eigen::MatrixBase<ConfigVectorOut> & dest;
-
-    ConfigVectorAffineTransformVisitor(
-      const Eigen::MatrixBase<ConfigVectorIn> & q,
-      const Scalar & scaling,
-      const Scalar & offset,
-      const Eigen::MatrixBase<ConfigVectorOut> & dest)
-    : q(q)
-    , scaling(scaling)
-    , offset(offset)
-    , dest(dest)
-    {
-    }
-
-    template<typename JointModel>
-    void operator()(const JointModel & /*jmodel*/) const
-    {
-      typedef typename ConfigVectorAffineTransform<typename JointModel::JointDerived>::Type
-        AffineTransform;
-      AffineTransform::run(q, scaling, offset, dest);
-    }
   };
 
 } // namespace pinocchio

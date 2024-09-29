@@ -947,6 +947,53 @@ namespace pinocchio
     return boost::apply_visitor(TransferVisitor<VariantDst>(), value);
   }
 
+  template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+  struct ConfigVectorAffineTransformVisitor : public boost::static_visitor<void>
+  {
+  public:
+    const Eigen::MatrixBase<ConfigVectorIn> & qIn;
+    const Scalar & scaling;
+    const Scalar & offset;
+    const Eigen::MatrixBase<ConfigVectorOut> & qOut;
+
+    ConfigVectorAffineTransformVisitor(
+      const Eigen::MatrixBase<ConfigVectorIn> & qIn,
+      const Scalar & scaling,
+      const Scalar & offset,
+      const Eigen::MatrixBase<ConfigVectorOut> & qOut)
+    : qIn(qIn)
+    , scaling(scaling)
+    , offset(offset)
+    , qOut(qOut)
+    {
+    }
+
+    template<typename JointModel>
+    void operator()(const JointModel & /*jmodel*/) const
+    {
+      typedef typename ConfigVectorAffineTransform<typename JointModel::JointDerived>::Type
+        AffineTransform;
+      AffineTransform::run(qIn, scaling, offset, qOut);
+    }
+  };
+
+  template<
+    typename Scalar,
+    int Options,
+    template<typename S, int O>
+    class JointCollectionTpl,
+    typename ConfigVectorIn,
+    typename ConfigVectorOut>
+  void configVectorAffineTransform(
+    const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+    const Eigen::MatrixBase<ConfigVectorIn> & qIn,
+    const Scalar & scaling,
+    const Scalar & offset,
+    const Eigen::MatrixBase<ConfigVectorOut> & qOut)
+  {
+    boost::apply_visitor(ConfigVectorAffineTransformVisitor(qIn, scaling, offset, qOut), jmodel);
+  }
+
   /// @endcond
 
 } // namespace pinocchio

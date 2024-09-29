@@ -464,6 +464,35 @@ namespace pinocchio
   template<typename VariantSrc, typename VariantDst>
   VariantDst transferToVariant(const VariantSrc & value);
 
+  /**
+   * @brief Apply the correct affine transform, on a joint configuration, depending on the joint
+   * type.
+   *
+   * @tparam Scalar Type of scaling and offset scalars.
+   * @tparam Options
+   * @tparam JointCollectionTpl Collection of Joint types
+   * @tparam ConfigVectorIn Type of the input joint configuration vector.
+   * @tparam ConfigVectorOut Type of the ouptut joint configuration vector.
+   * @param jmodel Joint variant to determine the correct affine transform to use.
+   * @param qIn Input configuration vector
+   * @param scaling scaling factor
+   * @param offset Offset value
+   * @param qOut Ouptut joint configuration vector
+   */
+  template<
+    typename Scalar,
+    int Options,
+    template<typename S, int O>
+    class JointCollectionTpl,
+    typename ConfigVectorIn,
+    typename ConfigVectorOut>
+  void configVectorAffineTransform(
+    const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+    const Eigen::MatrixBase<ConfigVectorIn> & qIn,
+    const Scalar & scaling,
+    const Scalar & offset,
+    const Eigen::MatrixBase<ConfigVectorOut> & qOut);
+
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
