@@ -96,7 +96,8 @@ namespace pinocchio
       const Eigen::MatrixBase<ConfigVectorOut> & qOut)
     {
       assert(
-        scaling == 1.0 && offset == 0.
+        fabs(scaling - 1.0) < Eigen::NumTraits<Scalar>::dummy_precision()
+        && fabs(offset) < Eigen::NumTraits<Scalar>::dummy_precision()
         && "No ConfigVectorAffineTransform specialized for this joint type");
       PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, qOut).noalias() = qIn;
     }
