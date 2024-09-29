@@ -150,20 +150,20 @@ void test_mimic_against_full_model(
   G(secondary_idxv, primary_idxv) = ratio;
 
   Eigen::VectorXd q_mimic = pinocchio::randomConfiguration(model_mimic);
-  Eigen::VectorXd v_mimic = pinocchio::randomConfiguration(model_mimic);
-  Eigen::VectorXd a_mimic = pinocchio::randomConfiguration(model_mimic);
+  Eigen::VectorXd v_mimic = Eigen::VectorXd::Random(model_mimic.nv);
+  Eigen::VectorXd a_mimic = Eigen::VectorXd::Random(model_mimic.nv);
 
   Eigen::VectorXd q_full = Eigen::VectorXd::Zero(model_full.nq);
-  Eigen::VectorXd v_full = G.transpose() * v_mimic;
-  Eigen::VectorXd a_full = G.transpose() * a_mimic;
+  Eigen::VectorXd v_full = G * v_mimic;
+  Eigen::VectorXd a_full = G * a_mimic;
 
   for (int n = 1; n < model_full.njoints; n++)
   {
     const double joint_ratio = ((n == secondary_id) ? ratio : 1.0);
     const double joint_offset = ((n == secondary_id) ? offset : 0.0);
-    Eigen::VectorXd aaa = model_mimic.joints[n].jointConfigFromDofSelector(q_mimic);
     model_full.joints[n].jointConfigFromDofSelector(q_full) =
-      joint_ratio * aaa + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
+      joint_ratio * model_mimic.joints[n].jointConfigFromDofSelector(q_mimic)
+      + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
   }
 
   // Run crba
@@ -189,10 +189,16 @@ BOOST_AUTO_TEST_CASE(test_crba_mimic)
   test_mimic_against_full_model(
     humanoid_model, humanoid_model.getJointId("rleg4_joint"),
     humanoid_model.getJointId("rleg5_joint"));
+
+  // Test for spaced parent/child joint mimic
+  test_mimic_against_full_model(
+    humanoid_model, humanoid_model.getJointId("rleg2_joint"),
+    humanoid_model.getJointId("rleg5_joint"));
+
   // Test for parallel joint mimic
   test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("rleg4_joint"),
-    humanoid_model.getJointId("lleg4_joint"));
+    humanoid_model, humanoid_model.getJointId("lleg4_joint"),
+    humanoid_model.getJointId("rleg4_joint"));
 }
 
 BOOST_AUTO_TEST_CASE(test_minimal_crba)
@@ -236,7 +242,7 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
 BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
 {
   pinocchio::Model model, model_ref;
-  pinocchio::buildModels::humanoidRandom(model, true, true);
+  pinocchio::buildModels::humanoidRandom(model, true);
   model_ref = model;
 
   BOOST_CHECK(model == model_ref);
