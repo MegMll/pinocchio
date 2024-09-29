@@ -549,7 +549,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
     jointJacBlock_impl(const Eigen::MatrixBase<D> & Mat) const
     {
-      return SizeDepType<NV>::block(Mat.derived(), idx_j(), idx_j(), nj(), nj());
+      return SizeDepType<NJ>::block(Mat.derived(), idx_j(), idx_j(), nj(), nj());
     }
 
     // Non-const access
@@ -578,7 +578,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template BlockReturn<D>::Type
     jointJacBlock_impl(Eigen::MatrixBase<D> & Mat) const
     {
-      return SizeDepType<NV>::block(Mat.derived(), idx_j(), idx_j(), nj(), nj());
+      return SizeDepType<NJ>::block(Mat.derived(), idx_j(), idx_j(), nj(), nj());
     }
 
   protected:
