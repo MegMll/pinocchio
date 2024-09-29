@@ -124,7 +124,7 @@ namespace pinocchio
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dJ_cols, dAg_cols);
 
         /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
-        data.M.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
+        jmodel.jointVelRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() =
           J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
         jmodel.jointVelocitySelector(data.nle) = jdata.S().transpose() * data.f[i];

@@ -589,13 +589,13 @@ namespace pinocchio
         motionSet::inertiaAction(data.oYcrb[i], dJ_cols, jmodel.jointVelCols(data.dFdv));
         jmodel.jointVelCols(data.dFdv).noalias() += data.B[i] * J_cols;
 
-        data.C.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
+        jmodel.jointVelRows(data.C).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
           J_cols.transpose() * data.dFdv.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
         motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
         for (int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()]; j >= 0;
              j = data.parents_fromRow[(JointIndex)j])
-          data.C.middleRows(jmodel.idx_v(), jmodel.nv()).col(j).noalias() =
+          data.C.middleRows(jmodel.idx_v(), jmodel.nv()).col(j).noalias() +=
             Ag_cols.transpose() * data.dJ.col(j);
 
         Mat_tmp.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.B[i];
@@ -641,6 +641,7 @@ namespace pinocchio
           typename Pass1::ArgsType(model, data, q.derived(), v.derived()));
       }
 
+      data.C.setZero();
       typedef CoriolisMatrixBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
@@ -686,19 +687,18 @@ namespace pinocchio
       motionSet::inertiaAction(data.oYcrb[i], dJ_cols, dFdv_cols);
       dFdv_cols.noalias() += data.B[i] * J_cols;
 
-      data.C.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
+      jmodel.jointVelRows(data.C).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
         J_cols.transpose() * dFdv.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
       motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
       for (int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()]; j >= 0;
            j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(), jmodel.nv()).col(j).noalias() =
-          Ag_cols.transpose() * data.dJ.col(j);
+        jmodel.jointVelRows(data.C).col(j).noalias() = Ag_cols.transpose() * data.dJ.col(j);
 
       Mat_tmp.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.B[i];
       for (int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()]; j >= 0;
            j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(), jmodel.nv()).col(j) += Mat_tmp * data.J.col(j);
+        jmodel.jointVelRows(data.C).col(j) += Mat_tmp * data.J.col(j);
 
       if (parent > 0)
         data.B[parent] += data.B[i];
