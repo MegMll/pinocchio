@@ -29,7 +29,8 @@ namespace pinocchio
     {
       Options = _Options,
       NQ = Eigen::Dynamic, // Dynamic because unknown at compile time
-      NV = Eigen::Dynamic
+      NV = Eigen::Dynamic, 
+      NJ = Eigen::Dynamic
     };
 
     typedef _Scalar Scalar;
@@ -396,6 +397,10 @@ namespace pinocchio
     {
       return ::pinocchio::nv(*this);
     }
+    int nj_impl() const
+    {
+      return ::pinocchio::nj(*this);
+    }
 
     int idx_q_impl() const
     {
@@ -405,15 +410,19 @@ namespace pinocchio
     {
       return ::pinocchio::idx_v(*this);
     }
+    int idx_j_impl() const
+    {
+      return ::pinocchio::idx_j(*this);
+    }
 
     JointIndex id_impl() const
     {
       return ::pinocchio::id(*this);
     }
 
-    void setIndexes(JointIndex id, int nq, int nv)
+    void setIndexes(JointIndex id, int nq, int nv, int nj)
     {
-      ::pinocchio::setIndexes(*this, id, nq, nv);
+      ::pinocchio::setIndexes(*this, id, nq, nv, nj);
     }
 
     /// \returns An expression of *this with the Scalar type casted to NewScalar.

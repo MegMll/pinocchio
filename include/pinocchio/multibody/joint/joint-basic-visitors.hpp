@@ -145,6 +145,18 @@ namespace pinocchio
   inline int nq(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
+   * @brief      Visit a JointModelTpl through JointNjVisitor to get the dimension of
+   *             the joint configuration space
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   *
+   * @return     The dimension of joint jacobian space
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline int nj(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
+
+
+  /**
    * @brief      Visit a JointModelTpl through JointConfigurationLimitVisitor
    *             to get the configurations limits
    *
@@ -193,6 +205,19 @@ namespace pinocchio
   inline int idx_v(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
+   * @brief      Visit a JointModelTpl through JointIdjVVisitor to get the index in the full model
+   * tangent space corresponding to the first joint jacobian space degree
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   *
+   * @return     The index in the full model tangent space corresponding to the first
+   *             joint jacobian space degree
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline int idx_j(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
+
+
+  /**
    * @brief      Visit a JointModelTpl through JointIdVisitor to get the index of the joint in the
    * kinematic chain
    *
@@ -213,12 +238,14 @@ namespace pinocchio
    * degree of freedom
    * @param[in]  v       The index in the full model tangent space corresponding to the first joint
    * tangent space degree
+   * @param[in]  j       The index in the full model tangent space corresponding to the first joint
+   * jacobian space degree
    *
    * @return     The index of the joint in the kinematic chain
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline void setIndexes(
-    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v);
+    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v, int j);
 
   /**
    * @brief      Visit a JointModelTpl through JointShortnameVisitor to get the shortname of the

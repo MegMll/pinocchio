@@ -242,6 +242,31 @@ namespace pinocchio
   }
 
   /**
+   * @brief      JointNjVisitor visitor
+   */
+  struct JointNjVisitor : boost::static_visitor<int>
+  {
+    template<typename JointModelDerived>
+    int operator()(const JointModelBase<JointModelDerived> & jmodel) const
+    {
+      return jmodel.nj();
+    }
+
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+    static int run(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+    {
+      return boost::apply_visitor(JointNjVisitor(), jmodel);
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline int nj(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+  {
+    return JointNjVisitor::run(jmodel);
+  }
+
+
+  /**
    * @brief      JointConfigurationLimitVisitor visitor
    */
   struct JointConfigurationLimitVisitor : boost::static_visitor<std::vector<bool>>
@@ -342,6 +367,30 @@ namespace pinocchio
   }
 
   /**
+   * @brief      JointIdxjVisitor visitor
+   */
+  struct JointIdxJVisitor : boost::static_visitor<int>
+  {
+    template<typename JointModelDerived>
+    int operator()(const JointModelBase<JointModelDerived> & jmodel) const
+    {
+      return jmodel.idx_j();
+    }
+
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+    static int run(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+    {
+      return boost::apply_visitor(JointIdxJVisitor(), jmodel);
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline int idx_j(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+  {
+    return JointIdxJVisitor::run(jmodel);
+  }
+
+  /**
    * @brief      JointIdVisitor visitor
    */
   struct JointIdVisitor : boost::static_visitor<JointIndex>
@@ -373,33 +422,35 @@ namespace pinocchio
     JointIndex id;
     int q;
     int v;
+    int j;
 
-    JointSetIndexesVisitor(JointIndex id, int q, int v)
+    JointSetIndexesVisitor(JointIndex id, int q, int v, int j)
     : id(id)
     , q(q)
     , v(v)
+    , j(j)
     {
     }
 
     template<typename JointModelDerived>
     void operator()(JointModelBase<JointModelDerived> & jmodel) const
     {
-      jmodel.setIndexes(id, q, v);
+      jmodel.setIndexes(id, q, v, j);
     }
 
     template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
     static void
-    run(JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v)
+    run(JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v, int j)
     {
-      return boost::apply_visitor(JointSetIndexesVisitor(id, q, v), jmodel);
+      return boost::apply_visitor(JointSetIndexesVisitor(id, q, v, j), jmodel);
     }
   };
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline void setIndexes(
-    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v)
+    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v, int j)
   {
-    return JointSetIndexesVisitor::run(jmodel, id, q, v);
+    return JointSetIndexesVisitor::run(jmodel, id, q, v, j);
   }
 
   /**

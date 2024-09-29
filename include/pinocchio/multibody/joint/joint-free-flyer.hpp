@@ -168,7 +168,8 @@ namespace pinocchio
     enum
     {
       NQ = 7,
-      NV = 6
+      NV = 6,
+      NJ = 6
     };
     typedef _Scalar Scalar;
     enum
@@ -289,6 +290,7 @@ namespace pinocchio
     using Base::id;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::idx_j;
     using Base::setIndexes;
 
     JointDataDerived createData() const
@@ -402,7 +404,7 @@ namespace pinocchio
     {
       typedef JointModelFreeFlyerTpl<NewScalar, Options> ReturnType;
       ReturnType res;
-      res.setIndexes(id(), idx_q(), idx_v());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
       return res;
     }
 

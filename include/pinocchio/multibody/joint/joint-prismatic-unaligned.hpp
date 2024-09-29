@@ -478,7 +478,8 @@ namespace pinocchio
     enum
     {
       NQ = 1,
-      NV = 1
+      NV = 1, 
+      NJ = 1
     };
     typedef _Scalar Scalar;
     enum
@@ -591,6 +592,7 @@ namespace pinocchio
     using Base::id;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::idx_j;
     using Base::setIndexes;
 
     typedef Eigen::Matrix<Scalar, 3, 1, _Options> Vector3;
@@ -694,7 +696,7 @@ namespace pinocchio
     {
       typedef JointModelPrismaticUnalignedTpl<NewScalar, Options> ReturnType;
       ReturnType res(axis.template cast<NewScalar>());
-      res.setIndexes(id(), idx_q(), idx_v());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
       return res;
     }
 

@@ -471,7 +471,8 @@ namespace pinocchio
     enum
     {
       NQ = 4,
-      NV = 3
+      NV = 3, 
+      NJ = 3
     };
     enum
     {
@@ -566,6 +567,7 @@ namespace pinocchio
     using Base::id;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::idx_j;
     using Base::setIndexes;
 
     JointDataDerived createData() const
@@ -672,7 +674,7 @@ namespace pinocchio
     {
       typedef JointModelPlanarTpl<NewScalar, Options> ReturnType;
       ReturnType res;
-      res.setIndexes(id(), idx_q(), idx_v());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
       return res;
     }
 
