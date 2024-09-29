@@ -496,7 +496,9 @@ namespace pinocchio
     : m_scaling((Scalar)0)
     , S((Scalar)0)
     {
+      joint_q.resize(0);
       m_q_transform.resize(0);
+      joint_v.resize(0);
       m_v_transform.resize(0);
     }
 
@@ -513,7 +515,9 @@ namespace pinocchio
     , m_jdata_ref(
         transferToVariant<JointDataTpl<Scalar, Options, JointCollectionTpl>, RefJointData>(jdata))
     {
+      joint_q.resize(nq, 1);
       m_q_transform.resize(nq, 1);
+      joint_v.resize(nv, 1);
       m_v_transform.resize(nv, 1);
     }
 
@@ -534,7 +538,9 @@ namespace pinocchio
     , m_scaling(scaling)
     , S(m_jdata_ref.S(), scaling)
     {
+      joint_q.resize(nq, 1);
       m_q_transform.resize(nq, 1);
+      joint_v.resize(nv, 1);
       m_v_transform.resize(nv, 1);
     }
 
@@ -542,7 +548,9 @@ namespace pinocchio
     {
       m_jdata_ref = other.m_jdata_ref;
       m_scaling = other.m_scaling;
+      joint_q = other.joint_q;
       m_q_transform = other.m_q_transform;
+      joint_v = other.joint_v;
       m_v_transform = other.m_v_transform;
       S = Constraint_t(m_jdata_ref.S(), other.m_scaling);
       return *this;
@@ -552,7 +560,8 @@ namespace pinocchio
     bool isEqual(const JointDataMimicTpl & other) const
     {
       return Base::isEqual(other) && m_jdata_ref == other.m_jdata_ref
-             && m_scaling == other.m_scaling && m_q_transform == other.m_q_transform
+             && m_scaling == other.m_scaling && joint_q == other.joint_q
+             && m_q_transform == other.m_q_transform && joint_v == other.joint_v
              && m_v_transform == other.m_v_transform;
     }
 
@@ -689,28 +698,32 @@ namespace pinocchio
 
     ConfigVector_t & joint_q_accessor()
     {
-      return m_q_transform;
+      return joint_q;
     }
     const ConfigVector_t & joint_q_accessor() const
     {
-      return m_q_transform;
+      return joint_q;
     }
 
     TangentVector_t & joint_v_accessor()
     {
-      return m_v_transform;
+      return joint_v;
     }
     const TangentVector_t & joint_v_accessor() const
     {
-      return m_v_transform;
+      return joint_v;
     }
 
   protected:
     RefJointData m_jdata_ref;
     Scalar m_scaling;
 
-    /// \brief Transform configuration vector
+    /// \brief original configuration vector
+    ConfigVector_t joint_q;
+    /// \brief Transformed configuration vector
     ConfigVector_t m_q_transform;
+    /// \brief original velocity vector
+    TangentVector_t joint_v;
     /// \brief Transform velocity vector.
     TangentVector_t m_v_transform;
 
@@ -909,6 +922,7 @@ namespace pinocchio
     EIGEN_DONT_INLINE void
     calc(JointDataDerived & jdata, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
+      jdata.joint_q = qs.segment(idx_q(), nq());
       configVectorAffineTransform(
         m_jmodel_ref, qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
         jdata.m_q_transform);
@@ -921,6 +935,8 @@ namespace pinocchio
       const typename Eigen::MatrixBase<ConfigVector> & qs,
       const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
+      jdata.joint_q = qs.segment(idx_q(), nq());
+      jdata.joint_v = vs.segment(idx_v(), nv());
       configVectorAffineTransform(
         m_jmodel_ref, qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
         jdata.m_q_transform);
