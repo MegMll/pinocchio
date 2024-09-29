@@ -354,7 +354,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
     jointVelocityFromDofSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NV>::segment(a.derived(), idx_v(), nv());
+      return SizeDepType<NV>::segment(a.derived(), idx_v(), nj());
     }
 
     // Non-const access
@@ -369,7 +369,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
     jointVelocityFromDofSelector_impl(Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NV>::segment(a.derived(), idx_v(), nv());
+      return SizeDepType<NV>::segment(a.derived(), idx_v(), nj());
     }
 
     // Const access

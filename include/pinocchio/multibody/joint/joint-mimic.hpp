@@ -873,55 +873,6 @@ namespace pinocchio
       return SizeDepType<NQ>::segment(a.derived(), idx_q(), m_jmodel_ref.nq());
     }
 
-    // Const access
-    template<typename D>
-    typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigFromNqSelector_impl(const Eigen::MatrixBase<D> & a) const
-    {
-      return SizeDepType<NQ>::segment(a.derived(), idx_q(), 0);
-    }
-
-    // Non-const access
-    template<typename D>
-    typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigFromNqSelector_impl(Eigen::MatrixBase<D> & a) const
-    {
-      return SizeDepType<NQ>::segment(a.derived(), idx_q(), 0);
-    }
-
-    /* Acces to dedicated segment in robot config velocity space.  */
-    // Const access
-    template<typename D>
-    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocityFromDofSelector_impl(const Eigen::MatrixBase<D> & a) const
-    {
-      return SizeDepType<NV>::segment(a.derived(), idx_v(), m_jmodel_ref.nv());
-    }
-
-    // Non-const access
-    template<typename D>
-    typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocityFromDofSelector_impl(Eigen::MatrixBase<D> & a) const
-    {
-      return SizeDepType<NV>::segment(a.derived(), idx_v(), m_jmodel_ref.nv());
-    }
-
-    // Const access
-    template<typename D>
-    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocityFromNvSelector_impl(const Eigen::MatrixBase<D> & a) const
-    {
-      return SizeDepType<NV>::segment(a.derived(), idx_v(), 0);
-    }
-
-    // Non-const access
-    template<typename D>
-    typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocityFromNvSelector_impl(Eigen::MatrixBase<D> & a) const
-    {
-      return SizeDepType<NV>::segment(a.derived(), idx_v(), 0);
-    }
-
     /* Acces to dedicated columns in a ForceSet or MotionSet matrix.*/
     // Const access
     template<typename D>
