@@ -147,9 +147,10 @@ namespace pinocchio
     template<typename VectorLike>
     JointMotion __mult__(const Eigen::MatrixBase<VectorLike> & v) const
     {
+
       assert(v.size() == nv());
       JointMotion jm = m_constraint * v;
-      return jm * m_scaling_factor;
+      return m_scaling_factor * jm;
     }
 
     template<typename S1, int O1>
@@ -821,6 +822,22 @@ namespace pinocchio
         jmodel_mimicked.idx_j());
     }
 
+    template<typename JointModelMimicking>
+    JointModelMimicTpl(const JointModelBase<JointModelMimicking> & jmodel_mimicking,
+                       const JointModelTpl<Scalar, Options, JointCollectionTpl > & jmodel_mimicked,
+                       const Scalar & scaling,
+                       const Scalar & offset)
+    : m_jmodel_ref((JointModelVariant)jmodel_mimicking.derived())
+    , m_scaling(scaling)
+    , m_offset(offset)
+    {
+      assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
+      assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
+      assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
+
+      m_jmodel_ref.setIndexes(jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(), jmodel_mimicked.idx_j());
+    }
+
     Base & base()
     {
       return *static_cast<Base *>(this);
@@ -886,6 +903,7 @@ namespace pinocchio
       AffineTransform::run(
         qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
         jdata.m_q_transform);
+
       m_jmodel_ref.calc(jdata.m_jdata_ref, qs);
     }
 
@@ -901,7 +919,8 @@ namespace pinocchio
         qs.segment(m_jmodel_ref.idx_q(), m_jmodel_ref.nq()), m_scaling, m_offset,
         jdata.m_q_transform);
       jdata.m_v_transform = m_scaling * vs.segment(m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
-      m_jmodel_ref.calc(jdata.m_jdata_ref, qs, vs);
+      
+      m_jmodel_ref.calc(jdata.m_jdata_ref, qs , vs);
     }
 
     template<typename VectorLike, typename Matrix6Like>
@@ -981,7 +1000,7 @@ namespace pinocchio
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
     jointConfigSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NQ>::segment(a.derived(), m_jmodel_ref.idx_q(), 0);
+      return SizeDepType<NQ>::segment(a.derived(), m_jmodel_ref.idx_q(), m_jmodel_ref.nq());
     }
 
     // Non-const access
@@ -989,7 +1008,7 @@ namespace pinocchio
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
     jointConfigSelector_impl(Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NQ>::segment(a.derived(), m_jmodel_ref.idx_q(), 0);
+      return SizeDepType<NQ>::segment(a.derived(), m_jmodel_ref.idx_q(), m_jmodel_ref.nq());
     }
 
     /* Acces to dedicated segment in robot config velocity space.  */
@@ -998,7 +1017,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
     jointVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NV>::segment(a.derived(), m_jmodel_ref.idx_v(), 0);
+      return SizeDepType<NV>::segment(a.derived(), m_jmodel_ref.idx_v(),  m_jmodel_ref.nv());
     }
 
     // Non-const access
@@ -1006,7 +1025,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
     jointVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NV>::segment(a.derived(), m_jmodel_ref.idx_v(), 0);
+      return SizeDepType<NV>::segment(a.derived(), m_jmodel_ref.idx_v(), m_jmodel_ref.nv());
     }
 
     /* Acces to dedicated columns in a ForceSet or MotionSet matrix.*/
