@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(test_constraint)
   boost::mpl::for_each<Variant::types>(TestJointConstraint());
 }
 
-template<typename JointModel, typename MimicConfigurationTransform>
+template<typename JointModel, typename MimicConfigurationTransform, bool MimicIdentity>
 void test_joint_mimic(const JointModelBase<JointModel> & jmodel)
 {
   typedef typename traits<JointModel>::JointDerived Joint;
@@ -136,8 +136,8 @@ void test_joint_mimic(const JointModelBase<JointModel> & jmodel)
 
   JointData jdata = jmodel.createData();
 
-  const double scaling_factor = 2.;
-  const double offset = 1.;
+  const double scaling_factor = MimicIdentity ? 1. : 2.5;
+  const double offset = MimicIdentity ? 0 : 0.75;
 
   // test constructor
   JointModelMimic jmodel_mimic(jmodel.derived(), scaling_factor, offset);
@@ -182,7 +182,7 @@ void test_joint_mimic(const JointModelBase<JointModel> & jmodel)
   BOOST_CHECK(((Motion)jdata.v).isApprox((Motion)jdata_mimic.v()));
 }
 
-template<typename MimicConfigurationTransform>
+template<typename MimicConfigurationTransform, bool MimicIdentity>
 struct TestJointMimic
 {
 
@@ -192,7 +192,7 @@ struct TestJointMimic
     JointModel jmodel;
     jmodel.setIndexes(0, 0, 0, 0);
 
-    test_joint_mimic<JointModel, MimicConfigurationTransform>(jmodel);
+    test_joint_mimic<JointModel, MimicConfigurationTransform, MimicIdentity>(jmodel);
   }
 
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
@@ -200,7 +200,8 @@ struct TestJointMimic
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0, 0, 0, 0);
 
-    test_joint_mimic<JointModelRevoluteUnaligned, MimicConfigurationTransform>(jmodel);
+    test_joint_mimic<JointModelRevoluteUnaligned, MimicConfigurationTransform, MimicIdentity>(
+      jmodel);
   }
 
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
@@ -208,7 +209,8 @@ struct TestJointMimic
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0, 0, 0, 0);
 
-    test_joint_mimic<JointModelPrismaticUnaligned, MimicConfigurationTransform>(jmodel);
+    test_joint_mimic<JointModelPrismaticUnaligned, MimicConfigurationTransform, MimicIdentity>(
+      jmodel);
   }
 };
 
@@ -222,9 +224,15 @@ BOOST_AUTO_TEST_CASE(test_joint)
 
   typedef boost::variant<JointModelRUBX, JointModelRUBY, JointModelRUBZ> VariantUnboundedRevolute;
 
-  boost::mpl::for_each<VariantLinear::types>(TestJointMimic<LinearAffineTransform>());
+  // Test all the joints with scaling == 1.0 and offset == 0.0
+  boost::mpl::for_each<VariantLinear::types>(TestJointMimic<LinearAffineTransform, true>());
   boost::mpl::for_each<VariantUnboundedRevolute::types>(
-    TestJointMimic<UnboundedRevoluteAffineTransform>());
+    TestJointMimic<UnboundedRevoluteAffineTransform, true>());
+
+  // Test specific transforms for non trivial affine values
+  boost::mpl::for_each<VariantLinear::types>(TestJointMimic<LinearAffineTransform, false>());
+  boost::mpl::for_each<VariantUnboundedRevolute::types>(
+    TestJointMimic<UnboundedRevoluteAffineTransform, false>());
 }
 
 BOOST_AUTO_TEST_CASE(test_transform_linear_affine)
