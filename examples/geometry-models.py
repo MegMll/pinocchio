@@ -14,7 +14,7 @@ urdf_model_path = model_path / "ur_description/urdf/ur5_robot.urdf"
 
 # Load the urdf model
 model, collision_model, visual_model = pinocchio.buildModelsFromUrdf(
-    urdf_model_path, mesh_dir
+    urdf_model_path, False, mesh_dir
 )
 print("model name: " + model.name)
 
