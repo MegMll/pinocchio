@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(test_rnea)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(test_nle_vs_rnea)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_with_fext)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_with_armature)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
   model.armature = VectorXd::Random(model.nv) + VectorXd::Ones(model.nv);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(test_compute_static_torque)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE(test_compute_coriolis)
   const double prec = Eigen::NumTraits<double>::dummy_precision();
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
