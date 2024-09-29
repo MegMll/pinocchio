@@ -343,21 +343,19 @@ template <typename TargetVariant, typename T>
 struct is_type_in_variant : boost::mpl::contains<typename TargetVariant::types, T> {};
 
 template <typename TargetVariant>
-struct TransferVisitor : public boost::static_visitor<void> {
-    TargetVariant& target;
-
-    TransferVisitor(TargetVariant& targetVariant) : target(targetVariant) {}
-
+struct TransferVisitor : public boost::static_visitor<TargetVariant> {
+    
     template <typename T>
-    typename std::enable_if<is_type_in_variant<TargetVariant, T>::value>::type
+    typename std::enable_if<is_type_in_variant<TargetVariant, T>::value, TargetVariant>::type
     operator()(const T& value) const {
-        target = value;
+        return TargetVariant(value);
     }
 
     template <typename T>
-    typename std::enable_if<!is_type_in_variant<TargetVariant, T>::value>::type
+    typename std::enable_if<!is_type_in_variant<TargetVariant, T>::value, TargetVariant>::type
     operator()(const T& value) const {
         std::cout << "Type not supported in new variant\n";
+        return TargetVariant();
     }
 };
 
@@ -443,10 +441,11 @@ struct TransferVisitor : public boost::static_visitor<void> {
                     const Scalar & nv)
     : m_scaling(scaling)
     , S(m_jdata_ref.S(),scaling)
+    , m_jdata_ref(boost::apply_visitor(TransferVisitor<RefJointDataVariant>(), jdata))
     { 
       m_q_transform.resize(nq, 1);
       m_v_transform.resize(nv, 1);
-      boost::apply_visitor(TransferVisitor(m_jdata_ref), jdata);
+      // boost::apply_visitor(TransferVisitor(m_jdata_ref), jdata);
     }
     
 
@@ -647,8 +646,10 @@ struct TransferVisitor : public boost::static_visitor<void> {
                     const Scalar & offset)
     : m_scaling(scaling)
     , m_offset(offset)
+    , m_jmodel_ref(boost::apply_visitor(TransferVisitor<JointModelVariant>(), jmodel))
     { 
-      boost::apply_visitor(TransferVisitor(m_jmodel_ref), jmodel);
+      std::cout << jmodel << std::endl;
+      // m_jmodel_ref = boost::apply_visitor(TransferVisitor<>(m_jmodel_ref), jmodel);
     }
     
 
