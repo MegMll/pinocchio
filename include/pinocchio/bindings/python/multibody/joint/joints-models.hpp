@@ -389,6 +389,16 @@ namespace pinocchio
         JointModelMimicConstructorVisitor(scaling, offset), transferToVariant<context::JointModel, context::JointModelMimicable>(jmodel));
     }
 
+    static context::Scalar get_scaling(context::JointModelMimic & jmodel)
+    {
+      return jmodel.scaling();
+    }
+
+    static context::Scalar get_offset(context::JointModelMimic & jmodel)
+    {
+      return jmodel.offset();
+    }
+
     template<>
     bp::class_<context::JointModelMimic> &
     expose_joint_model<context::JointModelMimic>(bp::class_<context::JointModelMimic> & cl)
@@ -397,7 +407,9 @@ namespace pinocchio
         .def(
           "__init__",
           bp::make_constructor(init_proxy, bp::default_call_policies(), bp::args("joint_model", "scaling", "offset")),
-          "Init JointModelMimic from an existing joint with scaling and offset.");
+          "Init JointModelMimic from an existing joint with scaling and offset.")
+        .add_property("scaling",&get_scaling)
+        .add_property("offset", &get_offset);
     }
 
   } // namespace python

@@ -805,7 +805,7 @@ namespace pinocchio
     : m_scaling(scaling)
     , m_offset(offset)
     , m_jmodel_ref(
-        transferToVariant<JointModelTpl<Scalar, Options, JointCollectionTpl>, JointModel>(
+        transferToVariant<JointModelTpl<Scalar, Options, JointCollectionTpl>, JointModelVariant>(
           jmodel_mimicking))
     {
       assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
@@ -830,7 +830,7 @@ namespace pinocchio
       const JointModelBase<JointModelMimicked> & jmodel_mimicked,
       const Scalar & scaling,
       const Scalar & offset)
-    : m_jmodel_ref((JointModelVariant)jmodel_mimicking.derived())
+    : m_jmodel_ref((JointModel)jmodel_mimicking.derived())
     , m_scaling(scaling)
     , m_offset(offset)
     {
@@ -849,7 +849,7 @@ namespace pinocchio
       const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel_mimicked,
       const Scalar & scaling,
       const Scalar & offset)
-    : m_jmodel_ref((JointModelVariant)jmodel_mimicking.derived())
+    : m_jmodel_ref((JointModel)jmodel_mimicking.derived())
     , m_scaling(scaling)
     , m_offset(offset)
     {
