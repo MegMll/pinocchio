@@ -10,6 +10,7 @@
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint-generic.hpp"
+#include "pinocchio/multibody/joint/joint-mimic.hpp"
 
 #include <eigenpy/eigen-to-python.hpp>
 
@@ -357,7 +358,6 @@ namespace pinocchio
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
 #endif
-
         ;
     }
 
@@ -375,16 +375,18 @@ namespace pinocchio
       }
 
       template<typename JointModelDerived>
-      context::JointModelMimic * operator()(JointModelDerived & jmodel) const
+      context::JointModelMimic * operator()(const JointModelDerived & jmodel) const
       {
+
         return new context::JointModelMimic(jmodel, m_scaling, m_offset);
       }
+      
     }; // struct JointModelMimicConstructorVisitor
 
     static context::JointModelMimic * init_proxy(const context::JointModel & jmodel, const context::Scalar & scaling, const context::Scalar & offset)
     {
       return boost::apply_visitor(
-        JointModelMimicConstructorVisitor(scaling, offset), jmodel);
+        JointModelMimicConstructorVisitor(scaling, offset), transferToVariant<context::JointModel, context::JointModelMimicable>(jmodel));
     }
 
     template<>
