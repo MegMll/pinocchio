@@ -256,12 +256,11 @@ namespace pinocchio
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
 
       Matrix3x & Jcom_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3x, Jcom);
-      Jcom_.fill(0);
 
       ColBlock Jcols = jmodel.jointJacCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
 
-      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nv(); ++col_id)
+      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nj(); ++col_id)
       {
         jmodel.jointVelCols(Jcom_).col(col_id) +=
           data.mass[i] * Jcols.col(col_id).template segment<3>(Motion::LINEAR)
@@ -319,6 +318,7 @@ namespace pinocchio
     }
 
     // Backward step
+    data.Jcom.setZero();
     typedef JacobianCenterOfMassBackwardStep<Scalar, Options, JointCollectionTpl, Matrix3x> Pass2;
     for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
     {
@@ -366,12 +366,11 @@ namespace pinocchio
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
 
       Matrix3x & Jcom_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3x, Jcom);
-      Jcom_.fill(0);
-
+    
       ColBlock Jcols = jmodel.jointJacCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
 
-      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nv(); ++col_id)
+      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nj(); ++col_id)
       {
         jmodel.jointVelCols(Jcom_).col(col_id) +=
           Jcols.col(col_id).template segment<3>(Motion::LINEAR)
@@ -446,6 +445,7 @@ namespace pinocchio
       }
 
       // Backward step
+      data.Jcom.setZero();
       typedef JacobianCenterOfMassBackwardStep<Scalar, Options, JointCollectionTpl, Matrix3xLike>
         Pass2;
       for (Eigen::DenseIndex k = (Eigen::DenseIndex)subtree.size() - 1; k >= 0; --k)
@@ -476,6 +476,7 @@ namespace pinocchio
       Jcom_subtree.middleCols(idx_v, nv_subtree) *= mass_inv_subtree;
 
       // Second backward step
+
       typedef JacobianSubtreeCenterOfMassBackwardStep<
         Scalar, Options, JointCollectionTpl, Matrix3xLike>
         Pass3;

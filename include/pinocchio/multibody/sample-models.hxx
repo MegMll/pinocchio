@@ -83,27 +83,27 @@ namespace pinocchio
         const std::string & root_joint_name = model.names[root_joint_idx];
         joint_id = addJointAndBody(
           model, typename JC::JointModelRX(), root_joint_name, pre + "shoulder1", Mroot);
-        // model.inertias[joint_id] = Ijoint;
+        model.inertias[joint_id] = Ijoint;
         const JointIndex root_joint_id = joint_id;
 
         joint_id = addJointAndBody(
           model, typename JC::JointModelRY(), model.names[joint_id], pre + "shoulder2", Id4);
-        // model.inertias[joint_id] = Ijoint;
+        model.inertias[joint_id] = Ijoint;
 
         joint_id = addJointAndBody(
           model, typename JC::JointModelRZ(), model.names[joint_id], pre + "shoulder3", Id4);
-        // model.inertias[joint_id] = Iarm;
+        model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre + "upperarm_body", joint_id);
 
         joint_id = addJointAndBody(
           model, typename JC::JointModelRY(), model.names[joint_id], pre + "elbow", Marm);
-        // model.inertias[joint_id] = Iarm;
+        model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre + "lowerarm_body", joint_id);
         model.addBodyFrame(pre + "elbow_body", joint_id);
 
         joint_id = addJointAndBody(
           model, typename JC::JointModelRX(), model.names[joint_id], pre + "wrist1", Marm);
-        // model.inertias[joint_id] = Ijoint;
+        model.inertias[joint_id] = Ijoint;
 
         if (mimic)
         {
@@ -124,7 +124,7 @@ namespace pinocchio
             model, typename JC::JointModelRY(), model.names[joint_id], pre + "wrist2", Id4);
         }
 
-        // model.inertias[joint_id] = Iarm;
+        model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre + "effector_body", joint_id);
         const int nq = mimic ? 5 : 6;
 
