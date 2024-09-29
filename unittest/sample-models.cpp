@@ -129,9 +129,13 @@ BOOST_AUTO_TEST_CASE(compare_mimic)
   // Test crba
   pinocchio::Data dataCRBAMimic(model_m);
   pinocchio::crba(model_m, dataCRBAMimic, q_reduced);
+  dataCRBAMimic.M.triangularView<Eigen::StrictlyLower>() =
+    dataCRBAMimic.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   pinocchio::Data dataCRBAFull(model);
   pinocchio::crba(model, dataCRBAFull, q_full);
+  dataCRBAFull.M.triangularView<Eigen::StrictlyLower>() =
+    dataCRBAFull.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   Eigen::MatrixXd M_reduced_computed = (G.transpose() * dataCRBAFull.M * G);
 
