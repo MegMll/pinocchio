@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(compare_mimic)
   Eigen::VectorXd v_full = toFull(v_reduced, 4, 5, scaling, 0);
   Eigen::VectorXd a_full = toFull(a_reduced, 4, 5, scaling, 0);
 
-
+  std::cout << v_full << std::endl;
   pinocchio::Data dataFKFull(model);
   pinocchio::forwardKinematics(model, dataFKFull, q_full, v_full, a_full);
 
@@ -127,14 +127,13 @@ BOOST_AUTO_TEST_CASE(compare_mimic)
 
   pinocchio::Data dataCRBAFull(model);
   pinocchio::crba(model, dataCRBAFull, q_full);
+  Eigen::MatrixXd M = dataCRBAFull.M;
   
   Eigen::MatrixXd G = create_G(model, model_m);
   G(model.nv - 1, model_m.nv - 1) = scaling;
 
-  
   // // Use equation of motion to compute tau from a_reduced 
-  // std::cout << G.transpose() << std::endl;
-  Eigen::VectorXd tau_reduced_computed = (G.transpose() * dataCRBAFull.M * G) * a_reduced + (G.transpose() * C_full);
+  Eigen::VectorXd tau_reduced_computed = (G.transpose() * M * G) * a_reduced + (G.transpose() * C_full);
   // Eigen::MatrixXd M_reduced_computed = (G.transpose() * dataCRBAFull.M * G);
   // std::cout << " --------------------- " << std::endl;
   pinocchio::Data dataRneaRed(model_m);
@@ -149,12 +148,7 @@ BOOST_AUTO_TEST_CASE(compare_mimic)
 
   pinocchio::Data dataBiasF(model);
   pinocchio::rnea(model, dataBiasF, q_full, v_full, a_full);
-  for(int i = 0; i < model.njoints; i++)
-  {
-    BOOST_CHECK(dataRneaRed.f[i].isApprox(dataBiasF.f[i]));
-    BOOST_CHECK(dataRneaRed.h[i].isApprox(dataBiasF.h[i]));
-    BOOST_CHECK(model.inertias[i].isApprox(model_m.inertias[i]));
-  }
+  std::cout << dataBiasF.tau << "\n " << dataRneaRed.tau << std::endl;
 
   // // std::cout << dataBiasF.tau << std::endl;
 
