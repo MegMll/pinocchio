@@ -382,6 +382,31 @@ namespace pinocchio
         *this, data, armature.derived(), PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like, I), update_I);
     }
 
+    /* Acces to dedicated segment in robot config space.  */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointConfigFromDofSelector_impl(const Eigen::MatrixBase<D> & a) const
+    {
+      typedef const Eigen::MatrixBase<D> & InputType;
+      typedef typename SizeDepType<NV>::template SegmentReturn<D>::ConstType ReturnType;
+      typedef JointConfigFromDofSelectorVisitor<InputType, ReturnType> Visitor;
+      typename Visitor::ArgsType arg(a);
+      return Visitor::run(*this, arg);
+    }
+
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointConfigFromDofSelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      typedef Eigen::MatrixBase<D> & InputType;
+      typedef typename SizeDepType<NV>::template SegmentReturn<D>::Type ReturnType;
+      typedef JointConfigFromDofSelectorVisitor<InputType, ReturnType> Visitor;
+      typename Visitor::ArgsType arg(a);
+      return Visitor::run(*this, arg);
+    }
+
     std::string shortname() const
     {
       return ::pinocchio::shortname(*this);

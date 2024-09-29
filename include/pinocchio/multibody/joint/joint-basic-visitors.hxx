@@ -193,6 +193,21 @@ namespace pinocchio
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type, I), update_I));
   }
 
+  template<typename InputType, typename ReturnType>
+  struct JointConfigFromDofSelectorVisitor
+  : fusion::
+      JointUnaryVisitorBase<JointConfigFromDofSelectorVisitor<InputType, ReturnType>, ReturnType>
+  {
+    typedef boost::fusion::vector<InputType> ArgsType;
+
+    template<typename JointModel>
+    static ReturnType algo(const JointModelBase<JointModel> & jmodel, InputType a)
+    {
+      auto vectorBlock = jmodel.jointConfigFromDofSelector(a);
+      return ReturnType(vectorBlock.nestedExpression(), 0, vectorBlock.size());
+    }
+  };
+
   /**
    * @brief      JointNvVisitor visitor
    */
