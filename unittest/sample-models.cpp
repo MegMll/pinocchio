@@ -48,6 +48,18 @@ BOOST_AUTO_TEST_CASE(build_model_sample_humanoid_random)
 
   BOOST_CHECK(modelff.nq == 32);
   BOOST_CHECK(modelff.nv == 32);
+
+  pinocchio::Model modelMimic;
+  pinocchio::buildModels::humanoidRandom(modelMimic, true, true);
+
+  BOOST_CHECK(modelMimic.nq == 32);
+  BOOST_CHECK(modelMimic.nv == 31);
+
+  pinocchio::Model modelMimicff;
+  pinocchio::buildModels::humanoidRandom(modelMimicff, false, true);
+
+  BOOST_CHECK(modelMimicff.nq == 31);
+  BOOST_CHECK(modelMimicff.nv == 31);
 }
 
 BOOST_AUTO_TEST_CASE(build_model_sample_manipulator)
