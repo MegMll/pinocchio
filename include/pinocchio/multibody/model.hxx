@@ -127,8 +127,6 @@ namespace pinocchio
     njs.push_back(joint_nj);
     idx_js.push_back(joint_idx_j);
 
-
-
     if (joint_nq > 0 && joint_nv > 0)
     {
       effortLimit.conservativeResize(nv);
