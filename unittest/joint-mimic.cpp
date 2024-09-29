@@ -64,7 +64,7 @@ void test_constraint_mimic(const JointModelBase<JointModel> & jmodel)
 
   // Test transpose operations
   {
-    const Eigen::DenseIndex dim = 20;
+    const Eigen::DenseIndex dim = ScaledConstraint::MaxDim;
     const Matrix6x Fin = Matrix6x::Random(6, dim);
     Eigen::MatrixXd Fout = scaled_constraint.transpose() * Fin;
     Eigen::MatrixXd Fout_ref = scaling_factor * (constraint_ref.transpose() * Fin);
