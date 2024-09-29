@@ -65,11 +65,10 @@ namespace pinocchio
     {
     }
 
-    /// \note For the case of a joint j mimicking a joint i
-    ///       the resulting inertia of both joints is
-    ///       M = Mii + 2* Mij + Mjj
-    ///       But in this current implementation only M = Mii + Mij + Mjj is computed
-    ///       So an extra Mij is added here.
+    /// \note For each joint the crba computation is done only for the sub cols/rows
+    /// from idx_v to joint.nvSubtree. In the case of the joint j=(i+n) mimicking the joint i,
+    /// the joints i+[1..n-1] will have idx_v greater than the joint j. This patch compute
+    /// this "left out" part of the M matrix.
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     static inline void mimic_patch_CrbaWorldConventionBackwardStep(
       const JointModelBase<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>> & jmodel,
@@ -83,37 +82,32 @@ namespace pinocchio
       assert(secondary_id > primary_id && "Mimicking joint id is before the primary.");
 
       JointIndex ancestor_prim, ancestor_sec;
-      JointIndex j_id =
-        findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
+      findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
 
-      // Same branch of the tree
-      if (j_id == primary_id)
-        for (JointIndex i = primary_id; i < secondary_id; i++)
-        {
-          jmodel.jointVelRows(data.M)
-            .middleCols(model.joints[i].idx_v(), model.joints[i].nv())
-            .noalias() += model.joints.at(i).jointJacCols(data.J).transpose()
-                          * data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv());
-        }
-      else
+      // Traverse the tree backward from parent of mimicking (secondary) joint to common ancestor
+      for (int k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
       {
-        for (JointIndex j = ancestor_sec + 1; j < model.supports[secondary_id].size() - 1; j++)
-        {
-          j_id = model.supports[secondary_id].at(j);
-          jmodel.jointVelRows(data.M)
-            .middleCols(model.joints[j_id].idx_v(), model.joints[j_id].nv())
-            .noalias() +=
-            data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv()).transpose()
-            * model.joints.at(j_id).jointJacCols(data.J);
-        }
-        for (JointIndex j = ancestor_prim + 1; j < model.supports[primary_id].size(); j++)
-        {
-          j_id = model.supports[primary_id].at(j);
-          jmodel.jointVelCols(data.M)
-            .middleRows(model.joints[j_id].idx_v(), model.joints[j_id].nv())
-            .noalias() -= model.joints.at(j_id).jointJacCols(data.J).transpose()
-                          * data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv());
-        }
+        const JointIndex i = model.supports[secondary_id].at(k);
+
+        // Skip the common ancestor if it's not the primary id
+        // as this computation would be canceled by the next loop forward
+        if (k == ancestor_sec && i != primary_id)
+          continue;
+
+        jmodel.jointVelRows(data.M)
+          .middleCols(model.joints[i].idx_v(), model.joints[i].nv())
+          .noalias() +=
+          data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv()).transpose()
+          * model.joints.at(i).jointJacCols(data.J);
+      }
+      // Traverse the kinematic tree forward from common ancestor to mimicked (primary) joint
+      for (int k = ancestor_prim + 1; k < model.supports[primary_id].size(); k++)
+      {
+        const JointIndex i = model.supports[primary_id].at(k);
+        jmodel.jointVelCols(data.M)
+          .middleRows(model.joints[i].idx_v(), model.joints[i].nv())
+          .noalias() -= model.joints.at(i).jointJacCols(data.J).transpose()
+                        * data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv());
       }
     }
 
@@ -237,8 +231,7 @@ namespace pinocchio
       SpatialForcesX iF(6, jmodel.nj());                                    // Current joint forces
       SE3 iMj = SE3::Identity(); // Transform from current joint to mimic joint
 
-      // Traverse the kinematic tree backward from mimicking (secondary) joint parent to common
-      // ancestor
+      // Traverse the tree backward from parent of mimicking (secondary) joint to common ancestor
       for (int k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
       {
         const JointIndex i = model.supports[secondary_id].at(k);
