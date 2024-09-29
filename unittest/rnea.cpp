@@ -399,6 +399,49 @@ void test_mimic_against_full_model(
 
   pinocchio::rnea(model_mimic, data_rnea_mimic, q, v, a);
   BOOST_CHECK(tau_ref.isApprox(data_rnea_mimic.tau));
+
+  // NLE
+  pinocchio::Data data_nle(model_mimic);
+  pinocchio::Data data_ref_nle(model_mimic);
+  Eigen::VectorXd tau_ref_nle =
+    pinocchio::rnea(model_mimic, data_ref_nle, q, v, Eigen::VectorXd::Zero(model_mimic.nv));
+  Eigen::VectorXd tau_nle = pinocchio::nonLinearEffects(model_mimic, data_nle, q, v);
+  BOOST_CHECK(tau_nle.isApprox(tau_nle));
+
+  // Generalized Gravity
+  pinocchio::Data data_ref_gg(model_mimic);
+  pinocchio::Data data_gg(model_mimic);
+  Eigen::VectorXd tau_ref_gg = pinocchio::rnea(
+    model_mimic, data_ref_gg, q, Eigen::VectorXd::Zero(model_mimic.nv),
+    Eigen::VectorXd::Zero(model_mimic.nv));
+  Eigen::VectorXd tau_gg = pinocchio::computeGeneralizedGravity(model_mimic, data_gg, q);
+  BOOST_CHECK(tau_gg.isApprox(tau_ref_gg));
+
+  // Static Torque
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(pinocchio::Force) ForceVector;
+  ForceVector fext((size_t)model_mimic.njoints);
+  for (ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
+    (*it).setRandom();
+
+  pinocchio::Data data_ref_st(model_mimic);
+  pinocchio::Data data_st(model_mimic);
+  pinocchio::rnea(
+    model_mimic, data_ref_st, q, Eigen::VectorXd::Zero(model_mimic.nv),
+    Eigen::VectorXd::Zero(model_mimic.nv), fext);
+  Eigen::VectorXd tau_st = pinocchio::computeStaticTorque(model_mimic, data_gg, q, fext);
+  BOOST_CHECK(tau_st.isApprox(data_ref_gg.tau));
+
+  // Compute Coriolis
+  pinocchio::Data data_ref_cc(model_mimic);
+  pinocchio::Data data_cc(model_mimic);
+  Eigen::MatrixXd C = pinocchio::computeCoriolisMatrix(model_mimic, data_cc, q, v);
+  Eigen::MatrixXd tau_ref_cc =
+    pinocchio::rnea(model_mimic, data_ref_cc, q, v, Eigen::VectorXd::Zero(model_mimic.nv))
+    - pinocchio::rnea(
+      model_mimic, data_ref_cc, q, Eigen::VectorXd::Zero(model_mimic.nv),
+      Eigen::VectorXd::Zero(model_mimic.nv));
+
+  BOOST_CHECK(tau_ref_cc.isApprox(C * v));
 }
 
 BOOST_AUTO_TEST_CASE(test_rnea_mimic)
