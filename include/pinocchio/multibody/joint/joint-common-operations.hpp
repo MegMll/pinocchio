@@ -9,6 +9,7 @@
 #include "pinocchio/math/matrix.hpp"
 
 #include <boost/type_traits.hpp>
+#include <boost/variant.hpp>
 
 namespace pinocchio
 {
@@ -71,8 +72,8 @@ namespace pinocchio
       const Scalar & offset,
       const Eigen::MatrixBase<ConfigVectorOut> & dest)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(ConfigVectorIn, 2);
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(ConfigVectorOut, 2);
+      assert(q.size() == 2);
+      assert(dest.size() == 2);
 
       const typename ConfigVectorIn::Scalar & ca = q(0);
       const typename ConfigVectorIn::Scalar & sa = q(1);
@@ -103,12 +104,42 @@ namespace pinocchio
 
   ///
   /// \brief Assign the correct configuration vector space affine transformation according to the
-  /// joint type.
+  /// joint type. Must be specialized for every joint type.
   ///
   template<typename Joint>
   struct ConfigVectorAffineTransform
   {
     typedef NoAffineTransform Type;
+  };
+
+  template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+  struct ConfigVectorAffineTransformVisitor : public boost::static_visitor<void>
+  {
+  public:
+    const Eigen::MatrixBase<ConfigVectorIn> & q;
+    const Scalar & scaling;
+    const Scalar & offset;
+    const Eigen::MatrixBase<ConfigVectorOut> & dest;
+
+    ConfigVectorAffineTransformVisitor(
+      const Eigen::MatrixBase<ConfigVectorIn> & q,
+      const Scalar & scaling,
+      const Scalar & offset,
+      const Eigen::MatrixBase<ConfigVectorOut> & dest)
+    : q(q)
+    , scaling(scaling)
+    , offset(offset)
+    , dest(dest)
+    {
+    }
+
+    template<typename JointModel>
+    void operator()(const JointModel & /*jmodel*/) const
+    {
+      typedef typename ConfigVectorAffineTransform<typename JointModel::JointDerived>::Type
+        AffineTransform;
+      AffineTransform::run(q, scaling, offset, dest);
+    }
   };
 
 } // namespace pinocchio
