@@ -154,7 +154,7 @@ namespace pinocchio
       template<typename JointModel>
       static void algo(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
       {
-        
+
         typedef typename Model::JointIndex JointIndex;
 
         const JointIndex & i = jmodel.id();
@@ -375,7 +375,7 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-          assert(
+        assert(
           (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
            == false)
           && "Algorithm not supported for mimic joints");

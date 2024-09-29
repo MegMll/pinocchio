@@ -366,7 +366,7 @@ namespace pinocchio
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
 
       Matrix3x & Jcom_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3x, Jcom);
-    
+
       ColBlock Jcols = jmodel.jointJacCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
 

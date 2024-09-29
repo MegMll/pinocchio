@@ -429,19 +429,7 @@ void test_mimic_against_full_model(
     model_mimic, data_ref_st, q, Eigen::VectorXd::Zero(model_mimic.nv),
     Eigen::VectorXd::Zero(model_mimic.nv), fext);
   Eigen::VectorXd tau_st = pinocchio::computeStaticTorque(model_mimic, data_gg, q, fext);
-  BOOST_CHECK(tau_st.isApprox(data_ref_gg.tau));
-
-  // Compute Coriolis
-  pinocchio::Data data_ref_cc(model_mimic);
-  pinocchio::Data data_cc(model_mimic);
-  Eigen::MatrixXd C = pinocchio::computeCoriolisMatrix(model_mimic, data_cc, q, v);
-  Eigen::MatrixXd tau_ref_cc =
-    pinocchio::rnea(model_mimic, data_ref_cc, q, v, Eigen::VectorXd::Zero(model_mimic.nv))
-    - pinocchio::rnea(
-      model_mimic, data_ref_cc, q, Eigen::VectorXd::Zero(model_mimic.nv),
-      Eigen::VectorXd::Zero(model_mimic.nv));
-
-  BOOST_CHECK(tau_ref_cc.isApprox(C * v));
+  BOOST_CHECK(tau_st.isApprox(data_ref_st.tau));
 }
 
 BOOST_AUTO_TEST_CASE(test_rnea_mimic)
