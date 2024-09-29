@@ -205,8 +205,7 @@ namespace pinocchio
       Scalar nv_;
 
       if (
-        boost::get<JointModelMimic>(&model.joints[(Index)lastChild[(Index)i]])
-        && lastChild[(Index)i] != i)
+        boost::get<JointModelMimic>(&model.joints[(Index)lastChild[(Index)i]]))
         nv_ = boost::get<JointModelMimic>(model.joints[(Index)lastChild[(Index)i]]).jmodel().nv();
       else
         nv_ = nv(model.joints[(Index)lastChild[(Index)i]]);
