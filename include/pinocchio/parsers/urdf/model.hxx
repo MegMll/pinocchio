@@ -654,9 +654,10 @@ namespace pinocchio
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic,
       const bool verbose)
     {
-      return buildModel(filename, rootJoint, "root_joint", model, verbose);
+      return buildModel(filename, rootJoint, "root_joint", model, mimic, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -699,9 +700,10 @@ namespace pinocchio
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic,
       const bool verbose)
     {
-      return buildModelFromXML(xmlStream, rootJoint, "root_joint", model, verbose);
+      return buildModelFromXML(xmlStream, rootJoint, "root_joint", model, mimic, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -745,9 +747,10 @@ namespace pinocchio
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic,
       const bool verbose)
     {
-      return buildModel(urdfTree, rootJoint, "root_joint", model, verbose);
+      return buildModel(urdfTree, rootJoint, "root_joint", model, mimic, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>

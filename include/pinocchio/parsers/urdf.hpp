@@ -33,6 +33,7 @@ namespace pinocchio
     /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] rootJointName Name of the rootJoint.
     /// \param[in] verbose Print parsing info.
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
     ///
@@ -42,6 +43,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = false,
       const bool verbose = false);
 
     ///
@@ -50,6 +52,7 @@ namespace pinocchio
     ///
     /// \param[in] filename The URDF complete file path.
     /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
@@ -66,6 +69,7 @@ namespace pinocchio
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
     ///
     /// \param[in] filename The URDF complete file path.
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
@@ -83,6 +87,7 @@ namespace pinocchio
     ///
     /// \param[in] urdfTree the tree build from the URDF
     /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
@@ -102,6 +107,7 @@ namespace pinocchio
     /// inside the model given as reference argument.
     ///
     /// \param[in] urdfTree the tree build from the URDF
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] rootJointName Name of the rootJoint.
     /// \param[in] verbose Print parsing info.
@@ -116,12 +122,14 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = false,
       const bool verbose = false);
 
     ///
     /// \brief Build the model from a URDF model
     ///
     /// \param[in] urdfTree the tree build from the URDF
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
@@ -142,6 +150,7 @@ namespace pinocchio
     /// \param[in] xml_stream stream containing the URDF model.
     /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] rootJointName Name of the rootJoint.
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
@@ -154,6 +163,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool mimic = false,
       const bool verbose = false);
 
     ///
@@ -163,6 +173,7 @@ namespace pinocchio
     /// \param[in] xml_stream stream containing the URDF model.
     /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] verbose Print parsing info.
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
     ///
@@ -180,6 +191,7 @@ namespace pinocchio
     /// \brief Build the model from an XML stream
     ///
     /// \param[in] xml_stream stream containing the URDF model.
+    /// \param[in] mimic Parsing joints as mimic or not.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.

@@ -35,7 +35,14 @@ def buildModelsFromUrdf(
     Remark: In the URDF format, a joint of type fixed can be defined. For efficiency reasons, it is treated as operational frame and not as a joint of the model.
     """
     # Handle the switch from old to new api
-    arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types", "mimic"]
+    arg_keys = [
+        "package_dirs",
+        "root_joint",
+        "verbose",
+        "meshLoader",
+        "geometry_types",
+        "mimic",
+    ]
     if len(args) >= 3:
         if isinstance(args[2], str):
             arg_keys = [
@@ -45,7 +52,7 @@ def buildModelsFromUrdf(
                 "verbose",
                 "meshLoader",
                 "geometry_types",
-                "mimic"
+                "mimic",
             ]
 
     for key, arg in zip(arg_keys, args):
@@ -59,14 +66,13 @@ def buildModelsFromUrdf(
 
 def _buildModelsFromUrdf(
     filename,
-    mimic=False,
     package_dirs=None,
     root_joint=None,
     root_joint_name=None,
     verbose=False,
     meshLoader=None,
     geometry_types=None,
-    mimic=False
+    mimic=False,
 ) -> Tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
