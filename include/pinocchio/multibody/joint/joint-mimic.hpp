@@ -174,8 +174,8 @@ namespace pinocchio
       }
 
       template<typename Derived>
-      typename ConstraintForceOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType
-      operator*(const ForceDense<Derived> & f) const
+      // typename ConstraintForceOp<ScaledJointMotionSubspaceTpl, Derived>::ReturnType
+      JointForce operator*(const ForceDense<Derived> & f) const
       {
         return ref.m_scaling_factor * (ref.m_constraint.transpose() * f);
       }
