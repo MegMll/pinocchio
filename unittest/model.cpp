@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(append)
   Model manipulator, humanoid;
   GeometryModel geomManipulator, geomHumanoid;
 
-  buildModels::manipulator(manipulator);
+  buildModels::manipulator(manipulator, true);
   buildModels::manipulatorGeometries(manipulator, geomManipulator);
   geomManipulator.addAllCollisionPairs();
   // Add prefix to joint and frame names

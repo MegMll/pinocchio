@@ -32,10 +32,10 @@ BOOST_AUTO_TEST_CASE(build_model_sample_humanoid_random)
 BOOST_AUTO_TEST_CASE(build_model_sample_manipulator)
 {
   pinocchio::Model model;
-  pinocchio::buildModels::manipulator(model);
+  pinocchio::buildModels::manipulator(model, true);
 
-  BOOST_CHECK(model.nq == 6);
-  BOOST_CHECK(model.nv == 6);
+  BOOST_CHECK(model.nq == 5);
+  BOOST_CHECK(model.nv == 5);
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
   pinocchio::Data data(model);
