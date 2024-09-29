@@ -468,7 +468,6 @@ namespace pinocchio
         data.f[i] -= fext[i];
       }
 
-      data.g.setZero();
       data.tau.setZero();
       typedef ComputeGeneralizedGravityBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
