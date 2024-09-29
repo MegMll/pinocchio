@@ -7,7 +7,11 @@ from test_case import PinocchioTestCase
 
 class TestKinematicsBindings(PinocchioTestCase):
     def setUp(self):
+<<<<<<< HEAD
         self.model = pin.buildSampleModelHumanoidRandom(True)
+=======
+        self.model = pin.buildSampleModelHumanoidRandom(True, True)
+>>>>>>> 289a65bc (Make random humanoid with mimic joint)
         self.joint_idx = (
             self.model.getJointId("rarm2_joint")
             if self.model.existJointName("rarm2_joint")

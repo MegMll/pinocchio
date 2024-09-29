@@ -8,7 +8,11 @@ from test_case import PinocchioTestCase as TestCase
 
 class TestModel(TestCase):
     def setUp(self):
+<<<<<<< HEAD
         self.model = pin.buildSampleModelHumanoidRandom(True)
+=======
+        self.model = pin.buildSampleModelHumanoidRandom(True, True)
+>>>>>>> 289a65bc (Make random humanoid with mimic joint)
 
     def test_empty_model_sizes(self):
         model = pin.Model()

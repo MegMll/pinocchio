@@ -7,7 +7,11 @@ from test_case import PinocchioTestCase as TestCase
 
 class TestJointsAlgo(TestCase):
     def setUp(self):
+<<<<<<< HEAD
         self.model = pin.buildSampleModelHumanoidRandom(True)
+=======
+        self.model = pin.buildSampleModelHumanoidRandom(True, True)
+>>>>>>> 289a65bc (Make random humanoid with mimic joint)
 
         qmax = np.full((self.model.nq, 1), np.pi)
         self.q = pin.randomConfiguration(self.model, -qmax, qmax)
