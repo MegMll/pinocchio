@@ -826,6 +826,128 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  void transformJointIntoMimic(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & input_model,
+    const JointIndex & index_primary,
+    const JointIndex & index_secondary,
+    const Scalar & scaling,
+    const Scalar & offset,
+    ModelTpl<Scalar, Options, JointCollectionTpl> & output_model)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      index_primary <= (size_t)input_model.njoints,
+      "index of primary is greater than the total of joints");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      index_secondary <= (size_t)input_model.njoints,
+      "index of primary is greater than the total of joints");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      index_primary < index_secondary, "index of primary is greater than secondary");
+
+    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+    typedef typename Model::JointModel JointModel;
+
+    output_model = input_model;
+
+    output_model.joints[index_secondary] = JointModelMimic(
+      input_model.joints.at(index_secondary), output_model.joints.at(index_primary), scaling,
+      offset);
+
+    Scalar old_nq = input_model.joints.at(index_secondary).nq();
+    Scalar old_nv = input_model.joints.at(index_secondary).nv();
+    output_model.nq = input_model.nq - old_nq;
+    output_model.nv = input_model.nv - old_nv;
+    Scalar nq = output_model.nq;
+    Scalar nv = output_model.nv;
+
+    // Resize limits
+    output_model.effortLimit.resize(nv);
+    output_model.velocityLimit.resize(nv);
+    output_model.lowerPositionLimit.resize(nq);
+    output_model.upperPositionLimit.resize(nq);
+    output_model.armature.resize(nv);
+    output_model.rotorInertia.resize(nv);
+    output_model.rotorGearRatio.resize(nv);
+    output_model.friction.resize(nv);
+    output_model.damping.resize(nv);
+
+    // Move indexes and limits
+    for (JointIndex joint_id = 1; joint_id < (JointIndex)index_secondary; ++joint_id)
+    {
+      const JointModel & jmodel_input = input_model.joints[joint_id];
+      const JointModel & jmodel_output = output_model.joints[joint_id];
+      jmodel_output.jointVelocityFromNvSelector(output_model.effortLimit) =
+        jmodel_input.jointVelocityFromNvSelector(input_model.effortLimit);
+      jmodel_output.jointVelocityFromNvSelector(output_model.velocityLimit) =
+        jmodel_input.jointVelocityFromNvSelector(input_model.velocityLimit);
+
+      jmodel_output.jointConfigFromNqSelector(output_model.lowerPositionLimit) =
+        jmodel_input.jointConfigFromNqSelector(input_model.lowerPositionLimit);
+      jmodel_output.jointConfigFromNqSelector(output_model.upperPositionLimit) =
+        jmodel_input.jointConfigFromNqSelector(input_model.upperPositionLimit);
+
+      jmodel_output.jointVelocityFromNvSelector(output_model.armature) =
+        jmodel_input.jointVelocityFromNvSelector(input_model.armature);
+      jmodel_output.jointVelocityFromNvSelector(output_model.rotorInertia) =
+        jmodel_input.jointVelocityFromNvSelector(input_model.rotorInertia);
+      jmodel_output.jointVelocityFromNvSelector(output_model.rotorGearRatio) =
+        jmodel_input.jointVelocityFromNvSelector(input_model.rotorGearRatio);
+      jmodel_output.jointVelocityFromNvSelector(output_model.friction) =
+        jmodel_input.jointVelocityFromNvSelector(input_model.friction);
+      jmodel_output.jointVelocityFromNvSelector(output_model.damping) =
+        jmodel_input.jointVelocityFromNvSelector(input_model.damping);
+    }
+
+    // Move indexes and limits
+    Scalar idx_q = output_model.idx_qs[index_secondary];
+    Scalar idx_v = output_model.idx_vs[index_secondary];
+    for (JointIndex joint_id = index_secondary; joint_id < (JointIndex)input_model.njoints;
+         ++joint_id)
+    {
+      const JointModel & jmodel_input = input_model.joints[joint_id];
+      JointModel & jmodel_output = output_model.joints[joint_id];
+      jmodel_output.setIndexes(jmodel_input.id(), idx_q, idx_v, jmodel_input.idx_j());
+
+      output_model.idx_qs[joint_id] = jmodel_output.idx_q();
+      output_model.nqs[joint_id] = jmodel_output.nq();
+      output_model.idx_vs[joint_id] = jmodel_output.idx_v();
+      output_model.nvs[joint_id] = jmodel_output.nv();
+
+      idx_q += jmodel_output.nq();
+      idx_v += jmodel_output.nv();
+      if (joint_id == index_secondary)
+      {
+        output_model.idx_qs[index_secondary] = output_model.joints[index_secondary].idx_q();
+        output_model.idx_vs[index_secondary] = output_model.joints[index_secondary].idx_v();
+        output_model.nqs[index_secondary] = 0;
+        output_model.nvs[index_secondary] = 0;
+      }
+      else
+      {
+        jmodel_output.jointVelocityFromNvSelector(output_model.effortLimit) =
+          jmodel_input.jointVelocityFromNvSelector(input_model.effortLimit);
+        jmodel_output.jointVelocityFromNvSelector(output_model.velocityLimit) =
+          jmodel_input.jointVelocityFromNvSelector(input_model.velocityLimit);
+
+        jmodel_output.jointConfigFromNqSelector(output_model.lowerPositionLimit) =
+          jmodel_input.jointConfigFromNqSelector(input_model.lowerPositionLimit);
+        jmodel_output.jointConfigFromNqSelector(output_model.upperPositionLimit) =
+          jmodel_input.jointConfigFromNqSelector(input_model.upperPositionLimit);
+
+        jmodel_output.jointVelocityFromNvSelector(output_model.armature) =
+          jmodel_input.jointVelocityFromNvSelector(input_model.armature);
+        jmodel_output.jointVelocityFromNvSelector(output_model.rotorInertia) =
+          jmodel_input.jointVelocityFromNvSelector(input_model.rotorInertia);
+        jmodel_output.jointVelocityFromNvSelector(output_model.rotorGearRatio) =
+          jmodel_input.jointVelocityFromNvSelector(input_model.rotorGearRatio);
+        jmodel_output.jointVelocityFromNvSelector(output_model.friction) =
+          jmodel_input.jointVelocityFromNvSelector(input_model.friction);
+        jmodel_output.jointVelocityFromNvSelector(output_model.damping) =
+          jmodel_input.jointVelocityFromNvSelector(input_model.damping);
+      }
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   JointIndex findCommonAncestor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     JointIndex joint1_id,

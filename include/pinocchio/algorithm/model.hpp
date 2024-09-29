@@ -205,6 +205,28 @@ namespace pinocchio
 
   /**
    *
+   *  \brief Transform of a joint of the model into a mimic joint. Keep the type of the joint as it
+   * was previously.
+   *
+   *  \param[in] model the input model to take joints from.
+   *  \param[in] index_primary index of the joint to mimic
+   *  \param[in] index_secondary index of the joint that will mimic
+   *  \param[in] scaling Scaling of joint velocity and configuration
+   *  \param[in] offset Offset of joint configuration
+   *  \param[out] output_model Model with the joint mimic
+   *
+   */
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  void transformJointIntoMimic(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & input_model,
+    const JointIndex & index_primary,
+    const JointIndex & index_secondary,
+    const Scalar & scaling,
+    const Scalar & offset,
+    ModelTpl<Scalar, Options, JointCollectionTpl> & output_model);
+
+  /**
+   *
    *  \brief Computes the common ancestor between two joints belonging to the same kinematic tree.
    *
    *  \param[in] model the input model.
