@@ -59,6 +59,7 @@ def buildModelsFromUrdf(
 
 def _buildModelsFromUrdf(
     filename,
+    mimic=False,
     package_dirs=None,
     root_joint=None,
     root_joint_name=None,
