@@ -152,9 +152,6 @@ void test_joint_mimic(const JointModelBase<JointModel> & jmodel)
   BOOST_CHECK(jmodel_mimic.idx_q() == jmodel.idx_q());
   BOOST_CHECK(jmodel_mimic.idx_v() == jmodel.idx_v());
 
-  BOOST_CHECK(jmodel_mimic.idx_q() == 0);
-  BOOST_CHECK(jmodel_mimic.idx_v() == 0);
-
   typedef typename JointModel::ConfigVector_t ConfigVectorType;
   typedef typename LieGroup<JointModel>::type LieGroupType;
   ConfigVectorType q0 =
