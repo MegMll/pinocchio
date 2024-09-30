@@ -17,7 +17,7 @@ urdf_filename = "talos_reduced.urdf"
 urdf_model_path = model_path / "talos_data/robots" / urdf_filename
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
-    urdf_model_path, False, mesh_dir, pin.JointModelFreeFlyer()
+    urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
 )
 viz = GepettoVisualizer(model, collision_model, visual_model)
 

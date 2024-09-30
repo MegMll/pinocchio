@@ -34,9 +34,7 @@ mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
 urdf_model_path = model_path / "talos_data/robots" / urdf_filename
 
-robot = RobotWrapper.BuildFromURDF(
-    urdf_model_path, True, mesh_dir, pin.JointModelFreeFlyer()
-)
+robot = RobotWrapper.BuildFromURDF(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
 # alias
 model = robot.model
