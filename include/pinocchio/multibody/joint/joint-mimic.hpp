@@ -380,8 +380,8 @@ namespace pinocchio
 
     // JointDataMimicTpl(const RefJointDataVariant & jdata,
     //                const Scalar & scaling,
-    //                const Scalar & nq,
-    //                const Scalar & nv)
+    //                const int & nq,
+    //                const int & nv)
     // : m_jdata_ref(jdata)
     // , m_scaling(scaling)
     // , S(m_jdata_ref.S(),scaling)
@@ -390,7 +390,7 @@ namespace pinocchio
     // }
 
     JointDataMimicTpl(
-      const RefJointData & jdata, const Scalar & scaling, const Scalar & nq, const Scalar & nv)
+      const RefJointData & jdata, const Scalar & scaling, const int & nq, const int & nv)
     : m_jdata_ref(checkMimic(jdata.derived()))
     , m_scaling(scaling)
     , S(m_jdata_ref.S(), scaling)
