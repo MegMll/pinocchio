@@ -852,12 +852,12 @@ namespace pinocchio
       input_model.joints.at(index_secondary), output_model.joints.at(index_primary), scaling,
       offset);
 
-    Scalar old_nq = input_model.joints.at(index_secondary).nq();
-    Scalar old_nv = input_model.joints.at(index_secondary).nv();
+    int old_nq = input_model.joints.at(index_secondary).nq();
+    int old_nv = input_model.joints.at(index_secondary).nv();
     output_model.nq = input_model.nq - old_nq;
     output_model.nv = input_model.nv - old_nv;
-    Scalar nq = output_model.nq;
-    Scalar nv = output_model.nv;
+    int nq = output_model.nq;
+    int nv = output_model.nv;
 
     // Resize limits
     output_model.effortLimit.resize(nv);
@@ -898,8 +898,8 @@ namespace pinocchio
     }
 
     // Move indexes and limits
-    Scalar idx_q = output_model.idx_qs[index_secondary];
-    Scalar idx_v = output_model.idx_vs[index_secondary];
+    int idx_q = output_model.idx_qs[index_secondary];
+    int idx_v = output_model.idx_vs[index_secondary];
     for (JointIndex joint_id = index_secondary; joint_id < (JointIndex)input_model.njoints;
          ++joint_id)
     {
