@@ -1019,7 +1019,10 @@ namespace pinocchio
     const Scalar & offset,
     const Eigen::MatrixBase<ConfigVectorOut> & qOut)
   {
-    boost::apply_visitor(ConfigVectorAffineTransformVisitor(qIn, scaling, offset, qOut), jmodel);
+    boost::apply_visitor(
+      ConfigVectorAffineTransformVisitor<ConfigVectorIn, Scalar, ConfigVectorOut>(
+        qIn, scaling, offset, qOut),
+      jmodel);
   }
 
   /// @endcond
