@@ -202,10 +202,14 @@ namespace pinocchio
       const Index & parent = model.parents[(Index)i];
 
       lastChild[parent] = std::max<int>(lastChild[(Index)i], lastChild[parent]);
-      Scalar nv_;
+      int nv_;
 
-      if (boost::get<JointModelMimic>(&model.joints[(Index)lastChild[(Index)i]]))
-        nv_ = boost::get<JointModelMimic>(model.joints[(Index)lastChild[(Index)i]]).jmodel().nv();
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
+            &model.joints[(Index)lastChild[(Index)i]]))
+        nv_ = boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
+                model.joints[(Index)lastChild[(Index)i]])
+                .jmodel()
+                .nv();
       else
         nv_ = nv(model.joints[(Index)lastChild[(Index)i]]);
 
@@ -222,7 +226,7 @@ namespace pinocchio
 
     for (Index joint = 1; joint < (Index)(model.njoints); joint++)
     {
-      if (boost::get<JointModelMimic>(&model.joints[joint]))
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[joint]))
         continue; // Mimic joints should not override mimicked joint fromRow values
       const Index & parent = model.parents[joint];
       const int nvj = model.joints[joint].nv();

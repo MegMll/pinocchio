@@ -7,6 +7,7 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/math/matrix.hpp"
+#include "pinocchio/math/fwd.hpp"
 
 #include <boost/type_traits.hpp>
 #include <boost/variant.hpp>
@@ -95,10 +96,13 @@ namespace pinocchio
       const Scalar & offset,
       const Eigen::MatrixBase<ConfigVectorOut> & qOut)
     {
-      assert(
-        fabs(scaling - 1.0) < Eigen::NumTraits<Scalar>::dummy_precision()
-        && fabs(offset) < Eigen::NumTraits<Scalar>::dummy_precision()
-        && "No ConfigVectorAffineTransform specialized for this joint type");
+      if (
+        math::fabs(static_cast<Scalar>(scaling - Scalar(1)))
+          < Eigen::NumTraits<Scalar>::dummy_precision()
+        && math::fabs(offset) < Eigen::NumTraits<Scalar>::dummy_precision())
+        throw std::invalid_argument(
+          "No ConfigVectorAffineTransform specialized for this joint type");
+
       PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, qOut).noalias() = qIn;
     }
   };

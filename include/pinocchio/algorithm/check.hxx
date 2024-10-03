@@ -160,7 +160,7 @@ namespace pinocchio
 
     for (JointIndex j = 1; int(j) < model.njoints; ++j)
     {
-      if (boost::get<JointModelMimic>(&model.joints[j]))
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[j]))
         continue;
       JointIndex c = (JointIndex)data.lastChild[j];
       CHECK_DATA((int)c < model.njoints);

@@ -190,7 +190,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.cols(), model.nv);
 
       Matrix6xLikeOut & Jout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut, Jout);
-      Jout_.fill(0);
+      Jout_.setZero();
 
       typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
       typedef typename Matrix6xLikeIn::ConstColXpr ConstColXprIn;
@@ -366,7 +366,7 @@ namespace pinocchio
       data.iMf[jointId].setIdentity();
 
       Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
-      J_.fill(0);
+      J_.setZero();
 
       typedef JointJacobianForwardStep<
         Scalar, Options, JointCollectionTpl, ConfigVectorType, Matrix6xLike>

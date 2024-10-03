@@ -59,9 +59,16 @@ namespace pinocchio
     };
 
     /// \brief Patch to the crba algorithm for joint mimic (in local convention)
-    template<typename JointModel>
+    template<
+      typename JointModel,
+      typename Scalar,
+      int Options,
+      template<typename, int>
+      class JointCollectionTpl>
     static inline void mimic_patch_CrbaWorldConventionBackwardStep(
-      const JointModelBase<JointModel> &, const Model &, Data &)
+      const JointModelBase<JointModel> &,
+      const ModelTpl<Scalar, Options, JointCollectionTpl> &,
+      DataTpl<Scalar, Options, JointCollectionTpl> &)
     {
     }
 
@@ -72,20 +79,19 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     static inline void mimic_patch_CrbaWorldConventionBackwardStep(
       const JointModelBase<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>> & jmodel,
-      const Model & model,
-      Data & data)
+      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      DataTpl<Scalar, Options, JointCollectionTpl> & data)
     {
-      typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModel;
       const JointIndex secondary_id = jmodel.id();
       const JointIndex primary_id = jmodel.derived().jmodel().id();
 
       assert(secondary_id > primary_id && "Mimicking joint id is before the primary.");
 
-      JointIndex ancestor_prim, ancestor_sec;
+      size_t ancestor_prim, ancestor_sec;
       findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
 
       // Traverse the tree backward from parent of mimicking (secondary) joint to common ancestor
-      for (int k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
+      for (size_t k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
       {
         const JointIndex i = model.supports[secondary_id].at(k);
 
@@ -101,7 +107,7 @@ namespace pinocchio
           * model.joints.at(i).jointJacCols(data.J);
       }
       // Traverse the kinematic tree forward from common ancestor to mimicked (primary) joint
-      for (int k = ancestor_prim + 1; k < model.supports[primary_id].size(); k++)
+      for (size_t k = ancestor_prim + 1; k < model.supports[primary_id].size(); k++)
       {
         const JointIndex i = model.supports[primary_id].at(k);
         jmodel.jointVelCols(data.M)
@@ -177,10 +183,17 @@ namespace pinocchio
       }
     };
 
-    /// \brief Patch to the crba algorithm for joint mimic (in local convention)
-    template<typename JointModel>
+    // /// \brief Patch to the crba algorithm for joint mimic (in local convention)
+    template<
+      typename JointModel,
+      typename Scalar,
+      int Options,
+      template<typename, int>
+      class JointCollectionTpl>
     static inline void mimic_patch_CrbaLocalConventionBackwardStep(
-      const JointModelBase<JointModel> &, const Model &, Data &)
+      const JointModelBase<JointModel> &,
+      const ModelTpl<Scalar, Options, JointCollectionTpl> &,
+      DataTpl<Scalar, Options, JointCollectionTpl> &)
     {
     }
 
@@ -207,8 +220,8 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     static inline void mimic_patch_CrbaLocalConventionBackwardStep(
       const JointModelBase<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>> & jmodel,
-      const Model & model,
-      Data & data)
+      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      DataTpl<Scalar, Options, JointCollectionTpl> & data)
     {
       typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModel;
       typedef typename Eigen::Matrix<
@@ -224,7 +237,7 @@ namespace pinocchio
 
       assert(secondary_id > primary_id && "Mimicking joint id is before the primary.");
 
-      JointIndex ancestor_prim, ancestor_sec;
+      size_t ancestor_prim, ancestor_sec;
       findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
 
       SpatialForcesBlock jF = jmodel.jointVelCols(data.Fcrb[secondary_id]); // Mimic joint forces
@@ -232,7 +245,7 @@ namespace pinocchio
       SE3 iMj = SE3::Identity(); // Transform from current joint to mimic joint
 
       // Traverse the tree backward from parent of mimicking (secondary) joint to common ancestor
-      for (int k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
+      for (size_t k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
       {
         const JointIndex i = model.supports[secondary_id].at(k);
         const JointIndex ui =
@@ -251,7 +264,7 @@ namespace pinocchio
           .noalias() += GetSNoMalloc::run(data.joints[i]).transpose() * iF;
       }
       // Traverse the kinematic tree forward from common ancestor to mimicked (primary) joint
-      for (int k = ancestor_prim + 1; k < model.supports[primary_id].size(); k++)
+      for (size_t k = ancestor_prim + 1; k < model.supports[primary_id].size(); k++)
       {
         const JointIndex i = model.supports[primary_id].at(k);
         iMj = data.liMi[i].actInv(iMj);
@@ -321,6 +334,13 @@ namespace pinocchio
         }
 
         mimic_patch_CrbaLocalConventionBackwardStep(jmodel, model, data);
+      }
+
+      /// \brief Patch to the crba algorithm for joint mimic (in local convention)
+      template<typename JointModel>
+      static inline void mimic_patch_CrbaLocalConventionBackwardStep(
+        const JointModelBase<JointModel> &, const Model &, Data &)
+      {
       }
     };
 
