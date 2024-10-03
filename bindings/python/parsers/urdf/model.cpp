@@ -27,8 +27,7 @@ namespace pinocchio
       return model;
     }
 
-    Model &
-    buildModelFromUrdf(const bp::object & filename, Model & model, const bool mimic = false)
+    Model & buildModelFromUrdf(const bp::object & filename, Model & model, const bool mimic = false)
     {
       return pinocchio::urdf::buildModel(path(filename), model, mimic);
     }
