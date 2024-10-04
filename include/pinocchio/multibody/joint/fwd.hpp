@@ -173,9 +173,6 @@ namespace pinocchio
   struct JointModelTpl;
   typedef JointModelTpl<context::Scalar> JointModel;
 
-  typedef JointModelTpl<context::Scalar, context::Options, JointCollectionMimicableTpl>
-    JointModelMimicable;
-
   template<
     typename Scalar,
     int Options = context::Options,

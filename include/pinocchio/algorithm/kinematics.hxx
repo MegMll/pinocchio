@@ -287,8 +287,8 @@ namespace pinocchio
     const Convention convention)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    assert(jointIdRef >= 0 && jointIdRef < model.njoints && "invalid joint id");
-    assert(jointIdTarget >= 0 && jointIdTarget < model.njoints && "invalid joint id");
+    assert(jointIdRef >= 0 && jointIdRef < (JointIndex)model.njoints && "invalid joint id");
+    assert(jointIdTarget >= 0 && jointIdTarget < (JointIndex)model.njoints && "invalid joint id");
     switch (convention)
     {
     case Convention::LOCAL: {

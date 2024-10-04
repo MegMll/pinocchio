@@ -157,7 +157,8 @@ namespace pinocchio
       static typename std::enable_if<
         !std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value,
         JointModel>::type
-      updateMimicIds(const JointModel & jmodel, const Model & old_model, const Model & new_model)
+      updateMimicIds(
+        const JointModel & jmodel, const Model & /*old_model*/, const Model & /*new_model*/)
       {
         JointModel res(jmodel);
         return res;
