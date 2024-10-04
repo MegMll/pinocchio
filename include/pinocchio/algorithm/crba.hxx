@@ -335,13 +335,6 @@ namespace pinocchio
 
         mimic_patch_CrbaLocalConventionBackwardStep(jmodel, model, data);
       }
-
-      /// \brief Patch to the crba algorithm for joint mimic (in local convention)
-      template<typename JointModel>
-      static inline void mimic_patch_CrbaLocalConventionBackwardStep(
-        const JointModelBase<JointModel> &, const Model &, Data &)
-      {
-      }
     };
 
     template<
