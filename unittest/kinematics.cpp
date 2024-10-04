@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(test_getRelativePlacement)
 
   const std::vector<JointIndex> test_joints{
     0, 1, model.getJointId("rleg_elbow_joint"), model.getJointId("lleg_elbow_joint"),
-    model.njoints - 1};
+    (JointIndex)(model.njoints - 1)};
 
   for (const JointIndex i : test_joints)
   {
