@@ -227,10 +227,11 @@ namespace pinocchio
       typedef typename Eigen::Matrix<
         Scalar, 6, Eigen::Dynamic, Data::Matrix6x::Options, 6, JointModel::MaxNJ>
         SpatialForcesX;
-      typedef typename Data::Matrix6x::ColsBlockXpr SpatialForcesBlock;
+      typedef JointDataTpl<Scalar, Options, JointCollectionTpl> JointData;
       typedef typename Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options, 6, JointModel::MaxNJ>
         MotionSubspace;
-      typedef GetMotionSubspaceTplNoMalloc<Data::JointData, MotionSubspace> GetSNoMalloc;
+      typedef GetMotionSubspaceTplNoMalloc<JointData, MotionSubspace> GetSNoMalloc;
+      typedef SE3Tpl<Scalar, Options> SE3;
 
       const JointIndex secondary_id = jmodel.id();
       const JointIndex primary_id = jmodel.derived().jmodel().id();
@@ -240,9 +241,8 @@ namespace pinocchio
       size_t ancestor_prim, ancestor_sec;
       findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
 
-      SpatialForcesBlock jF = jmodel.jointVelCols(data.Fcrb[secondary_id]); // Mimic joint forces
-      SpatialForcesX iF(6, jmodel.nj());                                    // Current joint forces
-      SE3 iMj = SE3::Identity(); // Transform from current joint to mimic joint
+      SpatialForcesX iF(6, jmodel.nj()); // Current joint forces
+      SE3 iMj = SE3::Identity();         // Transform from current joint to mimic joint
 
       // Traverse the tree backward from parent of mimicking (secondary) joint to common ancestor
       for (size_t k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
@@ -257,7 +257,7 @@ namespace pinocchio
         if (k == ancestor_sec && i != primary_id)
           continue;
 
-        forceSet::se3Action(iMj, jF, iF);
+        forceSet::se3Action(iMj, jmodel.jointVelCols(data.Fcrb[secondary_id]), iF);
 
         jmodel.jointVelRows(data.M)
           .middleCols(model.joints[i].idx_v(), model.joints[i].nv())
@@ -269,7 +269,7 @@ namespace pinocchio
         const JointIndex i = model.supports[primary_id].at(k);
         iMj = data.liMi[i].actInv(iMj);
 
-        forceSet::se3Action(iMj, jF, iF);
+        forceSet::se3Action(iMj, jmodel.jointVelCols(data.Fcrb[secondary_id]), iF);
 
         jmodel.jointVelCols(data.M)
           .middleRows(model.joints[i].idx_v(), model.joints[i].nv())
