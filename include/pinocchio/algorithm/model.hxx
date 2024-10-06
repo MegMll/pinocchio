@@ -129,7 +129,7 @@ namespace pinocchio
           {
             go.parentFrame = parentFrame;
           }
-          go.placement = pframe.placement * pfMAB * go.placement;
+          go.placement = static_cast<GeometryObject::SE3>(pframe.placement * pfMAB) * go.placement;
           geomModel.addGeometryObject(go);
         }
       }
@@ -789,7 +789,7 @@ namespace pinocchio
         const std::string & parent_joint_name = input_model.names[joint_id_in_input_model];
 
         JointIndex reduced_joint_id = (JointIndex)-1;
-        typedef typename Model::SE3 SE3;
+        typedef typename GeometryObject::SE3 SE3;
         SE3 relative_placement = SE3::Identity();
         if (reduced_model.existJointName(parent_joint_name))
         {
@@ -799,7 +799,7 @@ namespace pinocchio
         {
           const FrameIndex reduced_frame_id = reduced_model.getFrameId(parent_joint_name);
           reduced_joint_id = reduced_model.frames[reduced_frame_id].parentJoint;
-          relative_placement = reduced_model.frames[reduced_frame_id].placement;
+          relative_placement = static_cast<SE3>(reduced_model.frames[reduced_frame_id].placement);
         }
 
         GeometryObject reduced_geom(geom);
