@@ -273,9 +273,10 @@ struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
   {
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModelRX jmodel_ref = init<JointModelRX>::run();
-    jmodel_ref.setIndexes(0, 0, 0, 0);
 
     JointModel jmodel(jmodel_ref, 1., 0.);
+    jmodel.setIndexes(0, 0, 0, 0);
+    return jmodel;
   }
 
   static std::string name()
