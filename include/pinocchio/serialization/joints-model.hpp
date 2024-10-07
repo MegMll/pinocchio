@@ -108,7 +108,7 @@ namespace boost
       ar & make_nvp("i_v", i_v);
       ar & make_nvp("i_j", i_j);
 
-      SetJointIndexes(joint.derived()).run(i_id, i_q, i_v, i_j);
+      SetJointIndexes<pinocchio::JointModelBase<Derived>>(joint.derived()).run(i_id, i_q, i_v, i_j);
     }
 
     template<class Archive, typename Scalar, int Options, int axis>
