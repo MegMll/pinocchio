@@ -71,7 +71,7 @@ namespace boost
       Derived & joint;
 
     public:
-      SetJointIndexes(Derived & joint)
+      explicit SetJointIndexes(Derived & joint)
       : joint(joint) {};
 
       void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_j)
@@ -86,7 +86,8 @@ namespace boost
       pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & joint;
 
     public:
-      SetJointIndexes(pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & joint)
+      explicit SetJointIndexes(
+        pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & joint)
       : joint(joint) {};
 
       void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_j)
