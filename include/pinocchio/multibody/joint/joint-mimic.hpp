@@ -622,8 +622,7 @@ namespace pinocchio
     typename NewScalar,
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl>
+    template<typename S, int O> class JointCollectionTpl>
   struct CastType<NewScalar, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>
   {
     typedef JointModelMimicTpl<NewScalar, Options, JointCollectionTpl> type;

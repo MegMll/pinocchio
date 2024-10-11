@@ -1008,8 +1008,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename ConfigVectorIn,
     typename ConfigVectorOut>
   void configVectorAffineTransform(

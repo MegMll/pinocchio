@@ -63,8 +63,7 @@ namespace pinocchio
       typename JointModel,
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl>
+      template<typename, int> class JointCollectionTpl>
     static inline void mimic_patch_CrbaWorldConventionBackwardStep(
       const JointModelBase<JointModel> &,
       const ModelTpl<Scalar, Options, JointCollectionTpl> &,
@@ -188,8 +187,7 @@ namespace pinocchio
       typename JointModel,
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl>
+      template<typename, int> class JointCollectionTpl>
     static inline void mimic_patch_CrbaLocalConventionBackwardStep(
       const JointModelBase<JointModel> &,
       const ModelTpl<Scalar, Options, JointCollectionTpl> &,

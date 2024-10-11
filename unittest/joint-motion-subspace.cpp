@@ -93,8 +93,7 @@ void test_nv_against_jmodel(
 template<
   typename Scalar,
   int Options,
-  template<typename, int>
-  class JointCollection,
+  template<typename, int> class JointCollection,
   typename ConstraintDerived>
 void test_nv_against_jmodel(
   const JointModelMimicTpl<Scalar, Options, JointCollection> & jmodel,

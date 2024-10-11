@@ -66,8 +66,7 @@ namespace boost
         class Archive,
         typename Scalar,
         int Options,
-        template<typename, int>
-        class JointCollection>
+        template<typename, int> class JointCollection>
       void serialize(
         Archive & ar,
         pinocchio::JointDataBase<pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection>> &
@@ -264,8 +263,7 @@ namespace boost
       class Archive,
       typename Scalar,
       int Options,
-      template<typename, int>
-      typename JointCollection>
+      template<typename, int> typename JointCollection>
     void serialize(
       Archive & ar,
       pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection> & joint,
