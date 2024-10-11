@@ -83,17 +83,17 @@ namespace boost
     template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
     class SetJointIndexes<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>
     {
-      pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & joint;
+      pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & joint_m;
 
     public:
       explicit SetJointIndexes(
         pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & joint)
-      : joint(joint) {};
+      : joint_m(joint) {};
 
       void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_j)
       {
-        joint.setIndexes(i_id, 0, 0, i_j);
-        joint.setMimicIndexes(0, i_q, i_v, 0);
+        joint_m.setIndexes(i_id, 0, 0, i_j);
+        joint_m.setMimicIndexes(0, i_q, i_v, 0);
       }
     };
 
