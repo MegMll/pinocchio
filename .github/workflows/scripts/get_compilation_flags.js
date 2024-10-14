@@ -23,8 +23,8 @@ module.exports = async ({github, context, core}) => {
     });
     const labelNames = data.labels.map(label => label.name);
 
+    // get os process is run on
     const os = process.env.RUNNER_OS;
-
     var labelFlags;
     if(os == "Windows")
     {
@@ -75,6 +75,15 @@ module.exports = async ({github, context, core}) => {
             build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON',
             build_accelerate: ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
         };
+    }
+
+    // Get the GitHub event name that triggered the workflow
+    const eventName = process.env.GITHUB_EVENT_NAME;
+    if (eventName === 'schedule') {
+        cmakeFlags += labelFlags['build_all'].join(' ');
+        console.log(cmakeFlags);
+        core.setOutput("cmakeFlags", cmakeFlags);
+        return;
     }
 
     labelNames.forEach(label => {
