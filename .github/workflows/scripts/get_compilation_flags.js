@@ -79,6 +79,8 @@ module.exports = async ({github, context, core}) => {
 
     // Get the GitHub event name that triggered the workflow
     const eventName = process.env.GITHUB_EVENT_NAME;
+    if(eventName == "pull_request")
+        console.log('This workflow was triggered by a pull request event.');
     if (eventName === 'schedule') {
         cmakeFlags += labelFlags['build_all'].join(' ');
         console.log(cmakeFlags);
