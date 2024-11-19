@@ -21,7 +21,7 @@ Please try to include as much information as you can. Details like these are inc
 ## Contributing via Pull Requests
 The following guidance should be up-to-date, but the documentation as found [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/) should prove as the final say.
 
-Contributions via pull requests are much appreciated.
+Contributions via pull requests are much appreciated. Any new Pull Request should then be submitted on the (devel branch)[https://github.com/stack-of-tasks/pinocchio/tree/devel/].
 Before sending us a pull request, please ensure that:
 
  1. Limited scope. Your PR should do one thing or one set of things. Avoid adding “random fixes” to PRs. Put those on separate PRs.
@@ -38,6 +38,7 @@ To send us a pull request, please:
  4. Commit to your fork using clear commit messages.
  5. Send a pull request, answering any default questions in the pull request interface.
  6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
+ 7. Don't forget to update the (CHANGELOG.md)[https://github.com/stack-of-tasks/pinocchio/blob/devel/CHANGELOG.md] file, to help us keep track of changes.
 
 GitHub provides additional documentation on [forking a repository](https://help.github.com/articles/fork-a-repo/) and [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
