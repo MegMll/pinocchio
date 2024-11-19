@@ -52,6 +52,7 @@ or via pip (currently only available on Linux):
   - [Pinocchio continuous integrations](#pinocchio-continuous-integrations)
   - [Performances](#performances)
   - [Ongoing developments](#ongoing-developments)
+  - [Contribute](#contribute)
   - [Installation](#installation)
     - [ROS](#ros)
   - [Visualization](#visualization)
@@ -150,7 +151,18 @@ In addition, the [introspection](https://github.com/rbd-benchmarks/rbd-benchmark
 ## Ongoing developments
 
 If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
-The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains the latest release. Any new Pull Request should then be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
+The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains the latest release. 
+
+## Contribute
+
+If you want to help us on this project, it's more than welcome, and there are may ways you can get involved:
+
+- Report bugs or suggest new features by submitting [GitHub Issue](https://github.com/stack-of-tasks/pinocchio/issues) to let us know about problems or possible wanted extensions.
+- Ask and answer questions in the [discussions](https://github.com/stack-of-tasks/pinocchio/discussions) to help the community grow.
+- Review the [Documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/) by reporting typos, confusing explanations and adding/suggesting new content.
+- Fix bugs and contribute to pinocchio by creating [Pull Requests](https://github.com/stack-of-tasks/pinocchio/pulls).
+
+Please, read our [Developer's and Issues Guidelines](https://github.com/stack-of-tasks/pinocchio/blob/devel/development/contributing.md) before making a pull request or opening an issue.
 
 ## Installation
 
