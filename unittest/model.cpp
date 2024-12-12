@@ -950,4 +950,27 @@ BOOST_AUTO_TEST_CASE(test_has_transform_to_mimic)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_cast_mimic)
+{
+  Model humanoid_model, humanoid_mimic;
+  buildModels::humanoid(humanoid_model);
+  Data data(humanoid_model);
+  BOOST_CHECK(humanoid_model.check(data));
+
+  JointIndex index_p = humanoid_model.getJointId("rleg_shoulder3_joint");
+  JointIndex index_s = humanoid_model.getJointId("lleg_shoulder3_joint");
+
+  transformJointIntoMimic(humanoid_model, index_p, index_s, 2.0, 0.4, humanoid_mimic);
+  data = Data(humanoid_mimic);
+  BOOST_CHECK(humanoid_mimic.check(data));
+
+  humanoid_mimic = humanoid_mimic.cast<double>();
+  data = Data(humanoid_mimic);
+  BOOST_CHECK(humanoid_mimic.check(data));
+
+  ModelTpl<float> humanoid_mimic_f = humanoid_mimic.cast<float>();
+  DataTpl<float> data_f(humanoid_mimic_f);
+  BOOST_CHECK(humanoid_mimic_f.check(data_f));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
