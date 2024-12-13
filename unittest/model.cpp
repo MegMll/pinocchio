@@ -967,10 +967,16 @@ BOOST_AUTO_TEST_CASE(test_cast_mimic)
   humanoid_mimic = humanoid_mimic.cast<double>();
   data = Data(humanoid_mimic);
   BOOST_CHECK(humanoid_mimic.check(data));
+  index_s = humanoid_mimic.getJointId("lleg_shoulder3_joint");
+  BOOST_CHECK_EQUAL(humanoid_mimic.idx_qs[index_s], humanoid_mimic.joints[index_s].idx_q());
+  BOOST_CHECK_EQUAL(humanoid_mimic.idx_vs[index_s], humanoid_mimic.joints[index_s].idx_v());
 
   ModelTpl<float> humanoid_mimic_f = humanoid_mimic.cast<float>();
   DataTpl<float> data_f(humanoid_mimic_f);
   BOOST_CHECK(humanoid_mimic_f.check(data_f));
+  index_s = humanoid_mimic_f.getJointId("lleg_shoulder3_joint");
+  BOOST_CHECK_EQUAL(humanoid_mimic_f.idx_qs[index_s], humanoid_mimic_f.joints[index_s].idx_q());
+  BOOST_CHECK_EQUAL(humanoid_mimic_f.idx_vs[index_s], humanoid_mimic_f.joints[index_s].idx_v());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
