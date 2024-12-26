@@ -979,4 +979,31 @@ BOOST_AUTO_TEST_CASE(test_cast_mimic)
   BOOST_CHECK_EQUAL(humanoid_mimic_f.idx_vs[index_s], humanoid_mimic_f.joints[index_s].idx_v());
 }
 
+BOOST_AUTO_TEST_CASE(test_build_reduced_model_mimic)
+{
+  typedef Model::JointCollection JC;
+  typedef Model::JointIndex JointIndex;
+  typedef JC::JointModelRX JointModelRX;
+  typedef JC::JointModelRUBX JointModelRUBX;
+  Model model;
+
+  JointIndex ffidx = model.addJoint(0, JC::JointModelFreeFlyer(), SE3::Identity(), "root_joint");
+  model.addJointFrame(ffidx);
+  JointIndex idx = model.addJoint(ffidx, JointModelRX(), SE3::Identity(), "joint1");
+  model.addJointFrame(idx);
+  idx = model.addJoint(idx, JointModelRUBX(), SE3::Identity(), "joint2");
+  model.addJointFrame(idx);
+  idx = model.addJoint(idx, JointModelRX(), SE3::Identity(), "joint3");
+  model.addJointFrame(idx);
+
+  auto const mimic = JointModelMimic(boost::get<JointModelRX>(model.joints[model.getJointId("joint3")].toVariant()), 1., 0.);
+  idx = model.addJoint(idx, mimic, SE3::Identity(), "joint4");
+  model.addJointFrame(idx);
+
+  // We lock a 2 DoF joint that is before the mimicked joint.
+  const std::vector<JointIndex> joints_to_lock = {model.getJointId("joint2")};
+  Model reduced_model;
+  BOOST_CHECK_NO_THROW(buildReducedModel(model, joints_to_lock, neutral(model), reduced_model));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
