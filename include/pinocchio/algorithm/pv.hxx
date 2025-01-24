@@ -183,7 +183,7 @@ namespace pinocchio
 
       bias_and_force.toVector() -= data.Yaba[i] * data.a_bias[i].toVector();
 
-      jmodel.jointVelocityExtendedModelSelector(data.u) -= jdata.S().transpose() * data.f[i];
+      jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose() * data.f[i];
       jmodel.calc_aba(
         jdata.derived(), jmodel.jointVelocitySelector(model.armature), Ia, parent > 0);
 
@@ -192,8 +192,7 @@ namespace pinocchio
       if (parent > 0)
       {
         pa.toVector().noalias() +=
-          Ia * data.a_bias[i].toVector()
-          + jdata.UDinv() * jmodel.jointVelocityExtendedModelSelector(data.u);
+          Ia * data.a_bias[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
         data.Yaba[parent] += impl::internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
@@ -229,16 +228,16 @@ namespace pinocchio
 
       bias_and_force.toVector() -= data.Yaba[i] * data.a_bias[i].toVector();
 
-      jmodel.jointVelocityExtendedModelSelector(data.u) -= jdata.S().transpose() * data.f[i];
+      jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose() * data.f[i];
       jmodel.calc_aba(
-        jdata.derived(), jmodel.jointVelocityExtendedModelSelector(model.armature), Ia, parent > 0);
+        jdata.derived(), jmodel.jointVelocitySelector(model.armature), Ia, parent > 0);
 
       Force & pa = data.f[i];
 
       if (parent > 0)
       {
-        pa.toVector() += Ia * data.a_bias[i].toVector()
-                         + jdata.UDinv() * jmodel.jointVelocityExtendedModelSelector(data.u);
+        pa.toVector() +=
+          Ia * data.a_bias[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
         data.Yaba[parent] += impl::internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
@@ -258,14 +257,13 @@ namespace pinocchio
       for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
       {
         // Abusing previously unused data.tau for a role unrelated to its name below
-        jmodel.jointVelocityExtendedModelSelector(data.tau).noalias() =
-          jdata.Dinv() * data.KAS[i].col(ind);
+        jmodel.jointVelocitySelector(data.tau).noalias() = jdata.Dinv() * data.KAS[i].col(ind);
         for (int ind2 = ind; ind2 < data.constraints_supported_dim[i]; ind2++)
         {
 
           data.LA[parent](data.par_cons_ind[i] + ind2, data.par_cons_ind[i] + ind) =
             data.LA[i](ind2, ind)
-            + (data.KAS[i].col(ind2).dot(jmodel.jointVelocityExtendedModelSelector(data.tau)));
+            + (data.KAS[i].col(ind2).dot(jmodel.jointVelocitySelector(data.tau)));
         }
       }
 
@@ -273,11 +271,11 @@ namespace pinocchio
       if (data.constraints_supported_dim[i] > 0)
       {
         // Abusing previously unused data.tau variable for a role unrelated to its name below
-        jmodel.jointVelocityExtendedModelSelector(data.tau).noalias() =
+        jmodel.jointVelocitySelector(data.tau).noalias() =
           (jdata.Dinv()
-           * (jdata.S().transpose() * bias_and_force + jmodel.jointVelocityExtendedModelSelector(data.u)))
+           * (jdata.S().transpose() * bias_and_force + jmodel.jointVelocitySelector(data.u)))
             .eval();
-        const Motion a_bf = jdata.S() * jmodel.jointVelocityExtendedModelSelector(data.tau);
+        const Motion a_bf = jdata.S() * jmodel.jointVelocitySelector(data.tau);
         const Motion a_bf_motion = a_bf + data.a_bias[i];
         for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
         {
@@ -312,11 +310,9 @@ namespace pinocchio
       const JointIndex parent = model.parents[i];
 
       // Abusing otherwise unused data.tau below.
-      jmodel.jointVelocityExtendedModelSelector(data.tau).noalias() =
-        jdata.S().transpose() * data.f[i];
+      jmodel.jointVelocitySelector(data.tau).noalias() = jdata.S().transpose() * data.f[i];
       jmodel.jointVelocitySelector(data.u) -= jmodel.jointVelocitySelector(data.tau);
-      data.f[i].toVector().noalias() -=
-        jdata.UDinv() * jmodel.jointVelocityExtendedModelSelector(data.tau);
+      data.f[i].toVector().noalias() -= jdata.UDinv() * jmodel.jointVelocitySelector(data.tau);
 
       if (parent > 0)
       {
@@ -347,11 +343,11 @@ namespace pinocchio
       const JointIndex parent = model.parents[i];
 
       data.a[i] = data.liMi[i].actInv(data.a[parent]) + data.a_bias[i];
-      jmodel.jointVelocityExtendedModelSelector(data.ddq).noalias() =
-        jdata.Dinv() * (jmodel.jointVelocityExtendedModelSelector(data.u))
+      jmodel.jointVelocitySelector(data.ddq).noalias() =
+        jdata.Dinv() * (jmodel.jointVelocitySelector(data.u))
         - jdata.UDinv().transpose() * data.a[i].toVector();
 
-      data.a[i] += jdata.S() * jmodel.jointVelocityExtendedModelSelector(data.ddq);
+      data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
   };
 
@@ -377,18 +373,18 @@ namespace pinocchio
       const JointIndex parent = model.parents[i];
 
       data.a[i] = data.liMi[i].actInv(data.a[parent]) + data.a_bias[i];
-      jmodel.jointVelocityExtendedModelSelector(data.ddq).noalias() =
-        jdata.Dinv() * (jmodel.jointVelocityExtendedModelSelector(data.u))
+      jmodel.jointVelocitySelector(data.ddq).noalias() =
+        jdata.Dinv() * (jmodel.jointVelocitySelector(data.u))
         - jdata.UDinv().transpose() * data.a[i].toVector();
 
       data.lambdaA[i].noalias() =
         data.lambdaA[parent].segment(data.par_cons_ind[i], data.lambdaA[i].size());
       for (int j = 0; j < data.constraints_supported_dim[i]; j++)
       {
-        jmodel.jointVelocityExtendedModelSelector(data.ddq).noalias() -=
+        jmodel.jointVelocitySelector(data.ddq).noalias() -=
           data.lambdaA[i][j] * jdata.Dinv() * (data.KAS[i].col(j));
       }
-      data.a[i] += jdata.S() * jmodel.jointVelocityExtendedModelSelector(data.ddq);
+      data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
   };
 

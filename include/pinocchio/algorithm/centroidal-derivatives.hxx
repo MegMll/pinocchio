@@ -98,8 +98,8 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
-        ColsBlock dJ_cols = jmodel.jointExtendedModelCols(data.dJ);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
         ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
         ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
@@ -153,7 +153,6 @@ namespace pinocchio
       template<typename JointModel>
       static void algo(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
       {
-
         typedef typename Model::JointIndex JointIndex;
 
         const JointIndex & i = jmodel.id();
@@ -163,7 +162,7 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
         ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
         ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
@@ -385,7 +384,7 @@ namespace pinocchio
         typename Data::Motion & vtmp = data.v[0];
         typename Data::Matrix6x & Ftmp = data.Fcrb[0];
 
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
         ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
         ColsBlock dHdq_cols = jmodel.jointCols(data.dHdq);
         ColsBlock Ftmp_cols = jmodel.jointCols(Ftmp);

@@ -71,7 +71,7 @@ namespace pinocchio
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
-      ColsBlock Jcols = jmodel.jointExtendedModelCols(data.J);
+      ColsBlock Jcols = jmodel.jointCols(data.J);
 
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix3xOut1>::Type ColsBlockOut1;
@@ -165,7 +165,6 @@ namespace pinocchio
       const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
       const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
     {
-
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::SE3 SE3;
       typedef typename Data::Motion Motion;
@@ -181,7 +180,7 @@ namespace pinocchio
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
-      ColsBlock Jcols = jmodel.jointExtendedModelCols(data.J);
+      ColsBlock Jcols = jmodel.jointCols(data.J);
 
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;

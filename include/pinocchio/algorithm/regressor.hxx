@@ -382,7 +382,7 @@ namespace pinocchio
         data.v[i] += data.liMi[i].actInv(data.v[parent]);
 
       data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
-      data.a_gf[i] += jdata.S() * jmodel.jointVelocityExtendedModelSelector(a);
+      data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(a);
       data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
     }
   };

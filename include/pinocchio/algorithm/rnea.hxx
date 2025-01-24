@@ -694,8 +694,8 @@ namespace pinocchio
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
-      ColsBlock dJ_cols = jmodel.jointExtendedModelCols(data.dJ);
-      ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
       typename Data::Matrix6x & dFdv = data.Fcrb[0];
       ColsBlock dFdv_cols = jmodel.jointCols(dFdv);

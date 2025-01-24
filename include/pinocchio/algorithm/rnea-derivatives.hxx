@@ -63,7 +63,7 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
         ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
         J_cols = data.oMi[i].act(jdata.S());
         motionSet::motionAction(minus_gravity, J_cols, dAdq_cols);
@@ -117,7 +117,7 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
         ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
         ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
         ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
@@ -137,8 +137,7 @@ namespace pinocchio
           gravity_partial_dq_.middleRows(jmodel.idx_v(), jmodel.nv()).col(j).noalias() =
             Ag_cols.transpose() * data.dAdq.col(j);
 
-        jmodel.jointVelocityExtendedModelSelector(g).noalias() =
-          J_cols.transpose() * data.of[i].toVector();
+        jmodel.jointVelocitySelector(g).noalias() = J_cols.transpose() * data.of[i].toVector();
         if (parent > 0)
         {
           data.oYcrb[parent] += data.oYcrb[i];
@@ -304,8 +303,8 @@ namespace pinocchio
         else
           data.oMi[i] = data.liMi[i];
 
-        data.a[i] = jdata.S() * jmodel.jointVelocityExtendedModelSelector(a) + jdata.c()
-                    + (data.v[i] ^ jdata.v());
+        data.a[i] =
+          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
         {
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
@@ -322,8 +321,8 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
-        ColsBlock dJ_cols = jmodel.jointExtendedModelCols(data.dJ);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
         ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
         ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
@@ -409,7 +408,7 @@ namespace pinocchio
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColsBlock;
 
         Matrix6x & dYtJ = data.Fcrb[0];
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
         ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
         ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
@@ -423,7 +422,7 @@ namespace pinocchio
         MatrixType3 & rnea_partial_da_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3, rnea_partial_da);
 
         // tau
-        jmodel.jointVelocityExtendedModelSelector(data.tau).noalias() =
+        jmodel.jointVelocitySelector(data.tau).noalias() =
           J_cols.transpose() * data.of[i].toVector();
 
         const Eigen::DenseIndex nv_subtree = data.nvSubtree[i];

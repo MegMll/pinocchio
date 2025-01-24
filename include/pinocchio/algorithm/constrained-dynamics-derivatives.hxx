@@ -55,13 +55,13 @@ namespace pinocchio
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
-      ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
 
       if (ContactMode)
       {
         const Motion & ov = data.ov[i];
-        ColsBlock dJ_cols = jmodel.jointExtendedModelCols(data.dJ);
+        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
         ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
 
         motionSet::motionAction(ov, J_cols, dJ_cols);
@@ -86,8 +86,8 @@ namespace pinocchio
         Motion & oa_gf = data.oa_gf[i];
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
         const typename Data::TangentVectorType & a = data.ddq;
-        data.a[i] = jdata.S() * jmodel.jointVelocityExtendedModelSelector(a) + jdata.c()
-                    + (data.v[i] ^ jdata.v());
+        data.a[i] =
+          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
         oa = data.oMi[i].act(data.a[i]);
@@ -107,7 +107,7 @@ namespace pinocchio
         Motion & odvparent = data.oa[parent];
         const typename Data::TangentVectorType & dimpulse = data.ddq;
         // Temporary calculation of J(dq_after)
-        odv = J_cols * jmodel.jointVelocityExtendedModelSelector(dimpulse);
+        odv = J_cols * jmodel.jointVelocitySelector(dimpulse);
         if (parent > 0)
           odv += odvparent;
         motionSet::motionAction(odvparent, J_cols, dAdq_cols);
@@ -147,7 +147,7 @@ namespace pinocchio
 
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
-      ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);

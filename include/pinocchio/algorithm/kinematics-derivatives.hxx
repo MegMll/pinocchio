@@ -81,16 +81,15 @@ namespace pinocchio
         if (parent > 0)
           vi += data.liMi[i].actInv(data.v[parent]);
 
-        ai =
-          jdata.S() * jmodel.jointVelocityExtendedModelSelector(a) + jdata.c() + (vi ^ jdata.v());
+        ai = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (vi ^ jdata.v());
         if (parent > 0)
           ai += data.liMi[i].actInv(data.a[parent]);
 
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock dJcols = jmodel.jointExtendedModelCols(data.dJ);
-        ColsBlock Jcols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock dJcols = jmodel.jointCols(data.dJ);
+        ColsBlock Jcols = jmodel.jointCols(data.J);
 
         Jcols = oMi.act(jdata.S());
         ov = oMi.act(vi); // Spatial velocity of joint i expressed in the global frame o
@@ -187,7 +186,7 @@ namespace pinocchio
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<
           typename Data::Matrix6x>::ConstType ColsBlock;
-        ColsBlock Jcols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock Jcols = jmodel.jointCols(data.J);
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type
           ColsBlockOut1;
@@ -343,8 +342,8 @@ namespace pinocchio
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<
           typename Data::Matrix6x>::ConstType ColsBlock;
-        ColsBlock dJcols = jmodel.jointExtendedModelCols(data.dJ);
-        ColsBlock Jcols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock dJcols = jmodel.jointCols(data.dJ);
+        ColsBlock Jcols = jmodel.jointCols(data.J);
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type
           ColsBlockOut1;
@@ -594,7 +593,7 @@ namespace pinocchio
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<
           typename Data::Matrix6x>::ConstType ColsBlock;
-        ColsBlock Jcols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock Jcols = jmodel.jointCols(data.J);
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix3xOut1>::Type
           ColsBlockOut1;
@@ -757,8 +756,8 @@ namespace pinocchio
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<
           typename Data::Matrix6x>::ConstType ColsBlock;
-        ColsBlock dJcols = jmodel.jointExtendedModelCols(data.dJ);
-        ColsBlock Jcols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock dJcols = jmodel.jointCols(data.dJ);
+        ColsBlock Jcols = jmodel.jointCols(data.J);
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix3xOut1>::Type
           ColsBlockOut1;

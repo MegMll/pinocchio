@@ -74,10 +74,10 @@ namespace pinocchio
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
         data.doYcrb[i] = data.oYcrb[i].variation(data.ov[i]);
 
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
         J_cols = data.oMi[i].act(jdata.S());
 
-        ColsBlock dJ_cols = jmodel.jointExtendedModelCols(data.dJ);
+        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
         motionSet::motionAction(data.ov[i], J_cols, dJ_cols);
 
         data.a_gf[i] = data.a[i] = jdata.c() + (data.v[i] ^ jdata.v());
@@ -120,8 +120,8 @@ namespace pinocchio
         const JointIndex i = jmodel.id();
         const JointIndex parent = model.parents[i];
 
-        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
-        ColsBlock dJ_cols = jmodel.jointExtendedModelCols(data.dJ);
+        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
         ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
         ColsBlock dAg_cols = jmodel.jointCols(data.dAg);
 
@@ -133,10 +133,10 @@ namespace pinocchio
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dJ_cols, dAg_cols);
 
         /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
-        jmodel.jointRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() =
+        data.M.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
           J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
-        jmodel.jointVelocityExtendedModelSelector(data.nle) += jdata.S().transpose() * data.f[i];
+        jmodel.jointVelocitySelector(data.nle) = jdata.S().transpose() * data.f[i];
 
         data.oYcrb[parent] += data.oYcrb[i];
         data.doYcrb[parent] += data.doYcrb[i];
@@ -169,7 +169,6 @@ namespace pinocchio
 
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
-      data.nle.setZero();
       data.v[0].setZero();
       data.a[0].setZero();
       data.h[0].setZero();

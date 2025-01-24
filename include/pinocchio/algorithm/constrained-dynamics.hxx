@@ -170,7 +170,7 @@ namespace pinocchio
       const ColsBlock J_cols = jmodel.jointCols(data.J);
       motionSet::inertiaAction(data.oYcrb[i], J_cols, dFda_cols);
 
-      jmodel.jointRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() =
+      data.M.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
         J_cols.transpose() * data.dFda.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
       data.oYcrb[parent] += data.oYcrb[i];
 
