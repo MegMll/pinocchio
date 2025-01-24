@@ -178,7 +178,7 @@ namespace pinocchio
         const JointIndex mimicked_new_id = new_model.getJointId(mimicked_name);
         res.setMimicIndexes(
           mimicked_new_id, new_model.joints[mimicked_new_id].idx_q(),
-          new_model.joints[mimicked_new_id].idx_v(), new_model.joints[mimicked_new_id].idx_j());
+          new_model.joints[mimicked_new_id].idx_v(), new_model.joints[mimicked_new_id].idx_vExtended());
         return res;
       }
 
@@ -904,7 +904,7 @@ namespace pinocchio
     {
       const JointModel & jmodel_input = input_model.joints[joint_id];
       JointModel & jmodel_output = output_model.joints[joint_id];
-      jmodel_output.setIndexes(jmodel_input.id(), idx_q, idx_v, jmodel_input.idx_j());
+      jmodel_output.setIndexes(jmodel_input.id(), idx_q, idx_v, jmodel_input.idx_vExtended());
 
       output_model.idx_qs[joint_id] = jmodel_output.idx_q();
       output_model.nqs[joint_id] = jmodel_output.nq();

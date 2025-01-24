@@ -383,7 +383,7 @@ namespace pinocchio
     {
       NQ = 4,
       NV = 3,
-      NJ = 3
+      NVExtended = 3
     };
     typedef _Scalar Scalar;
     enum
@@ -481,7 +481,7 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelSphericalTpl> Base;
     using Base::id;
-    using Base::idx_j;
+    using Base::idx_vExtended;
     using Base::idx_q;
     using Base::idx_v;
     using Base::setIndexes;
@@ -604,7 +604,7 @@ namespace pinocchio
     {
       typedef JointModelSphericalTpl<NewScalar, Options> ReturnType;
       ReturnType res;
-      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
       return res;
     }
 

@@ -270,25 +270,25 @@ namespace pinocchio
   /**
    * @brief      JointNjVisitor visitor
    */
-  struct JointNjVisitor : boost::static_visitor<int>
+  struct JointNvExtendedVisitor : boost::static_visitor<int>
   {
     template<typename JointModelDerived>
     int operator()(const JointModelBase<JointModelDerived> & jmodel) const
     {
-      return jmodel.nj();
+      return jmodel.nvExtended();
     }
 
     template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
     static int run(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
     {
-      return boost::apply_visitor(JointNjVisitor(), jmodel);
+      return boost::apply_visitor(JointNvExtendedVisitor(), jmodel);
     }
   };
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline int nj(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+  inline int nvExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
   {
-    return JointNjVisitor::run(jmodel);
+    return JointNvExtendedVisitor::run(jmodel);
   }
 
   /**
@@ -394,25 +394,25 @@ namespace pinocchio
   /**
    * @brief      JointIdxjVisitor visitor
    */
-  struct JointIdxJVisitor : boost::static_visitor<int>
+  struct JointIdxVExtendedVisitor : boost::static_visitor<int>
   {
     template<typename JointModelDerived>
     int operator()(const JointModelBase<JointModelDerived> & jmodel) const
     {
-      return jmodel.idx_j();
+      return jmodel.idx_vExtended();
     }
 
     template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
     static int run(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
     {
-      return boost::apply_visitor(JointIdxJVisitor(), jmodel);
+      return boost::apply_visitor(JointIdxVExtendedVisitor(), jmodel);
     }
   };
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline int idx_j(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+  inline int idx_vExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
   {
-    return JointIdxJVisitor::run(jmodel);
+    return JointIdxVExtendedVisitor::run(jmodel);
   }
 
   /**
@@ -447,20 +447,20 @@ namespace pinocchio
     JointIndex id;
     int q;
     int v;
-    int j;
+    int vExtended;
 
-    JointSetIndexesVisitor(JointIndex id, int q, int v, int j)
+    JointSetIndexesVisitor(JointIndex id, int q, int v, int vExtended)
     : id(id)
     , q(q)
     , v(v)
-    , j(j)
+    , vExtended(vExtended)
     {
     }
 
     template<typename JointModelDerived>
     void operator()(JointModelBase<JointModelDerived> & jmodel) const
     {
-      jmodel.setIndexes(id, q, v, j);
+      jmodel.setIndexes(id, q, v, vExtended);
     }
 
     template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -469,17 +469,17 @@ namespace pinocchio
       JointIndex id,
       int q,
       int v,
-      int j)
+      int vExtended)
     {
-      return boost::apply_visitor(JointSetIndexesVisitor(id, q, v, j), jmodel);
+      return boost::apply_visitor(JointSetIndexesVisitor(id, q, v, vExtended), jmodel);
     }
   };
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline void setIndexes(
-    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v, int j)
+    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v, int vExtended)
   {
-    return JointSetIndexesVisitor::run(jmodel, id, q, v, j);
+    return JointSetIndexesVisitor::run(jmodel, id, q, v, vExtended);
   }
 
   /**
@@ -965,7 +965,7 @@ namespace pinocchio
     typename boost::disable_if_c<is_mimicable<T>::value, JointModel>::type
     operator()(const T & value) const
     {
-      assert(false && "Type not supported in new variant");
+      PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Type not supported in new variant");
       return value;
     }
   };

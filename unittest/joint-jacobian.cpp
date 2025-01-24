@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_jacobian)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model, false, true);
   pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Zero(model.nq);

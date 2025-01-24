@@ -312,14 +312,14 @@ namespace pinocchio
       Options = _Options,
       NQ = Eigen::Dynamic,
       NV = Eigen::Dynamic,
-      NJ = Eigen::Dynamic,
-      MaxNJ = 6
+      NVExtended = Eigen::Dynamic,
+      MaxNVExtended = 6
     };
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
     typedef JointDataMimicTpl<Scalar, Options, JointCollectionTpl> JointDataDerived;
     typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelDerived;
-    typedef ScaledJointMotionSubspaceTpl<Scalar, Options, MaxNJ> Constraint_t;
+    typedef ScaledJointMotionSubspaceTpl<Scalar, Options, MaxNVExtended> Constraint_t;
     typedef SE3Tpl<Scalar, Options> Transformation_t;
 
     typedef MotionTpl<Scalar, Options> Motion_t;
@@ -611,7 +611,7 @@ namespace pinocchio
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     enum
     {
-      MaxNJ = traits<JointDerived>::MaxNJ
+      MaxNVExtended = traits<JointDerived>::MaxNVExtended
     };
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
@@ -623,10 +623,10 @@ namespace pinocchio
     typedef InertiaTpl<Scalar, Options> Inertia;
 
     using Base::id;
-    using Base::idx_j;
+    using Base::idx_vExtended;
     using Base::idx_q;
     using Base::idx_v;
-    using Base::nj;
+    using Base::nvExtended;
     using Base::nq;
     using Base::nv;
     using Base::setIndexes;
@@ -654,11 +654,11 @@ namespace pinocchio
     {
       assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
-      assert(jmodel_mimicking.nj() == jmodel_mimicked.nj());
+      assert(jmodel_mimicking.nvExtended() == jmodel_mimicked.nvExtended());
 
       setMimicIndexes(
         jmodel_mimicked.id(), jmodel_mimicked.idx_q(), jmodel_mimicked.idx_v(),
-        jmodel_mimicked.idx_j());
+        jmodel_mimicked.idx_vExtended());
     }
 
     Base & base()
@@ -678,26 +678,26 @@ namespace pinocchio
     {
       return 0;
     }
-    inline int nj_impl() const
+    inline int nvExtended_impl() const
     {
-      return m_jmodel_ref.nj();
+      return m_jmodel_ref.nvExtended();
     }
 
-    void setIndexes_impl(JointIndex id, int /*q*/, int /*v*/, int j)
+    void setIndexes_impl(JointIndex id, int /*q*/, int /*v*/, int vExtended)
     {
       Base::i_id = id;
       // When setting the indexes q and v should remain on the mimicked joint
       // Base::i_q = q;
       // Base::i_v = v;
-      Base::i_j = j;
+      Base::i_vExtended = vExtended;
     }
 
     // Specific way for mimic joints to set the mimicked q,v indexes.
     // Used for manipulating tree (e.g. appendModel)
-    void setMimicIndexes(JointIndex id, int q, int v, int j)
+    void setMimicIndexes(JointIndex id, int q, int v, int vExtended)
     {
       // Set idx_q, idx_v to zero so that only sub segment of q,v can be passed to ref joint
-      m_jmodel_ref.setIndexes(id, 0, 0, j);
+      m_jmodel_ref.setIndexes(id, 0, 0, vExtended);
       // idx_q, idx_v kept separately
       Base::i_q = q;
       Base::i_v = v;
@@ -779,7 +779,7 @@ namespace pinocchio
       ReturnType res(
         m_jmodel_ref.template cast<NewScalar>(), ScalarCast<NewScalar, Scalar>::cast(m_scaling),
         ScalarCast<NewScalar, Scalar>::cast(m_offset));
-      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
       return res;
     }
 

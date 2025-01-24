@@ -185,7 +185,7 @@ namespace pinocchio
       assert(model.check(data) && "data is not consistent with model.");
 
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.rows(), 6);
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.cols(), model.nj);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.cols(), model.nvExtended);
 
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.rows(), 6);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.cols(), model.nv);
@@ -204,9 +204,9 @@ namespace pinocchio
       case WORLD: {
         for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
         {
-          for (int i = nj(model.joints[j]) - 1; i >= 0; i--)
+          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
           {
-            const Eigen::DenseIndex col_in = idx_j(model.joints[j]) + i;
+            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
             const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
 
             MotionIn v_in(Jin.col(col_in));
@@ -220,9 +220,9 @@ namespace pinocchio
       case LOCAL_WORLD_ALIGNED: {
         for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
         {
-          for (int i = nj(model.joints[j]) - 1; i >= 0; i--)
+          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
           {
-            const Eigen::DenseIndex col_in = idx_j(model.joints[j]) + i;
+            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
             const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
 
             MotionIn v_in(Jin.col(col_in));
@@ -237,9 +237,9 @@ namespace pinocchio
       case LOCAL: {
         for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
         {
-          for (int i = nj(model.joints[j]) - 1; i >= 0; i--)
+          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
           {
-            const Eigen::DenseIndex col_in = idx_j(model.joints[j]) + i;
+            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
             const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
 
             MotionIn v_in(Jin.col(col_in));
@@ -512,9 +512,9 @@ namespace pinocchio
         const Motion & v_joint = data.v[jointId];
         for (JointIndex j = jointId; j > 0; j = model.parents[(size_t)j])
         {
-          for (int i = nj(model.joints[j]) - 1; i >= 0; i--)
+          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
           {
-            const Eigen::DenseIndex col_in = idx_j(model.joints[j]) + i;
+            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
             const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
 
             typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
@@ -535,9 +535,9 @@ namespace pinocchio
         const SE3 & oMjoint = data.oMi[jointId];
         for (JointIndex j = jointId; j > 0; j = model.parents[(size_t)j])
         {
-          for (int i = nj(model.joints[j]) - 1; i >= 0; i--)
+          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
           {
-            const Eigen::DenseIndex col_in = idx_j(model.joints[j]) + i;
+            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
             const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
 
             typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;

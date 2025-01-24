@@ -18,13 +18,13 @@ namespace pinocchio
 
       ar & make_nvp("m_nq", joint.m_nq);
       ar & make_nvp("m_nv", joint.m_nv);
-      ar & make_nvp("m_nj", joint.m_nj);
+      ar & make_nvp("m_nvExtended", joint.m_nvExtended);
       ar & make_nvp("m_idx_q", joint.m_idx_q);
       ar & make_nvp("m_nqs", joint.m_nqs);
       ar & make_nvp("m_idx_v", joint.m_idx_v);
       ar & make_nvp("m_nvs", joint.m_nvs);
-      ar & make_nvp("m_idx_j", joint.m_idx_j);
-      ar & make_nvp("m_njs", joint.m_njs);
+      ar & make_nvp("m_idx_vExtended", joint.m_idx_vExtended);
+      ar & make_nvp("m_nvExtendeds", joint.m_nvExtendeds);
       ar & make_nvp("njoints", joint.njoints);
 
       ar & make_nvp("joints", joint.joints);
@@ -57,12 +57,12 @@ namespace boost
       const unsigned int /*version*/)
     {
       const pinocchio::JointIndex i_id = joint.id();
-      const int i_q = joint.idx_q(), i_v = joint.idx_v(), i_j = joint.idx_j();
+      const int i_q = joint.idx_q(), i_v = joint.idx_v(), i_vExtended = joint.idx_vExtended();
 
       ar & make_nvp("i_id", i_id);
       ar & make_nvp("i_q", i_q);
       ar & make_nvp("i_v", i_v);
-      ar & make_nvp("i_j", i_j);
+      ar & make_nvp("i_vExtended", i_vExtended);
     }
 
     template<typename Derived>
@@ -74,9 +74,9 @@ namespace boost
       explicit SetJointIndexes(Derived & joint)
       : joint(joint) {};
 
-      void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_j)
+      void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_vExtended)
       {
-        joint.setIndexes(i_id, i_q, i_v, i_j);
+        joint.setIndexes(i_id, i_q, i_v, i_vExtended);
       }
     };
 
@@ -90,9 +90,9 @@ namespace boost
         pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & joint)
       : joint_m(joint) {};
 
-      void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_j)
+      void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_vExtended)
       {
-        joint_m.setIndexes(i_id, 0, 0, i_j);
+        joint_m.setIndexes(i_id, 0, 0, i_vExtended);
         joint_m.setMimicIndexes(0, i_q, i_v, 0);
       }
     };
@@ -102,14 +102,14 @@ namespace boost
     load(Archive & ar, pinocchio::JointModelBase<Derived> & joint, const unsigned int /*version*/)
     {
       pinocchio::JointIndex i_id;
-      int i_q, i_v, i_j;
+      int i_q, i_v, i_vExtended;
 
       ar & make_nvp("i_id", i_id);
       ar & make_nvp("i_q", i_q);
       ar & make_nvp("i_v", i_v);
-      ar & make_nvp("i_j", i_j);
+      ar & make_nvp("i_vExtended", i_vExtended);
 
-      SetJointIndexes<Derived>(joint.derived()).run(i_id, i_q, i_v, i_j);
+      SetJointIndexes<Derived>(joint.derived()).run(i_id, i_q, i_v, i_vExtended);
     }
 
     template<class Archive, typename Scalar, int Options, int axis>

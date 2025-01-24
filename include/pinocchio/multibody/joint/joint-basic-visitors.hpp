@@ -153,7 +153,7 @@ namespace pinocchio
    * @return     The dimension of joint jacobian space
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline int nj(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
+  inline int nvExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
    * @brief      Visit a JointModelTpl through JointConfigurationLimitVisitor
@@ -213,7 +213,7 @@ namespace pinocchio
    *             joint jacobian space degree
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline int idx_j(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
+  inline int idx_vExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
    * @brief      Visit a JointModelTpl through JointIdVisitor to get the index of the joint in the
@@ -247,7 +247,7 @@ namespace pinocchio
     JointIndex id,
     int q,
     int v,
-    int j);
+    int vExtended);
 
   /**
    * @brief      Visit a JointModelTpl through JointShortnameVisitor to get the shortname of the

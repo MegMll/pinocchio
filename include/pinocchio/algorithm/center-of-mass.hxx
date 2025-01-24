@@ -260,7 +260,7 @@ namespace pinocchio
       ColBlock Jcols = jmodel.jointExtendedModelCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
 
-      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nj(); ++col_id)
+      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nvExtended(); ++col_id)
       {
         jmodel.jointCols(Jcom_).col(col_id) +=
           data.mass[i] * Jcols.col(col_id).template segment<3>(Motion::LINEAR)
@@ -370,7 +370,7 @@ namespace pinocchio
       ColBlock Jcols = jmodel.jointExtendedModelCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
 
-      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nj(); ++col_id)
+      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nvExtended(); ++col_id)
       {
         jmodel.jointCols(Jcom_).col(col_id) +=
           Jcols.col(col_id).template segment<3>(Motion::LINEAR)

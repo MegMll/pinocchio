@@ -124,7 +124,7 @@ namespace pinocchio
     CHECK_DATA(data.U.rows() == model.nv);
     CHECK_DATA(data.D.size() == model.nv);
     CHECK_DATA(data.tmp.size() >= model.nv);
-    CHECK_DATA(data.J.cols() == model.nj);
+    CHECK_DATA(data.J.cols() == model.nvExtended);
     CHECK_DATA(data.Jcom.cols() == model.nv);
     CHECK_DATA(data.torque_residual.size() == model.nv);
     CHECK_DATA(data.dq_after.size() == model.nv);
@@ -154,8 +154,8 @@ namespace pinocchio
       CHECK_DATA(model.idx_qs[joint_id] == jmodel.idx_q());
       CHECK_DATA(model.nvs[joint_id] == jmodel.nv());
       CHECK_DATA(model.idx_vs[joint_id] == jmodel.idx_v());
-      CHECK_DATA(model.njs[joint_id] == jmodel.nj());
-      CHECK_DATA(model.idx_js[joint_id] == jmodel.idx_j());
+      CHECK_DATA(model.nvExtendeds[joint_id] == jmodel.nvExtended());
+      CHECK_DATA(model.idx_vExtendeds[joint_id] == jmodel.idx_vExtended());
     }
 
     for (JointIndex j = 1; int(j) < model.njoints; ++j)

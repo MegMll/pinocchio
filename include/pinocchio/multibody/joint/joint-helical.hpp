@@ -736,7 +736,7 @@ namespace pinocchio
     {
       NQ = 1,
       NV = 1,
-      NJ = 1
+      NVExtended = 1
     };
     typedef _Scalar Scalar;
     enum
@@ -838,7 +838,7 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelHelicalTpl> Base;
     using Base::id;
-    using Base::idx_j;
+    using Base::idx_vExtended;
     using Base::idx_q;
     using Base::idx_v;
     using Base::setIndexes;
@@ -951,7 +951,7 @@ namespace pinocchio
     {
       typedef JointModelHelicalTpl<NewScalar, Options, axis> ReturnType;
       ReturnType res(ScalarCast<NewScalar, Scalar>::cast(m_pitch));
-      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
       return res;
     }
 

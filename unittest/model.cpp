@@ -897,7 +897,7 @@ BOOST_AUTO_TEST_CASE(test_has_transform_to_mimic)
 
   BOOST_CHECK(humanoid_mimic.nq == (humanoid_model.nq - humanoid_model.nqs[index_s]));
   BOOST_CHECK(humanoid_mimic.nv == (humanoid_model.nv - humanoid_model.nvs[index_s]));
-  BOOST_CHECK(humanoid_model.nj == humanoid_mimic.nj);
+  BOOST_CHECK(humanoid_model.nvExtended == humanoid_mimic.nvExtended);
   BOOST_CHECK(humanoid_mimic.njoints == humanoid_model.njoints);
 
   for (int i = 1; i < humanoid_model.names.size(); i++)

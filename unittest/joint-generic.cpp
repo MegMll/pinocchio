@@ -333,7 +333,7 @@ namespace pinocchio
       Options = _Options,
       NQ = Eigen::Dynamic, // Dynamic because unknown at compile time
       NV = Eigen::Dynamic,
-      NJ = Eigen::Dynamic
+      NVExtended = Eigen::Dynamic
     };
     typedef _Scalar Scalar;
 

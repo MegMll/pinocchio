@@ -33,7 +33,7 @@ void test_joint_methods(
   JointData jdata = jmodel.createData();
   JointDataComposite jdata_composite = jmodel_composite.createData();
 
-  jmodel_composite.setIndexes(jmodel.id(), jmodel.idx_q(), jmodel.idx_v(), jmodel.idx_j());
+  jmodel_composite.setIndexes(jmodel.id(), jmodel.idx_q(), jmodel.idx_v(), jmodel.idx_vExtended());
 
   typedef typename JointModel::ConfigVector_t ConfigVector_t;
   typedef typename JointModel::TangentVector_t TangentVector_t;

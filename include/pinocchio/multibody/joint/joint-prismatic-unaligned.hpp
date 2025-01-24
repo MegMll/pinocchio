@@ -479,7 +479,7 @@ namespace pinocchio
     {
       NQ = 1,
       NV = 1,
-      NJ = 1
+      NVExtended = 1
     };
     typedef _Scalar Scalar;
     enum
@@ -592,7 +592,7 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelPrismaticUnalignedTpl> Base;
     using Base::id;
-    using Base::idx_j;
+    using Base::idx_vExtended;
     using Base::idx_q;
     using Base::idx_v;
     using Base::setIndexes;
@@ -698,7 +698,7 @@ namespace pinocchio
     {
       typedef JointModelPrismaticUnalignedTpl<NewScalar, Options> ReturnType;
       ReturnType res(axis.template cast<NewScalar>());
-      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
       return res;
     }
 
