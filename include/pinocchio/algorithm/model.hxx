@@ -178,7 +178,8 @@ namespace pinocchio
         const JointIndex mimicked_new_id = new_model.getJointId(mimicked_name);
         res.setMimicIndexes(
           mimicked_new_id, new_model.joints[mimicked_new_id].idx_q(),
-          new_model.joints[mimicked_new_id].idx_v(), new_model.joints[mimicked_new_id].idx_vExtended());
+          new_model.joints[mimicked_new_id].idx_v(),
+          new_model.joints[mimicked_new_id].idx_vExtended());
         return res;
       }
 

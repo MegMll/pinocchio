@@ -227,8 +227,9 @@ namespace pinocchio
         Scalar, 6, Eigen::Dynamic, Data::Matrix6x::Options, 6, JointModel::MaxNVExtended>
         SpatialForcesX;
       typedef JointDataTpl<Scalar, Options, JointCollectionTpl> JointData;
-      typedef typename Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options, 6, JointModel::MaxNVExtended>
-        MotionSubspace;
+      typedef
+        typename Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options, 6, JointModel::MaxNVExtended>
+          MotionSubspace;
       typedef GetMotionSubspaceTplNoMalloc<JointData, MotionSubspace> GetSNoMalloc;
       typedef SE3Tpl<Scalar, Options> SE3;
 
@@ -242,7 +243,7 @@ namespace pinocchio
       findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
 
       SpatialForcesX iF(6, jmodel.nvExtended()); // Current joint forces
-      SE3 iMj = SE3::Identity();         // Transform from current joint to mimic joint
+      SE3 iMj = SE3::Identity();                 // Transform from current joint to mimic joint
 
       // Traverse the tree backward from parent of mimicking (secondary) joint to common ancestor
       for (size_t k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)

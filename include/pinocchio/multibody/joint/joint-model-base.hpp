@@ -31,7 +31,7 @@
     Options = traits<Joint>::Options,                                                              \
     NQ = traits<Joint>::NQ,                                                                        \
     NV = traits<Joint>::NV,                                                                        \
-    NVExtended = traits<Joint>::NVExtended                                                        \
+    NVExtended = traits<Joint>::NVExtended                                                         \
   };                                                                                               \
   typedef TYPENAME traits<Joint>::ConfigVector_t ConfigVector_t;                                   \
   typedef TYPENAME traits<Joint>::TangentVector_t TangentVector_t
@@ -547,7 +547,8 @@ namespace pinocchio
     typename SizeDepType<NVExtended>::template BlockReturn<D>::ConstType
     jointExtendedModelBlock_impl(const Eigen::MatrixBase<D> & Mat) const
     {
-      return SizeDepType<NVExtended>::block(Mat.derived(), idx_vExtended(), idx_vExtended(), nvExtended(), nvExtended());
+      return SizeDepType<NVExtended>::block(
+        Mat.derived(), idx_vExtended(), idx_vExtended(), nvExtended(), nvExtended());
     }
 
     // Non-const access
@@ -576,7 +577,8 @@ namespace pinocchio
     typename SizeDepType<NVExtended>::template BlockReturn<D>::Type
     jointExtendedModelBlock_impl(Eigen::MatrixBase<D> & Mat) const
     {
-      return SizeDepType<NVExtended>::block(Mat.derived(), idx_vExtended(), idx_vExtended(), nvExtended(), nvExtended());
+      return SizeDepType<NVExtended>::block(
+        Mat.derived(), idx_vExtended(), idx_vExtended(), nvExtended(), nvExtended());
     }
 
   protected:

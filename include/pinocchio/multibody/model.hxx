@@ -294,10 +294,10 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   bool ModelTpl<Scalar, Options, JointCollectionTpl>::operator==(const ModelTpl & other) const
   {
-    bool res = other.nq == nq && other.nv == nv && other.nvExtended == nvExtended && other.njoints == njoints
-               && other.nbodies == nbodies && other.nframes == nframes && other.parents == parents
-               && other.children == children && other.names == names && other.subtrees == subtrees
-               && other.gravity == gravity && other.name == name;
+    bool res = other.nq == nq && other.nv == nv && other.nvExtended == nvExtended
+               && other.njoints == njoints && other.nbodies == nbodies && other.nframes == nframes
+               && other.parents == parents && other.children == children && other.names == names
+               && other.subtrees == subtrees && other.gravity == gravity && other.name == name;
 
     res &= other.idx_qs == idx_qs && other.nqs == nqs && other.idx_vs == idx_vs && other.nvs == nvs
            && other.idx_vExtendeds == idx_vExtendeds && other.nvExtendeds == nvExtendeds;

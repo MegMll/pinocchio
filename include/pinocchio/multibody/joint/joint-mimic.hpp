@@ -623,12 +623,12 @@ namespace pinocchio
     typedef InertiaTpl<Scalar, Options> Inertia;
 
     using Base::id;
-    using Base::idx_vExtended;
     using Base::idx_q;
     using Base::idx_v;
-    using Base::nvExtended;
+    using Base::idx_vExtended;
     using Base::nq;
     using Base::nv;
+    using Base::nvExtended;
     using Base::setIndexes;
 
     JointModelMimicTpl()

@@ -236,8 +236,8 @@ namespace pinocchio
    * degree of freedom
    * @param[in]  v       The index in the full model tangent space corresponding to the first joint
    * tangent space degree
-   * @param[in]  j       The index in the full model tangent space corresponding to the first joint
-   * jacobian space degree
+   * @param[in]  vExtended       The index in the full model tangent space corresponding to the
+   * first joint jacobian space degree
    *
    * @return     The index of the joint in the kinematic chain
    */
@@ -451,7 +451,6 @@ namespace pinocchio
   bool isEqual(
     const JointDataTpl<Scalar, Options, JointCollectionTpl> & jmodel_generic,
     const JointDataBase<JointDataDerived> & jmodel);
-
 
   /**
    * @brief Apply the correct affine transform, on a joint configuration, depending on the joint

@@ -142,9 +142,9 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelRevoluteUnboundedUnalignedTpl> Base;
     using Base::id;
-    using Base::idx_vExtended;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::idx_vExtended;
     using Base::setIndexes;
 
     JointModelRevoluteUnboundedUnalignedTpl()

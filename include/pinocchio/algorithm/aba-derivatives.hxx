@@ -493,7 +493,6 @@ namespace pinocchio
       assert(model.check(data) && "data is not consistent with model.");
       assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
-
       typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
 
       data.oa_gf[0] = -model.gravity;
@@ -732,7 +731,6 @@ namespace pinocchio
       assert(model.check(data) && "data is not consistent with model.");
       assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
-
       typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
 
       MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3, aba_partial_dtau);
@@ -797,7 +795,6 @@ namespace pinocchio
         "The gravity must be a pure force vector, no angular part");
       assert(model.check(data) && "data is not consistent with model.");
       assert(model.check(MimicChecker()) && "Function does not support mimic joints");
-
 
       typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
 

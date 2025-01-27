@@ -477,7 +477,11 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline void setIndexes(
-    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v, int vExtended)
+    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+    JointIndex id,
+    int q,
+    int v,
+    int vExtended)
   {
     return JointSetIndexesVisitor::run(jmodel, id, q, v, vExtended);
   }
