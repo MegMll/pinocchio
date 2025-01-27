@@ -92,10 +92,6 @@ namespace pinocchio
       const Eigen::MatrixBase<ConfigVectorType> & q,
       const Eigen::MatrixBase<TangentVectorType> & v)
     {
-      PINOCCHIO_THROW(
-        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-         == false),
-        std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       typedef typename Data::Force Force;
@@ -213,6 +209,7 @@ namespace pinocchio
     typedef RigidConstraintDataTpl<Scalar, Options> RigidConstraintData;
 
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
@@ -760,6 +757,7 @@ namespace pinocchio
     ProximalSettingsTpl<Scalar> & settings)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
@@ -992,6 +990,7 @@ namespace pinocchio
     using namespace Eigen;
 
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(

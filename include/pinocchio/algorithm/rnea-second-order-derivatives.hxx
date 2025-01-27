@@ -47,11 +47,6 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & a)
     {
-      PINOCCHIO_THROW(
-        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-         == false),
-        std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       typedef typename Data::Inertia Inertia;
@@ -162,10 +157,6 @@ namespace pinocchio
       const Tensor3 & dtau_dqdv,
       const Tensor3 & dtau_dadq)
     {
-      PINOCCHIO_THROW(
-        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-         == false),
-        std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
       typedef typename Data::Motion Motion;
       typedef typename Data::Force Force;
       typedef typename Data::Inertia Inertia;
@@ -440,6 +431,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dadq.dimension(1), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dadq.dimension(2), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

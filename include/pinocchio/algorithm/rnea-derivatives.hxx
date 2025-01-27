@@ -37,10 +37,6 @@ namespace pinocchio
         Data & data,
         const Eigen::MatrixBase<ConfigVectorType> & q)
       {
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
@@ -97,11 +93,6 @@ namespace pinocchio
         typename Data::VectorXs & g,
         const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
       {
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
         typedef typename Model::JointIndex JointIndex;
         typedef Eigen::Matrix<
           Scalar, JointModel::NV, 6, Options, JointModel::NV == Eigen::Dynamic ? 6 : JointModel::NV,
@@ -163,6 +154,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(gravity_partial_dq.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(gravity_partial_dq.rows(), model.nv);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
@@ -210,6 +202,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         fext.size(), (size_t)model.njoints, "The size of the external forces is not of right size");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
@@ -276,10 +269,6 @@ namespace pinocchio
         const Eigen::MatrixBase<TangentVectorType1> & v,
         const Eigen::MatrixBase<TangentVectorType2> & a)
       {
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
@@ -394,11 +383,6 @@ namespace pinocchio
         const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
         const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
       {
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Matrix6x Matrix6x;
 
@@ -511,6 +495,7 @@ namespace pinocchio
         isZero(model.gravity.angular()),
         "The gravity must be a pure force vector, no angular part");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
@@ -591,6 +576,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(rnea_partial_da.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(rnea_partial_da.rows(), model.nv);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;

@@ -29,6 +29,7 @@ namespace pinocchio
       const Eigen::MatrixBase<Matrix6xReturnType> & kinematic_regressor)
     {
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(kinematic_regressor.rows(), 6);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(kinematic_regressor.cols(), 6 * (model.njoints - 1));
 
@@ -144,6 +145,7 @@ namespace pinocchio
     const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
@@ -296,6 +298,7 @@ namespace pinocchio
     JointIndex joint_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     PINOCCHIO_UNUSED_VARIABLE(model);
 
@@ -311,6 +314,7 @@ namespace pinocchio
     FrameIndex frame_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef typename Model::Frame Frame;
@@ -363,11 +367,6 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & a)
     {
-      PINOCCHIO_THROW(
-        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-         == false),
-        std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
       typedef typename Model::JointIndex JointIndex;
 
       const JointIndex i = jmodel.id();
@@ -437,6 +436,7 @@ namespace pinocchio
     const Eigen::MatrixBase<TangentVectorType2> & a)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(a.size(), model.nv);
@@ -483,6 +483,7 @@ namespace pinocchio
     const Eigen::MatrixBase<TangentVectorType> & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
 
@@ -529,6 +530,7 @@ namespace pinocchio
     const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 

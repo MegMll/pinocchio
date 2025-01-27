@@ -41,10 +41,6 @@ namespace pinocchio
         const Eigen::MatrixBase<ConfigVectorType> & q,
         const Eigen::MatrixBase<TangentVectorType> & v)
       {
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
         typedef typename Model::JointIndex JointIndex;
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
@@ -107,11 +103,6 @@ namespace pinocchio
         const Model & model,
         Data & data)
       {
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
         typedef typename Model::JointIndex JointIndex;
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
@@ -163,6 +154,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType> & v)
     {
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         q.size(), model.nq, "The configuration vector is not of right size");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");

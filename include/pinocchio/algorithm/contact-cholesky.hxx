@@ -27,6 +27,8 @@ namespace pinocchio
     typedef RigidConstraintModelTpl<S1, O1> RigidConstraintModel;
     typedef std::vector<RigidConstraintModel, Allocator> RigidConstraintModelVector;
 
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     nv = model.nv;
     num_contacts = (Eigen::DenseIndex)contact_models.size();
 
@@ -189,6 +191,8 @@ namespace pinocchio
     typedef RigidConstraintDataTpl<S1, O1> RigidConstraintData;
 
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
       (Eigen::DenseIndex)contact_models.size() == num_contacts,
       "The number of contacts inside contact_models and the one during allocation do not match.\n"

@@ -35,11 +35,6 @@ namespace pinocchio
       Data & data,
       const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq)
     {
-      assert(
-        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-         == false)
-        && "Algorithm not supported for mimic joints");
-
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
 
@@ -81,6 +76,7 @@ namespace pinocchio
 
     PINOCCHIO_CHECK_ARGUMENT_SIZE(vcom_partial_dq.cols(), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

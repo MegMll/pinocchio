@@ -41,11 +41,6 @@ namespace pinocchio
       const Model & model,
       Data & data)
     {
-      PINOCCHIO_THROW(
-        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-         == false),
-        std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
 
@@ -403,6 +398,7 @@ namespace pinocchio
       "The gravity must be a pure force vector, no angular part");
 
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     // TODO: User should make sure the internal quantities are reset.
     data.dtau_dq.setZero();

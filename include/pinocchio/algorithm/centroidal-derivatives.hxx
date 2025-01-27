@@ -58,10 +58,6 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
         Motion & ov = data.ov[i];
@@ -284,6 +280,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(dhdot_da.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(dhdot_da.rows(), 6);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
@@ -373,11 +370,6 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
 
@@ -434,6 +426,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(dhdot_da.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(dhdot_da.rows(), 6);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;

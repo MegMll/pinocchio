@@ -27,10 +27,6 @@ namespace pinocchio
       const Model & model,
       Data & data)
     {
-      PINOCCHIO_THROW(
-        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-         == false),
-        std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
       const JointIndex & i = jmodel.id();
       data.kinetic_energy += model.inertias[i].vtiv(data.v[i]);
       data.kinetic_energy +=
@@ -45,6 +41,7 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -66,7 +63,7 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    ;
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
@@ -93,6 +90,7 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;

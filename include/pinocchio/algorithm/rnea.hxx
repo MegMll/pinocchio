@@ -573,12 +573,6 @@ namespace pinocchio
       template<typename JointModel>
       static void algo(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
       {
-
-        PINOCCHIO_THROW(
-          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-           == false),
-          std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
         typedef typename Model::JointIndex JointIndex;
         typedef Eigen::Matrix<
           Scalar, JointModel::NV, 6, Options, JointModel::NV == Eigen::Dynamic ? 6 : JointModel::NV,
@@ -636,6 +630,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType> & v)
     {
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
 
@@ -674,12 +669,6 @@ namespace pinocchio
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
     {
-
-      PINOCCHIO_THROW(
-        (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
-         == false),
-        std::invalid_argument, std::string("Algorithm not supported for mimic joints"));
-
       typedef typename Model::JointIndex JointIndex;
       typedef Eigen::Matrix<
         Scalar, JointModel::NV, 6, Options, JointModel::NV == Eigen::Dynamic ? 6 : JointModel::NV,
@@ -728,6 +717,7 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
