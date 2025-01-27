@@ -134,10 +134,6 @@ namespace pinocchio
   struct JointCollectionDefaultTpl;
   typedef JointCollectionDefaultTpl<context::Scalar> JointCollectionDefault;
 
-  template<typename Scalar, int Options = context::Options>
-  struct JointCollectionMimicableTpl;
-  typedef JointCollectionMimicableTpl<context::Scalar> JointCollectionMimicable;
-
   template<
     typename Scalar,
     int Options = context::Options,

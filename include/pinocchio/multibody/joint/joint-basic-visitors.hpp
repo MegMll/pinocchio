@@ -452,17 +452,6 @@ namespace pinocchio
     const JointDataTpl<Scalar, Options, JointCollectionTpl> & jmodel_generic,
     const JointDataBase<JointDataDerived> & jmodel);
 
-  /**
-   * @brief  Transfer a value from one variant to another (given that the new variant contains the
-   * type of the value). For instance transfer a joint model (or data) from a generic joint model
-   * (or data) to another generic joint model (or data) with slightly different joint collections.
-   *
-   * @param[in]  variant  The value to transfer.
-   *
-   * @return The same value in the new variant.
-   */
-  template<typename VariantSrc, typename VariantDst>
-  VariantDst transferToVariant(const VariantSrc & value);
 
   /**
    * @brief Apply the correct affine transform, on a joint configuration, depending on the joint
