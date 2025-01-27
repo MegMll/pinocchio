@@ -70,15 +70,16 @@ namespace pinocchio
   , Fcrb((std::size_t)model.njoints, Matrix6x::Zero(6, model.nv))
   , lastChild((std::size_t)model.njoints, -1)
   , nvSubtree((std::size_t)model.njoints, -1)
-  , start_idx_v_fromRow((std::size_t)model.nv, -1)
-  , end_idx_v_fromRow((std::size_t)model.nv, -1)
+  , start_idx_v_fromRow((std::size_t)model.nvExtended, -1)
+  , end_idx_v_fromRow((std::size_t)model.nvExtended, -1)
   , U(MatrixXs::Identity(model.nv, model.nv))
   , D(VectorXs::Zero(model.nv))
   , Dinv(VectorXs::Zero(model.nv))
   , tmp(VectorXs::Zero(model.nv))
-  , parents_fromRow((std::size_t)model.nv, -1)
+  , parents_fromRow((std::size_t)model.nvExtended, -1)
+  , idx_v_extended_fromRow((std::size_t)model.nvExtended, -1)
   , supports_fromRow((std::size_t)model.nv)
-  , nvSubtree_fromRow((std::size_t)model.nv, -1)
+  , nvSubtree_fromRow((std::size_t)model.nvExtended, -1)
   , J(Matrix6x::Zero(6, model.nvExtended))
   , dJ(Matrix6x::Zero(6, model.nvExtended))
   , ddJ(Matrix6x::Zero(6, model.nvExtended))
@@ -226,28 +227,36 @@ namespace pinocchio
 
     for (Index joint = 1; joint < (Index)(model.njoints); joint++)
     {
-      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[joint]))
-        continue; // Mimic joints should not override mimicked joint fromRow values
       const Index & parent = model.parents[joint];
-      const int nvj = model.joints[joint].nv();
       const int idx_vj = model.joints[joint].idx_v();
+      const int nvj = model.joints[joint].nv();
+      const int nvExtended_j = model.joints[joint].nvExtended();
+      const int idx_vExtended_j = model.joints[joint].idx_vExtended();
 
+      assert(idx_vExtended_j >= 0 && idx_vExtended_j < model.nvExtended);
       assert(idx_vj >= 0 && idx_vj < model.nv);
-      if (parent > 0)
-        parents_fromRow[(Index)idx_vj] =
-          model.joints[parent].idx_v() + model.joints[parent].nv() - 1;
-      else
-        parents_fromRow[(Index)idx_vj] = -1;
-      nvSubtree_fromRow[(Index)idx_vj] = nvSubtree[joint];
 
+      if (parent > 0)
+        parents_fromRow[(Index)idx_vExtended_j] =
+          model.joints[parent].idx_vExtended() + model.joints[parent].nvExtended() - 1;
+      else
+        parents_fromRow[(Index)idx_vExtended_j] = -1;
+
+      nvSubtree_fromRow[(Index)idx_vExtended_j] = nvSubtree[joint];
       start_idx_v_fromRow[(size_t)idx_vj] = idx_vj;
-      end_idx_v_fromRow[(size_t)idx_vj] = idx_vj + nvj - 1;
-      for (int row = 1; row < nvj; ++row)
+      end_idx_v_fromRow[(size_t)idx_vj] = idx_vj + nvExtended_j - 1;
+      idx_v_extended_fromRow[(size_t)idx_vExtended_j] = idx_vj;
+
+      for (int row = 1; row < nvExtended_j; ++row)
       {
-        parents_fromRow[(size_t)(idx_vj + row)] = idx_vj + row - 1;
-        nvSubtree_fromRow[(size_t)(idx_vj + row)] = nvSubtree[joint] - row;
-        start_idx_v_fromRow[(size_t)(idx_vj + row)] = start_idx_v_fromRow[(size_t)idx_vj];
-        end_idx_v_fromRow[(size_t)(idx_vj + row)] = end_idx_v_fromRow[(size_t)idx_vj];
+        parents_fromRow[(size_t)(idx_vExtended_j + row)] = idx_vExtended_j + row - 1;
+        nvSubtree_fromRow[(size_t)(idx_vExtended_j + row)] = nvSubtree[joint] - row;
+        start_idx_v_fromRow[(size_t)(idx_vExtended_j + row)] =
+          start_idx_v_fromRow[(size_t)idx_vExtended_j];
+        end_idx_v_fromRow[(size_t)(idx_vExtended_j + row)] =
+          end_idx_v_fromRow[(size_t)idx_vExtended_j];
+        idx_v_extended_fromRow[(size_t)(idx_vExtended_j + row)] =
+          idx_v_extended_fromRow[(size_t)idx_vExtended_j] + row;
       }
     }
   }
@@ -309,6 +318,7 @@ namespace pinocchio
       && data1.end_idx_v_fromRow == data2.end_idx_v_fromRow && data1.U == data2.U
       && data1.D == data2.D && data1.Dinv == data2.Dinv
       && data1.parents_fromRow == data2.parents_fromRow
+      && data1.idx_v_extended_fromRow == data2.idx_v_extended_fromRow
       && data1.supports_fromRow == data2.supports_fromRow
       && data1.nvSubtree_fromRow == data2.nvSubtree_fromRow && data1.J == data2.J
       && data1.dJ == data2.dJ && data1.ddJ == data2.ddJ && data1.psid == data2.psid

@@ -199,54 +199,41 @@ namespace pinocchio
       typedef typename Matrix6xLikeOut::ColXpr ColXprOut;
       typedef MotionRef<ColXprOut> MotionOut;
 
+      const int colRef =
+        nvExtended(model.joints[joint_id]) + idx_vExtended(model.joints[joint_id]) - 1;
       switch (rf)
       {
       case WORLD: {
-        for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
+        for (Eigen::DenseIndex jExtended = colRef; jExtended >= 0;
+             jExtended = data.parents_fromRow[(size_t)jExtended])
         {
-          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
-          {
-            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
-            const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
+          MotionIn v_in(Jin.col(jExtended));
+          MotionOut v_out(Jout_.col(data.idx_v_extended_fromRow[jExtended]));
 
-            MotionIn v_in(Jin.col(col_in));
-            MotionOut v_out(Jout_.col(col_out));
-
-            v_out += v_in;
-          }
+          v_out += v_in;
         }
         break;
       }
       case LOCAL_WORLD_ALIGNED: {
-        for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
+        for (Eigen::DenseIndex jExtended = colRef; jExtended >= 0;
+             jExtended = data.parents_fromRow[(size_t)jExtended])
         {
-          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
-          {
-            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
-            const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
+          MotionIn v_in(Jin.col(jExtended));
+          MotionOut v_out(Jout_.col(data.idx_v_extended_fromRow[jExtended]));
 
-            MotionIn v_in(Jin.col(col_in));
-            MotionOut v_out(Jout_.col(col_out));
-
-            v_out += v_in;
-            v_out.linear() -= placement.translation().cross(v_in.angular());
-          }
+          v_out += v_in;
+          v_out.linear() -= placement.translation().cross(v_in.angular());
         }
         break;
       }
       case LOCAL: {
-        for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
+        for (Eigen::DenseIndex jExtended = colRef; jExtended >= 0;
+             jExtended = data.parents_fromRow[(size_t)jExtended])
         {
-          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
-          {
-            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
-            const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
+          MotionIn v_in(Jin.col(jExtended));
+          MotionOut v_out(Jout_.col(data.idx_v_extended_fromRow[jExtended]));
 
-            MotionIn v_in(Jin.col(col_in));
-            MotionOut v_out(Jout_.col(col_out));
-
-            v_out += placement.actInv(v_in);
-          }
+          v_out += placement.actInv(v_in);
         }
         break;
       }
@@ -510,48 +497,42 @@ namespace pinocchio
       case LOCAL: {
         const SE3 & oMjoint = data.oMi[jointId];
         const Motion & v_joint = data.v[jointId];
-        for (JointIndex j = jointId; j > 0; j = model.parents[(size_t)j])
+        const int colRef =
+          nvExtended(model.joints[jointId]) + idx_vExtended(model.joints[jointId]) - 1;
+        for (Eigen::DenseIndex jExtended = colRef; jExtended >= 0;
+             jExtended = data.parents_fromRow[(size_t)jExtended])
         {
-          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
-          {
-            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
-            const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
+          typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+          typedef const MotionRef<ConstColXprIn> MotionIn;
 
-            typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
-            typedef const MotionRef<ConstColXprIn> MotionIn;
+          typedef typename Matrix6xLike::ColXpr ColXprOut;
+          typedef MotionRef<ColXprOut> MotionOut;
+          MotionIn v_in(data.J.col(jExtended));
+          MotionOut v_out(dJ.col(data.idx_v_extended_fromRow[jExtended]));
 
-            typedef typename Matrix6xLike::ColXpr ColXprOut;
-            typedef MotionRef<ColXprOut> MotionOut;
-            MotionIn v_in(data.J.col(col_in));
-            MotionOut v_out(dJ.col(col_out));
-
-            v_out -= v_joint.cross(oMjoint.actInv(v_in));
-          }
+          v_out -= v_joint.cross(oMjoint.actInv(v_in));
         }
         break;
       }
       case LOCAL_WORLD_ALIGNED: {
         const Motion & ov_joint = data.ov[jointId];
         const SE3 & oMjoint = data.oMi[jointId];
-        for (JointIndex j = jointId; j > 0; j = model.parents[(size_t)j])
+        const int colRef =
+          nvExtended(model.joints[jointId]) + idx_vExtended(model.joints[jointId]) - 1;
+        for (Eigen::DenseIndex jExtended = colRef; jExtended >= 0;
+             jExtended = data.parents_fromRow[(size_t)jExtended])
         {
-          for (int i = nvExtended(model.joints[j]) - 1; i >= 0; i--)
-          {
-            const Eigen::DenseIndex col_in = idx_vExtended(model.joints[j]) + i;
-            const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
+          typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+          typedef const MotionRef<ConstColXprIn> MotionIn;
 
-            typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
-            typedef const MotionRef<ConstColXprIn> MotionIn;
+          typedef typename Matrix6xLike::ColXpr ColXprOut;
+          typedef MotionRef<ColXprOut> MotionOut;
+          MotionIn v_in(data.J.col(jExtended));
+          MotionOut v_out(dJ.col(data.idx_v_extended_fromRow[jExtended]));
 
-            typedef typename Matrix6xLike::ColXpr ColXprOut;
-            typedef MotionRef<ColXprOut> MotionOut;
-            MotionIn v_in(data.J.col(col_in));
-            MotionOut v_out(dJ.col(col_out));
-
-            v_out.linear() -=
-              Vector3(ov_joint.linear() + ov_joint.angular().cross(oMjoint.translation()))
-                .cross(v_in.angular());
-          }
+          v_out.linear() -=
+            Vector3(ov_joint.linear() + ov_joint.angular().cross(oMjoint.translation()))
+              .cross(v_in.angular());
         }
         break;
       }

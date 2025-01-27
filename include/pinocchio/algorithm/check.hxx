@@ -69,7 +69,6 @@ namespace pinocchio
     return true;
   }
 
-
 #if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
   template<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE, class T)>
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -159,8 +158,9 @@ namespace pinocchio
 
     CHECK_DATA((int)data.lastChild.size() == model.njoints);
     CHECK_DATA((int)data.nvSubtree.size() == model.njoints);
-    CHECK_DATA((int)data.parents_fromRow.size() == model.nv);
-    CHECK_DATA((int)data.nvSubtree_fromRow.size() == model.nv);
+    CHECK_DATA((int)data.parents_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.idx_v_extended_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.nvSubtree_fromRow.size() == model.nvExtended);
 
     for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
     {
@@ -192,10 +192,10 @@ namespace pinocchio
       for (JointIndex d = c + 1; (int)d < model.njoints; ++d)
         CHECK_DATA((model.parents[d] < j) || (model.parents[d] > c));
 
-      int row = model.joints[j].idx_v();
+      CHECK_DATA(
+        data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)model.joints[j].idx_vExtended()]);
 
-      CHECK_DATA(data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)row]);
-
+      int row = model.joints[j].idx_vExtended();
       const JointModel & jparent = model.joints[model.parents[j]];
       if (row == 0)
       {
@@ -203,7 +203,8 @@ namespace pinocchio
       }
       else
       {
-        CHECK_DATA(jparent.idx_v() + jparent.nv() - 1 == data.parents_fromRow[(size_t)row]);
+        CHECK_DATA(
+          jparent.idx_vExtended() + jparent.nvExtended() - 1 == data.parents_fromRow[(size_t)row]);
       }
     }
 
