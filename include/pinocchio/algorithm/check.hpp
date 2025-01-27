@@ -47,6 +47,8 @@ namespace pinocchio
 
   /// Simple model checker, that assert that model.parents is indeed a tree.
   PINOCCHIO_DEFINE_ALGO_CHECKER(Parent);
+  /// Simple model checker, that assert that there is a mimic joint in the tree
+  PINOCCHIO_DEFINE_ALGO_CHECKER(Mimic);
 
 #if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
   /// Checker having a list of Checker as input argument

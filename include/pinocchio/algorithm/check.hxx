@@ -54,6 +54,22 @@ namespace pinocchio
     return true;
   }
 
+  // Check if there is a mimic joint in the kinematic tree
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  inline bool
+  MimicChecker::checkModel_impl(const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
+  {
+    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+
+    for (JointIndex j = 1; j < (JointIndex)model.njoints; ++j)
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[j]))
+        return false;
+
+    return true;
+  }
+
+
 #if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
   template<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE, class T)>
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
