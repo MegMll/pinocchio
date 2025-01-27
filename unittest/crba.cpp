@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_crba)
 {
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
+  pinocchio::buildModels::humanoidRandom(model);
   pinocchio::Data data(model);
 
 #ifdef NDEBUG
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(test_crba_mimic)
 BOOST_AUTO_TEST_CASE(test_minimal_crba)
 {
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
+  pinocchio::buildModels::humanoidRandom(model);
   pinocchio::Data data(model), data_ref(model);
 
   model.lowerPositionLimit.head<7>().fill(-1.);
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
 BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
 {
   pinocchio::Model model, model_ref;
-  pinocchio::buildModels::humanoidRandom(model, true);
+  pinocchio::buildModels::humanoidRandom(model);
   model_ref = model;
 
   BOOST_CHECK(model == model_ref);
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE(test_crba_malloc)
 {
   using namespace pinocchio;
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true, true);
+  pinocchio::buildModels::humanoidRandom(model, false, true);
 
   model.addJoint(
     size_t(model.njoints - 1), pinocchio::JointModelRevoluteUnaligned(SE3::Vector3::UnitX()),
