@@ -17,6 +17,7 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/centroidal-derivatives.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/centroidal.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/centroidal.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-base.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-data.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-data.hxx
