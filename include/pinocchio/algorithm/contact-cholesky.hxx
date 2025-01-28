@@ -5,7 +5,8 @@
 #ifndef __pinocchio_algorithm_contact_cholesky_hxx__
 #define __pinocchio_algorithm_contact_cholesky_hxx__
 
-#include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/algorithm/check-model.hpp"
+#include "pinocchio/multibody/data.hpp"
 
 #include <algorithm>
 
@@ -176,7 +177,8 @@ namespace pinocchio
   template<
     typename S1,
     int O1,
-    template<typename, int> class JointCollectionTpl,
+    template<typename, int>
+    class JointCollectionTpl,
     class ConstraintModelAllocator,
     class ConstraintDataAllocator,
     typename VectorLike>

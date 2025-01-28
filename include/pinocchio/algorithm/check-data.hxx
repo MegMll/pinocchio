@@ -1,93 +1,15 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_check_hxx__
-#define __pinocchio_check_hxx__
+#ifndef __pinocchio_algorithm_check_data_hxx__
+#define __pinocchio_algorithm_check_data_hxx__
 
-#include <boost/fusion/algorithm.hpp>
-#include <boost/foreach.hpp>
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 
 namespace pinocchio
 {
-  namespace internal
-  {
-    // Dedicated structure for the fusion::accumulate algorithm: validate the check-algorithm
-    // for all elements in a fusion list of AlgoCheckers.
-    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    struct AlgoFusionChecker
-    {
-      typedef bool result_type;
-      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-      const Model & model;
-
-      AlgoFusionChecker(const Model & model)
-      : model(model)
-      {
-      }
-
-      inline bool operator()(const bool & accumul, const boost::fusion::void_ &) const
-      {
-        return accumul;
-      }
-
-      template<typename T>
-      inline bool operator()(const bool & accumul, const AlgorithmCheckerBase<T> & t) const
-      {
-        return accumul && t.checkModel(model);
-      }
-    };
-  } // namespace internal
-
-  // Check the validity of the kinematic tree defined by parents.
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  inline bool
-  ParentChecker::checkModel_impl(const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
-  {
-    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
-
-    for (JointIndex j = 1; j < (JointIndex)model.njoints; ++j)
-      if (model.parents[j] >= j)
-        return false;
-
-    return true;
-  }
-
-  // Check if there is a mimic joint in the kinematic tree
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  inline bool
-  MimicChecker::checkModel_impl(const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
-  {
-    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
-
-    for (JointIndex j = 1; j < (JointIndex)model.njoints; ++j)
-      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[j]))
-        return false;
-
-    return true;
-  }
-
-#if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
-  template<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE, class T)>
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  bool AlgorithmCheckerList<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE, T)>::
-    checkModel_impl(const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
-  {
-    return boost::fusion::accumulate(
-      checkerList, true, internal::AlgoFusionChecker<Scalar, Options, JointCollectionTpl>(model));
-  }
-#else
-  template<class... T>
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  bool AlgorithmCheckerList<T...>::checkModel_impl(
-    const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
-  {
-    return boost::fusion::accumulate(
-      checkerList, true, internal::AlgoFusionChecker<Scalar, Options, JointCollectionTpl>(model));
-  }
-#endif
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   inline bool checkData(
@@ -117,7 +39,7 @@ namespace pinocchio
     CHECK_DATA((int)data.Ycrb.size() == model.njoints);
     CHECK_DATA((int)data.Yaba.size() == model.njoints);
     CHECK_DATA((int)data.Fcrb.size() == model.njoints);
-    BOOST_FOREACH (const typename Data::Matrix6x & F, data.Fcrb)
+    for (const typename Data::Matrix6x & F : data.Fcrb)
     {
       CHECK_DATA(F.cols() == model.nv);
     }
@@ -221,4 +143,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_check_hxx__
+#endif // __pinocchio_algorithm_check_data_hxx__
