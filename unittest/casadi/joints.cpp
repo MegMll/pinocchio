@@ -275,7 +275,7 @@ struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
     JointModelRX jmodel_ref = init<JointModelRX>::run();
 
     JointModel jmodel(jmodel_ref, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
     return jmodel;
   }
 
@@ -291,7 +291,7 @@ struct TestADOnJoints
   void operator()(const pinocchio::JointModelBase<JointModel_> &) const
   {
     JointModel_ jmodel = init<JointModel_>::run();
-    jmodel.setIndexes(0, 0, 0, 0);
+    // jmodel.setIndexes(0, 0, 0, 0);
     test(jmodel);
   }
 

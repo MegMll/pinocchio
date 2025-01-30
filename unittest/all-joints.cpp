@@ -119,7 +119,7 @@ struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
     JointModelRX jmodel_ref = init<JointModelRX>::run();
 
     JointModel jmodel(jmodel_ref, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
     return jmodel;
   }
 };

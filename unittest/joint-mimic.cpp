@@ -93,7 +93,7 @@ struct TestJointConstraint
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_constraint_mimic(jmodel);
   }
@@ -101,7 +101,7 @@ struct TestJointConstraint
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_constraint_mimic(jmodel);
   }
@@ -109,7 +109,7 @@ struct TestJointConstraint
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_constraint_mimic(jmodel);
   }
@@ -187,7 +187,7 @@ struct TestJointMimic
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_joint_mimic<JointModel, MimicConfigurationTransform, MimicIdentity>(jmodel);
   }
@@ -195,7 +195,7 @@ struct TestJointMimic
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_joint_mimic<JointModelRevoluteUnaligned, MimicConfigurationTransform, MimicIdentity>(
       jmodel);
@@ -204,7 +204,7 @@ struct TestJointMimic
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_joint_mimic<JointModelPrismaticUnaligned, MimicConfigurationTransform, MimicIdentity>(
       jmodel);
@@ -287,15 +287,14 @@ BOOST_AUTO_TEST_CASE(test_joint_generic_cast)
   jmodel_ref.setIndexes(1, 2, 3, 3);
 
   JointModelMimic jmodel(jmodel_ref, 2., 1.);
-  jmodel.setIndexes(1, -1, -1, 3);
+  jmodel.setIndexes(2, -1, -1, 3);
 
-  BOOST_CHECK(jmodel.id() == jmodel_ref.id());
   BOOST_CHECK(jmodel.idx_q() == jmodel_ref.idx_q());
   BOOST_CHECK(jmodel.idx_v() == jmodel_ref.idx_v());
 
   JointModel jmodel_generic(jmodel);
-  jmodel_generic.setIndexes(1, -2, -2, 3);
+  jmodel_generic.setIndexes(2, -2, -2, 3);
 
-  BOOST_CHECK(jmodel_generic.id() == jmodel_ref.id());
+  BOOST_CHECK(jmodel_generic.id() == jmodel.id());
 }
 BOOST_AUTO_TEST_SUITE_END()
