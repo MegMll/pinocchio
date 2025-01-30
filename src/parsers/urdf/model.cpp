@@ -311,11 +311,6 @@ namespace pinocchio
         {
           parseTree(child, model, mimic);
         }
-        if (mimic)
-        {
-          for (const auto & entry : model.mimicInfo_map)
-            model.convertMimicJoint(entry.first, entry.second);
-        }
       }
 
       void parseRootTree(const std::string & filename, UrdfVisitorBase & model, const bool mimic)
