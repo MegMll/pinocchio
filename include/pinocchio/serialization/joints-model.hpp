@@ -92,8 +92,8 @@ namespace boost
 
       void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_vExtended)
       {
-        joint_m.setIndexes(i_id, 0, 0, i_vExtended);
         joint_m.setMimicIndexes(0, i_q, i_v, 0);
+        joint_m.setIndexes(i_id, 0, 0, i_vExtended);
       }
     };
 
