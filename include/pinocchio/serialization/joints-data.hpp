@@ -77,14 +77,6 @@ namespace boost
         ar & make_nvp("joint_v", joint_data.joint_v());
 
         ar & make_nvp("S", joint_data.S());
-        // ar & make_nvp("M", joint_data.M());
-        // ar & make_nvp("v", joint_data.v());
-        // ar & make_nvp("c", joint_data.c());
-
-        // ar & make_nvp("U", joint_data.U());
-        // ar & make_nvp("Dinv", joint_data.Dinv());
-        // ar & make_nvp("UDinv", joint_data.UDinv());
-        // ar & make_nvp("StU", joint_data.StU());
       }
 
     } // namespace fix

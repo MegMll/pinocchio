@@ -616,7 +616,6 @@ namespace pinocchio
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
     typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
-    typedef typename JointModel::JointModelVariant JointModelVariant;
 
     typedef SE3Tpl<Scalar, Options> SE3;
     typedef MotionTpl<Scalar, Options> Motion;
@@ -754,13 +753,10 @@ namespace pinocchio
       const Eigen::MatrixBase<Matrix6Like> & I,
       const bool update_I) const
     {
-      // TODO: fixme
       assert(
         false
         && "Joint Mimic is not supported for aba yet. Remove it from your model if you want to use "
            "this function");
-      m_jmodel_ref.calc_aba(
-        data.m_jdata_ref, armature, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like, I), update_I);
     }
 
     static std::string classname()
@@ -778,7 +774,6 @@ namespace pinocchio
     typename CastType<NewScalar, JointModelMimicTpl>::type cast() const
     {
       typedef typename CastType<NewScalar, JointModelMimicTpl>::type ReturnType;
-
       ReturnType res(
         m_jmodel_ref.template cast<NewScalar>(), ScalarCast<NewScalar, Scalar>::cast(m_scaling),
         ScalarCast<NewScalar, Scalar>::cast(m_offset));
