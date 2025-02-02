@@ -150,21 +150,14 @@ namespace pinocchio
     {
       return classname();
     }
+
+    void disp(std::ostream & os) const
+    {
+      os << "JointDataComposite containing following models:\n";
+      for (typename JointDataVector::const_iterator it = joints.begin(); it != joints.end(); ++it)
+        os << "  " << it->shortname() << std::endl;
+    }
   };
-
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  inline std::ostream & operator<<(
-    std::ostream & os, const JointDataCompositeTpl<Scalar, Options, JointCollectionTpl> & jdata)
-  {
-    typedef typename JointDataCompositeTpl<Scalar, Options, JointCollectionTpl>::JointDataVector
-      JointDataVector;
-
-    os << "JointDataComposite containing following models:\n";
-    for (typename JointDataVector::const_iterator it = jdata.joints.begin();
-         it != jdata.joints.end(); ++it)
-      os << "  " << shortname(*it) << std::endl;
-    return os;
-  }
 
   template<
     typename NewScalar,
@@ -630,6 +623,16 @@ namespace pinocchio
       return A.middleCols(Base::i_vExtended, nvExtended());
     }
 
+    void disp(std::ostream & os) const
+    {
+      typedef typename JointModelCompositeTpl<Scalar, Options, JointCollectionTpl>::JointModelVector
+        JointModelVector;
+
+      os << "JointModelComposite containing following models:\n";
+      for (typename JointModelVector::const_iterator it = joints.begin(); it != joints.end(); ++it)
+        os << "  " << it->shortname() << std::endl;
+    }
+
   protected:
     friend struct Serialize<JointModelCompositeTpl>;
 
@@ -690,21 +693,6 @@ namespace pinocchio
     /// \brief Number of joints contained in the JointModelComposite
     int njoints;
   };
-
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  inline std::ostream & operator<<(
-    std::ostream & os, const JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> & jmodel)
-  {
-    typedef typename JointModelCompositeTpl<Scalar, Options, JointCollectionTpl>::JointModelVector
-      JointModelVector;
-
-    os << "JointModelComposite containing following models:\n";
-    for (typename JointModelVector::const_iterator it = jmodel.joints.begin();
-         it != jmodel.joints.end(); ++it)
-      os << "  " << shortname(*it) << std::endl;
-
-    return os;
-  }
 
 } // namespace pinocchio
 

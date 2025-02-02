@@ -227,9 +227,9 @@ namespace pinocchio
          << "  nvExtended: " << nvExtended() << endl;
     }
 
-    friend std::ostream & operator<<(std::ostream & os, const JointModelBase<Derived> & joint)
+    friend std::ostream & operator<<(std::ostream & os, const JointModelBase<Derived> & jmodel)
     {
-      joint.disp(os);
+      jmodel.derived().disp(os);
       return os;
     }
 

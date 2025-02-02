@@ -562,6 +562,12 @@ namespace pinocchio
       return joint_v_transformed;
     }
 
+    void disp(std::ostream & os) const
+    {
+      Base::disp(os);
+      os << "  Mimicking joint data: " << m_jdata_ref.shortname() << std::endl;
+    }
+
   protected:
     RefJointData m_jdata_ref;
 
@@ -884,6 +890,15 @@ namespace pinocchio
     {
       return SizeDepType<NV>::block(
         Mat.derived(), idx_v(), idx_v(), m_jmodel_ref.nv(), m_jmodel_ref.nv());
+    }
+
+    void disp(std::ostream & os) const
+    {
+      Base::disp(os);
+      os << "  Mimicking joint type: " << m_jmodel_ref.shortname() << std::endl;
+      os << "  Mimicked joint id: " << m_jmodel_ref.id() << std::endl;
+      os << "  Mimic scaling: " << m_scaling << std::endl;
+      os << "  Mimic offset: " << m_offset << std::endl;
     }
 
   }; // struct JointModelMimicTpl
