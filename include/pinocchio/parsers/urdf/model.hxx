@@ -620,13 +620,13 @@ namespace pinocchio
       typedef MimicInfo<double, 0> MimicInfo_;
 
       PINOCCHIO_PARSERS_DLLAPI void parseRootTree(
-        const ::urdf::ModelInterface * urdfTree, UrdfVisitorBase & model, const bool mimic = true);
+        const ::urdf::ModelInterface * urdfTree, UrdfVisitorBase & model, const bool mimic = false);
 
-      PINOCCHIO_PARSERS_DLLAPI void
-      parseRootTree(const std::string & filename, UrdfVisitorBase & model, const bool mimic = true);
+      PINOCCHIO_PARSERS_DLLAPI void parseRootTree(
+        const std::string & filename, UrdfVisitorBase & model, const bool mimic = false);
 
       PINOCCHIO_PARSERS_DLLAPI void parseRootTreeFromXML(
-        const std::string & xmlString, UrdfVisitorBase & model, const bool mimic = true);
+        const std::string & xmlString, UrdfVisitorBase & model, const bool mimic = false);
     } // namespace details
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
