@@ -178,7 +178,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -196,7 +196,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -204,7 +204,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     test_joint_methods(jmodel);
   }
 };
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE(chain)
 BOOST_AUTO_TEST_CASE(vsZYX)
 {
   JointModelSphericalZYX jmodel_spherical;
-  jmodel_spherical.setIndexes(0, 0, 0, 0);
+  jmodel_spherical.setIndexes(0, 0, 0);
 
   JointModelComposite jmodel_composite((JointModelRZ()));
   jmodel_composite.addJoint(JointModelRY());
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(vsZYX)
 BOOST_AUTO_TEST_CASE(vsTranslation)
 {
   JointModelTranslation jmodel_translation;
-  jmodel_translation.setIndexes(0, 0, 0, 0);
+  jmodel_translation.setIndexes(0, 0, 0);
 
   JointModelComposite jmodel_composite((JointModelPX()));
   jmodel_composite.addJoint(JointModelPY());

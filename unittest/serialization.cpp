@@ -272,7 +272,7 @@ struct init
   static JointModel_ run()
   {
     JointModel_ jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -287,7 +287,7 @@ struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -302,7 +302,7 @@ struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -317,7 +317,7 @@ struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -332,7 +332,7 @@ struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -346,7 +346,7 @@ struct init<pinocchio::JointModelHelicalTpl<Scalar, Options, axis>>
   {
     JointModel jmodel(static_cast<Scalar>(0.0));
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -361,7 +361,7 @@ struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModel jmodel((JointModelRX()));
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -375,7 +375,7 @@ struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
   {
     JointModel jmodel(pinocchio::XAxis::vector(), pinocchio::YAxis::vector());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -392,7 +392,7 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
     JointModel jmodel((JointModelRX()));
     jmodel.addJoint(JointModelRY());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -628,7 +628,7 @@ BOOST_AUTO_TEST_CASE(test_model_serialization)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model, true, true);
+  buildModels::humanoidRandom(model);
 
   generic_test(model, TEST_SERIALIZATION_FOLDER "/Model", "Model");
 }
@@ -638,7 +638,7 @@ BOOST_AUTO_TEST_CASE(test_throw_extension)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model, true, true);
+  buildModels::humanoidRandom(model);
 
   const std::string & fake_filename = "this_is_a_fake_filename";
 
@@ -673,7 +673,7 @@ BOOST_AUTO_TEST_CASE(test_data_serialization)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model, true, true);
+  buildModels::humanoidRandom(model);
 
   Data data(model);
 
