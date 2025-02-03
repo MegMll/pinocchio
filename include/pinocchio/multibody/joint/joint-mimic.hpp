@@ -778,8 +778,8 @@ namespace pinocchio
       ReturnType res(
         m_jmodel_ref.template cast<NewScalar>(), ScalarCast<NewScalar, Scalar>::cast(m_scaling),
         ScalarCast<NewScalar, Scalar>::cast(m_offset));
-      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
-      res.setMimicIndexes(m_jmodel_ref.id(), idx_q(), idx_v(), idx_vExtended());
+      res.setIndexes(id(), Base::i_q, Base::i_v, Base::i_vExtended);
+      res.setMimicIndexes(m_jmodel_ref.id(), Base::i_q, Base::i_v, Base::i_vExtended);
       return res;
     }
 
