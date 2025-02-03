@@ -996,7 +996,8 @@ BOOST_AUTO_TEST_CASE(test_build_reduced_model_mimic)
   idx = model.addJoint(idx, JointModelRX(), SE3::Identity(), "joint3");
   model.addJointFrame(idx);
 
-  auto const mimic = JointModelMimic(boost::get<JointModelRX>(model.joints[model.getJointId("joint3")].toVariant()), 1., 0.);
+  auto const mimic = JointModelMimic(
+    boost::get<JointModelRX>(model.joints[model.getJointId("joint3")].toVariant()), 1., 0.);
   idx = model.addJoint(idx, mimic, SE3::Identity(), "joint4");
   model.addJointFrame(idx);
 
