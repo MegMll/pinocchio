@@ -268,7 +268,7 @@ namespace pinocchio
   }
 
   /**
-   * @brief      JointNjVisitor visitor
+   * @brief      JointNvExtendedVisitor visitor
    */
   struct JointNvExtendedVisitor : boost::static_visitor<int>
   {
@@ -392,7 +392,7 @@ namespace pinocchio
   }
 
   /**
-   * @brief      JointIdxjVisitor visitor
+   * @brief      JointIdxVExtendedVisitor visitor
    */
   struct JointIdxVExtendedVisitor : boost::static_visitor<int>
   {

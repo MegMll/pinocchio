@@ -145,12 +145,12 @@ namespace pinocchio
   inline int nq(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
-   * @brief      Visit a JointModelTpl through JointNjVisitor to get the dimension of
-   *             the joint configuration space
+   * @brief      Visit a JointModelTpl through JointNvExtendVisitor to get the dimension of
+   *             the joint extended tangent space
    *
    * @param[in]  jmodel  The JointModelVariant
    *
-   * @return     The dimension of joint jacobian space
+   * @return     The dimension of joint extended tangent space
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline int nvExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
@@ -192,7 +192,7 @@ namespace pinocchio
   inline int idx_q(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
-   * @brief      Visit a JointModelTpl through JointIdxVVisitor to get the index in the full model
+   * @brief      Visit a JointModelTpl through JointIdxVVisitor to get the index in the model
    * tangent space corresponding to the first joint tangent space degree
    *
    * @param[in]  jmodel  The JointModelVariant
@@ -204,13 +204,13 @@ namespace pinocchio
   inline int idx_v(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
-   * @brief      Visit a JointModelTpl through JointIdjVVisitor to get the index in the full model
-   * tangent space corresponding to the first joint jacobian space degree
+   * @brief      Visit a JointModelTpl through JointIdvExtendedVisitor to get the index in the model
+   * extended tangent space corresponding to the joint first joint extended tangent space degree
    *
    * @param[in]  jmodel  The JointModelVariant
    *
-   * @return     The index in the full model tangent space corresponding to the first
-   *             joint jacobian space degree
+   * @return     The index in the model extended tangent space corresponding to the first
+   *             joint extended tangent space degree
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline int idx_vExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
@@ -236,8 +236,8 @@ namespace pinocchio
    * degree of freedom
    * @param[in]  v       The index in the full model tangent space corresponding to the first joint
    * tangent space degree
-   * @param[in]  vExtended       The index in the full model tangent space corresponding to the
-   * first joint jacobian space degree
+   * @param[in]  vExtended       The index in the model extended tangent space corresponding to the
+   * joint first extended tangent space degree
    *
    * @return     The index of the joint in the kinematic chain
    */
