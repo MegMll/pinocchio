@@ -10,12 +10,6 @@
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
-#include <boost/variant.hpp>
-#include <boost/mpl/filter_view.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/contains.hpp>
-#include <boost/mpl/placeholders.hpp>
-#include <iostream>
 
 namespace pinocchio
 {
