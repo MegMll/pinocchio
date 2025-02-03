@@ -15,7 +15,8 @@
 #include <boost/foreach.hpp>
 #include <limits>
 #include <iostream>
-#include <unordered_map>
+#include <boost/optional.hpp>
+#include <boost/none.hpp>
 
 namespace pinocchio
 {
@@ -52,6 +53,7 @@ namespace pinocchio
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
         typedef Eigen::Ref<Vector> VectorRef;
         typedef Eigen::Ref<const Vector> VectorConstRef;
+        typedef MimicInfo<Scalar, Options> MimicInfo_;
 
         virtual void setName(const std::string & name) = 0;
 
@@ -70,7 +72,8 @@ namespace pinocchio
           const VectorConstRef & min_config,
           const VectorConstRef & max_config,
           const VectorConstRef & friction,
-          const VectorConstRef & damping) = 0;
+          const VectorConstRef & damping,
+          const boost::optional<MimicInfo_> & mimic_info = boost::none) = 0;
 
         virtual void addJointAndBody(
           JointType type,
@@ -86,7 +89,8 @@ namespace pinocchio
           const VectorConstRef & min_config,
           const VectorConstRef & max_config,
           const VectorConstRef & friction,
-          const VectorConstRef & damping) = 0;
+          const VectorConstRef & damping,
+          const boost::optional<MimicInfo_> & mimic_info = boost::none) = 0;
 
         virtual void addFixedJointAndBody(
           const FrameIndex & parentFrameId,
@@ -113,14 +117,6 @@ namespace pinocchio
 
         virtual bool existFrame(const std::string & frame_name, const FrameType type) const = 0;
 
-        virtual void addMimicInfo(
-          const std::string & mimic_name,
-          const std::string & mimicked_name,
-          const Vector3 & axis,
-          const Scalar multiplier,
-          const Scalar offset,
-          JointType jointType) = 0;
-
         UrdfVisitorBaseTpl()
         : log(NULL)
         {
@@ -135,7 +131,6 @@ namespace pinocchio
         }
 
         std::ostream * log;
-        std::unordered_map<std::string, MimicInfo<Scalar, Options>> mimicInfo_map;
       };
 
       template<typename _Scalar, int Options>
@@ -153,9 +148,7 @@ namespace pinocchio
         typedef typename UrdfVisitorBaseTpl<_Scalar, Options>::JointType JointType;
         JointType jointType;
 
-        MimicInfo()
-        {
-        }
+        MimicInfo() = default;
 
         MimicInfo(
           std::string _mimicked_name,
@@ -187,6 +180,8 @@ namespace pinocchio
         typedef typename Model::JointCollection JointCollection;
         typedef typename Model::JointModel JointModel;
         typedef typename Model::Frame Frame;
+
+        typedef MimicInfo<Scalar, Options> MimicInfo_;
 
         Model & model;
         std::string root_joint_name;
@@ -228,11 +223,12 @@ namespace pinocchio
           const VectorConstRef & min_config,
           const VectorConstRef & max_config,
           const VectorConstRef & friction,
-          const VectorConstRef & damping)
+          const VectorConstRef & damping,
+          const boost::optional<MimicInfo_> & mimic_info = boost::none)
         {
           addJointAndBody(
             type, axis, parentFrameId, placement, joint_name, Y, SE3::Identity(), body_name,
-            max_effort, max_velocity, min_config, max_config, friction, damping);
+            max_effort, max_velocity, min_config, max_config, friction, damping, mimic_info);
         }
 
         void addJointAndBody(
@@ -249,7 +245,8 @@ namespace pinocchio
           const VectorConstRef & min_config,
           const VectorConstRef & max_config,
           const VectorConstRef & friction,
-          const VectorConstRef & damping)
+          const VectorConstRef & damping,
+          const boost::optional<MimicInfo_> & mimic_info = boost::none)
         {
           JointIndex joint_id;
           const Frame & frame = model.frames[parentFrameId];
@@ -298,30 +295,33 @@ namespace pinocchio
               max_config, friction, damping);
             break;
           case Base::MIMIC:
-            switch (this->mimicInfo_map[joint_name].jointType)
-            {
-            case Base::REVOLUTE:
-              joint_id = addMimicJoint<
-                typename JointCollection::JointModelRX, typename JointCollection::JointModelRY,
-                typename JointCollection::JointModelRZ,
-                typename JointCollection::JointModelRevoluteUnaligned>(
-                frame, placement, joint_name, max_effort, max_velocity, min_config, max_config,
-                friction, damping);
-              break;
-            case Base::PRISMATIC:
-              joint_id = addMimicJoint<
-                typename JointCollection::JointModelPX, typename JointCollection::JointModelPY,
-                typename JointCollection::JointModelPZ,
-                typename JointCollection::JointModelPrismaticUnaligned>(
-                frame, placement, joint_name, max_effort, max_velocity, min_config, max_config,
-                friction, damping);
-              break;
-            default:
-              PINOCCHIO_CHECK_INPUT_ARGUMENT(
-                false,
-                "Cannot mimic this type. Only revolute, prismatic and helicoidal can be mimicked");
-              break;
-            }
+            if (mimic_info)
+              switch (mimic_info->jointType)
+              {
+              case Base::REVOLUTE:
+                joint_id = addMimicJoint<
+                  typename JointCollection::JointModelRX, typename JointCollection::JointModelRY,
+                  typename JointCollection::JointModelRZ,
+                  typename JointCollection::JointModelRevoluteUnaligned>(
+                  frame, placement, joint_name, max_effort, max_velocity, min_config, max_config,
+                  friction, damping, *mimic_info);
+                break;
+              case Base::PRISMATIC:
+                joint_id = addMimicJoint<
+                  typename JointCollection::JointModelPX, typename JointCollection::JointModelPY,
+                  typename JointCollection::JointModelPZ,
+                  typename JointCollection::JointModelPrismaticUnaligned>(
+                  frame, placement, joint_name, max_effort, max_velocity, min_config, max_config,
+                  friction, damping, *mimic_info);
+                break;
+              default:
+                PINOCCHIO_CHECK_INPUT_ARGUMENT(
+                  false, "Cannot mimic this type. Only revolute, prismatic and helicoidal can be "
+                         "mimicked");
+                break;
+              }
+            else
+              PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "Cannot create mimic joint. Missing info.")
             break;
           default:
             PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The joint type is not correct.");
@@ -479,18 +479,6 @@ namespace pinocchio
           }
         }
 
-        void addMimicInfo(
-          const std::string & mimic_name,
-          const std::string & mimicked_name,
-          const Vector3 & axis,
-          const Scalar multiplier,
-          const Scalar offset,
-          JointType jointType)
-        {
-          MimicInfo<Scalar, Options> mimic_info(mimicked_name, multiplier, offset, axis, jointType);
-          this->mimicInfo_map.insert(std::make_pair(mimic_name, mimic_info));
-        }
-
         template<typename TypeX, typename TypeY, typename TypeZ, typename TypeUnaligned>
         JointIndex addMimicJoint(
           const Frame & frame,
@@ -501,9 +489,13 @@ namespace pinocchio
           const VectorConstRef & min_config,
           const VectorConstRef & max_config,
           const VectorConstRef & friction,
-          const VectorConstRef & damping)
+          const VectorConstRef & damping,
+          const MimicInfo_ & mimic_info)
         {
-          const MimicInfo<Scalar, Options> mimic_info = this->mimicInfo_map[joint_name];
+          if (!model.existJointName(mimic_info.mimicked_name))
+            PINOCCHIO_CHECK_INPUT_ARGUMENT(
+              false, "The parent joint of the mimic joint is not in the kinematic tree");
+
           auto mimicked_joint = model.joints[getJointId(mimic_info.mimicked_name)];
 
           CartesianAxis axisType = extractCartesianAxis(mimic_info.axis);
@@ -625,6 +617,7 @@ namespace pinocchio
       };
 
       typedef UrdfVisitorBaseTpl<double, 0> UrdfVisitorBase;
+      typedef MimicInfo<double, 0> MimicInfo_;
 
       PINOCCHIO_PARSERS_DLLAPI void parseRootTree(
         const ::urdf::ModelInterface * urdfTree, UrdfVisitorBase & model, const bool mimic = true);
