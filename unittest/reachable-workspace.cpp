@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(test_reachable_workspace)
 
   // Load the urdf model
   Model model;
-  pinocchio::buildModels::manipulator(model, true);
+  pinocchio::buildModels::manipulator(model);
 
   Eigen::VectorXd q = (model.upperPositionLimit + model.lowerPositionLimit) / 2;
   ReachableSetResults res;
