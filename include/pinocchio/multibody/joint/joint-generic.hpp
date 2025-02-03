@@ -447,6 +447,11 @@ namespace pinocchio
       return ::pinocchio::id(*this);
     }
 
+    void setIndexes(JointIndex id, int nq, int nv)
+    {
+      ::pinocchio::setIndexes(*this, id, nq, nv, nv);
+    }
+
     void setIndexes(JointIndex id, int nq, int nv, int nvExtended)
     {
       ::pinocchio::setIndexes(*this, id, nq, nv, nvExtended);

@@ -35,7 +35,8 @@ namespace pinocchio
           .def(
             "hasConfigurationLimitInTangent", &JointModel::hasConfigurationLimitInTangent,
             "Return vector of boolean if joint has configuration limits in tangent space.")
-          .def("setIndexes", &JointModel::setIndexes, bp::args("self", "id", "idx_q", "idx_v"))
+          .def("setIndexes", setIndexes0, bp::args("self", "id", "idx_q", "idx_v"))
+          .def("setIndexes", setIndexes1, bp::args("self", "id", "idx_q", "idx_v", "idx_vExtended"))
           .def(
             "hasSameIndexes", &JointModel::hasSameIndexes<JointModel>, bp::args("self", "other"),
             "Check if this has same indexes than other.")
@@ -80,6 +81,22 @@ namespace pinocchio
       static int getNv(const JointModel & self)
       {
         return self.nv();
+      }
+
+      static void
+      setIndexes0(JointModelDerived & self, const int & id, const int & idx_q, const int & idx_v)
+      {
+        self.setIndexes(id, idx_q, idx_v);
+      }
+
+      static void setIndexes1(
+        JointModelDerived & self,
+        const int & id,
+        const int & idx_q,
+        const int & idx_v,
+        const int & idx_vExtended)
+      {
+        self.setIndexes(id, idx_q, idx_v, idx_vExtended);
       }
 
       static void expose()

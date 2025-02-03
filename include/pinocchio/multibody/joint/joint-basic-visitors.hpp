@@ -250,6 +250,23 @@ namespace pinocchio
     int vExtended);
 
   /**
+   * @brief      Visit a JointModelTpl through JointSetIndexesVisitor to set
+   *             the indexes of the joint in the kinematic chain
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   * @param[in]  id      The index of joint in the kinematic chain
+   * @param[in]  q       The index in the full model configuration space corresponding to the first
+   * degree of freedom
+   * @param[in]  v       The index in the full model tangent space corresponding to the first joint
+   * tangent space degree
+   *
+   * @return     The index of the joint in the kinematic chain
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline void setIndexes(
+    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v);
+
+  /**
    * @brief      Visit a JointModelTpl through JointShortnameVisitor to get the shortname of the
    * derived joint model
    *

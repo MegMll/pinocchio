@@ -40,9 +40,10 @@ namespace pinocchio
           .add_property(
             "hasConfigurationLimitInTangent", &JointModelDerived::hasConfigurationLimitInTangent,
             "Return vector of boolean if joint has configuration limits in tangent space.")
+          .def("setIndexes", &setIndexes0, bp::args("self", "joint_id", "idx_q", "idx_v"))
           .def(
-            "setIndexes", &JointModelDerived::setIndexes,
-            bp::args("self", "joint_id", "idx_q", "idx_v"))
+            "setIndexes", &setIndexes1,
+            bp::args("self", "joint_id", "idx_q", "idx_v", "idx_vExtended"))
           .def("classname", &JointModelDerived::classname)
           .staticmethod("classname")
           .def("calc", &calc0, bp::args("self", "jdata", "q"))
@@ -110,6 +111,22 @@ namespace pinocchio
         const context::VectorXs & v)
       {
         self.calc(jdata, q, v);
+      }
+
+      static void
+      setIndexes0(JointModelDerived & self, const int & id, const int & idx_q, const int & idx_v)
+      {
+        self.setIndexes(id, idx_q, idx_v);
+      }
+
+      static void setIndexes1(
+        JointModelDerived & self,
+        const int & id,
+        const int & idx_q,
+        const int & idx_v,
+        const int & idx_vExtended)
+      {
+        self.setIndexes(id, idx_q, idx_v, idx_vExtended);
       }
     };
 

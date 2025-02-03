@@ -202,6 +202,11 @@ namespace pinocchio
       return i_id;
     }
 
+    void setIndexes(JointIndex id, int q, int v)
+    {
+      derived().setIndexes_impl(id, q, v, v);
+    }
+
     void setIndexes(JointIndex id, int q, int v, int vExtended)
     {
       derived().setIndexes_impl(id, q, v, vExtended);
