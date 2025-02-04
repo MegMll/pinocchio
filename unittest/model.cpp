@@ -885,7 +885,7 @@ BOOST_AUTO_TEST_CASE(test_has_configuration_limit)
   BOOST_CHECK((model_cf_limits_tangent == expected_cf_limits_tangent_model));
 }
 
-BOOST_AUTO_TEST_CASE(test_has_transform_to_mimic)
+BOOST_AUTO_TEST_CASE(test_transform_to_mimic)
 {
   Model humanoid_model, humanoid_mimic;
   buildModels::humanoid(humanoid_model);

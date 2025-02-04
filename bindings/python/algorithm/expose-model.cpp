@@ -83,6 +83,19 @@ namespace pinocchio
       return bp::make_tuple(ancestor_id, index_ancestor_in_support1, index_ancestor_in_support2);
     }
 
+    Model transformJointIntoMimic(
+      const context::Model & input_model,
+      const JointIndex & index_primary,
+      const JointIndex & index_secondary,
+      const context::Scalar & scaling,
+      const context::Scalar & offset)
+    {
+      Model model;
+      pinocchio::transformJointIntoMimic(
+        input_model, index_primary, index_secondary, scaling, offset, model);
+      return model;
+    }
+
     void exposeModelAlgo()
     {
       using namespace Eigen;
@@ -175,6 +188,21 @@ namespace pinocchio
         "\tjoint2_id: index of the second joint\n"
         "Returns a tuple containing the index of the common joint ancestor, the position of this "
         "ancestor in model.supports[joint1_id] and model.supports[joint2_id].\n");
+
+      bp::def(
+        "transformJointIntoMimic",
+        static_cast<Model (*)(
+          const Model &, const JointIndex &, const JointIndex &, const double &, const double &)>(
+          pinocchio::python::transformJointIntoMimic),
+        bp::args("input_model", "index_primary", "index_secondary", "scaling", "offset"),
+        "Transform of a joint of the model into a mimic joint. Keep the type of the joint as it "
+        "was previously. \n\n"
+        "Parameters:\n"
+        "\tinput_model: model the input model to take joints from.\n"
+        "\tindex_primary: index of the joint to mimic\n"
+        "\tindex_secondary: index of the joint that will mimic\n"
+        "\tscaling: Scaling of joint velocity and configuration\n"
+        "\toffset: Offset of joint configuration\n");
     }
 
   } // namespace python
