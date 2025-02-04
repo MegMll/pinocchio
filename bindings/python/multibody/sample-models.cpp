@@ -15,7 +15,7 @@ namespace pinocchio
     Model buildSampleModelHumanoidRandom(bool usingFF, bool mimic)
     {
       Model model;
-      buildModels::humanoidRandom(model);
+      buildModels::humanoidRandom(model, usingFF, mimic);
       return model;
     }
 
