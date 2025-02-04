@@ -684,25 +684,38 @@ namespace pinocchio
       return m_nvExtended;
     }
 
+    /**
+     * @note q and v are ignored in the _impl for mimic joint because most algorithms will pass
+     * indexes of their current position in the tree, while in this case idx_q and idx_v should
+     * remain pointing to the mimicked joint. (See setMimicIndexes)
+     */
     void setIndexes_impl(JointIndex id, int /*q*/, int /*v*/, int vExtended)
     {
       PINOCCHIO_THROW(
         (id > m_jmodel_mimicking.id()), std::invalid_argument,
         "Mimic joint index is lower than its directing joint. Should never happen");
       Base::i_id = id;
-      // When setting the indexes q and v should remain on the mimicked joint
       // Base::i_q = q;
       // Base::i_v = v;
       Base::i_vExtended = vExtended;
     }
 
-    // Specific way for mimic joints to set the mimicked q,v indexes.
-    // Used for manipulating tree (e.g. appendModel)
+    /**
+     * @brief Specific way for mimic joints to set the mimicked q,v indexes.
+     * Used for manipulating tree (e.g. appendModel)
+     *
+     * @param id Set the mimicking joint id
+     * @param q Set the mimic joint idx_q (should point to the mimicked joint)
+     * @param v Set the mimic joint idx_v (should point to the mimicked joint)
+     * @param vExtended Set the mimicking idx_vExtended
+     */
     void setMimicIndexes(JointIndex id, int q, int v, int vExtended)
     {
-      // Set idx_q, idx_v to zero so that only sub segment of q,v can be passed to ref joint
+      // Set idx_q, idx_v to zero because only the corresponding subsegment of q,v are passed to the
+      // m_jmodel_mimicking, thus, its indexes starts at 0
       m_jmodel_mimicking.setIndexes(id, 0, 0, vExtended);
-      // idx_q, idx_v kept separately
+
+      // idx_q, idx_v are kept separately to extract the subsegment
       Base::i_q = q;
       Base::i_v = v;
     }
