@@ -849,6 +849,22 @@ namespace pinocchio
     {
       return SizeDepType<NQ>::segment(a.derived(), Base::i_q, m_nqExtended);
     }
+    /* Acces to dedicated segment in robot tangent space.  */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
+    jointVelocityExtendedModelSelector_impl(const Eigen::MatrixBase<D> & a) const
+    {
+      return SizeDepType<NQ>::segment(a.derived(), Base::i_v, m_nvExtended);
+    }
+
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::Type
+    jointVelocityExtendedModelSelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      return SizeDepType<NQ>::segment(a.derived(), Base::i_v, m_nvExtended);
+    }
 
     /* Acces to dedicated columns in a ForceSet or MotionSet matrix.*/
     // Const access
@@ -871,7 +887,7 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
-    joinVelRows_impl(const Eigen::MatrixBase<D> & A) const
+    jointRows_impl(const Eigen::MatrixBase<D> & A) const
     {
       return SizeDepType<NV>::middleRows(A.derived(), Base::i_v, m_nvExtended);
     }
