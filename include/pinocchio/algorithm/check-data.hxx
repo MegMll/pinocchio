@@ -83,6 +83,9 @@ namespace pinocchio
     CHECK_DATA((int)data.parents_fromRow.size() == model.nvExtended);
     CHECK_DATA((int)data.idx_v_extended_fromRow.size() == model.nvExtended);
     CHECK_DATA((int)data.nvSubtree_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.idx_v_extended_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.start_idx_v_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.end_idx_v_fromRow.size() == model.nvExtended);
 
     for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
     {
