@@ -27,8 +27,10 @@ namespace pinocchio
           .add_property("id", &getId)
           .add_property("idx_q", &getIdx_q)
           .add_property("idx_v", &getIdx_v)
+          .add_property("idx_vExtended", &getIdx_vExtended)
           .add_property("nq", &getNq)
           .add_property("nv", &getNv)
+          .add_property("nvExtended", &getNvExtended)
           .def(
             "hasConfigurationLimit", &JointModel::hasConfigurationLimit,
             "Return vector of boolean if joint has configuration limits.")
@@ -74,6 +76,10 @@ namespace pinocchio
       {
         return self.idx_v();
       }
+      static int getIdx_vExtended(const JointModel & self)
+      {
+        return self.idx_vExtended();
+      }
       static int getNq(const JointModel & self)
       {
         return self.nq();
@@ -81,6 +87,10 @@ namespace pinocchio
       static int getNv(const JointModel & self)
       {
         return self.nv();
+      }
+      static int getNvExtended(const JointModel & self)
+      {
+        return self.nvExtended();
       }
 
       static void

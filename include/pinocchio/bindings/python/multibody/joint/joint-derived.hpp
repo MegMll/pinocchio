@@ -32,8 +32,10 @@ namespace pinocchio
           .add_property("id", &get_id)
           .add_property("idx_q", &get_idx_q)
           .add_property("idx_v", &get_idx_v)
+          .add_property("idx_vExtended", &get_idx_vExtended)
           .add_property("nq", &get_nq)
           .add_property("nv", &get_nv)
+          .add_property("nvExtended", &get_nvExtended)
           .add_property(
             "hasConfigurationLimit", &JointModelDerived::hasConfigurationLimit,
             "Return vector of boolean if joint has configuration limits.")
@@ -91,6 +93,10 @@ namespace pinocchio
       {
         return self.idx_v();
       }
+      static int get_idx_vExtended(const JointModelDerived & self)
+      {
+        return self.idx_vExtended();
+      }
       static int get_nq(const JointModelDerived & self)
       {
         return self.nq();
@@ -99,6 +105,11 @@ namespace pinocchio
       {
         return self.nv();
       }
+      static int get_nvExtended(const JointModelDerived & self)
+      {
+        return self.nvExtended();
+      }
+
       static void
       calc0(const JointModelDerived & self, JointDataDerived & jdata, const context::VectorXs & q)
       {
