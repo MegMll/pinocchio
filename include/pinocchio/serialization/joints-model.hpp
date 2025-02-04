@@ -92,7 +92,7 @@ namespace boost
 
       void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_vExtended)
       {
-        joint_m.setMimicIndexes(0, i_q, i_v, 0);
+        joint_m.setMimicIndexes(joint_m.jmodel().id(), i_q, i_v, joint_m.jmodel().idx_vExtended());
         joint_m.setIndexes(i_id, 0, 0, i_vExtended);
       }
     };
@@ -332,13 +332,13 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
-      fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
-
       ar & make_nvp("jmodel", joint.jmodel());
       ar & make_nvp("scaling", joint.scaling());
       ar & make_nvp("offset", joint.offset());
+
+      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
+      //      >(joint));
+      fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
   } // namespace serialization
