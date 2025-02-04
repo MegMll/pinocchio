@@ -370,8 +370,8 @@ namespace pinocchio
 
     JointDataMimicTpl(
       const RefJointData & jdata, const Scalar & scaling, const int & nq, const int & nv)
-    : m_jdata_ref(checkMimic(jdata.derived()))
-    , S(m_jdata_ref.S(), scaling)
+    : m_jdata_mimicking(checkMimic(jdata.derived()))
+    , S(m_jdata_mimicking.S(), scaling)
     {
       joint_q.resize(nq, 1);
       joint_q_transformed.resize(nq, 1);
@@ -381,7 +381,7 @@ namespace pinocchio
 
     JointDataMimicTpl & operator=(const JointDataMimicTpl & other)
     {
-      m_jdata_ref = other.m_jdata_ref;
+      m_jdata_mimicking = other.m_jdata_mimicking;
       joint_q = other.joint_q;
       joint_q_transformed = other.joint_q_transformed;
       joint_v = other.joint_v;
@@ -393,9 +393,9 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointDataMimicTpl & other) const
     {
-      return Base::isEqual(other) && m_jdata_ref == other.m_jdata_ref && joint_q == other.joint_q
-             && joint_q_transformed == other.joint_q_transformed && joint_v == other.joint_v
-             && joint_v_transformed == other.joint_v_transformed;
+      return Base::isEqual(other) && m_jdata_mimicking == other.m_jdata_mimicking
+             && joint_q == other.joint_q && joint_q_transformed == other.joint_q_transformed
+             && joint_v == other.joint_v && joint_v_transformed == other.joint_v_transformed;
     }
 
     static std::string classname()
@@ -420,92 +420,92 @@ namespace pinocchio
 
     TansformTypeConstRef M_accessor() const
     {
-      M_ = m_jdata_ref.M();
+      M_ = m_jdata_mimicking.M();
       return M_;
     }
     TansformTypeRef M_accessor()
     {
       // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
       // const ref");
-      M_ = m_jdata_ref.M();
+      M_ = m_jdata_mimicking.M();
       return M_;
     }
 
     MotionTypeConstRef v_accessor() const
     {
-      v_ = m_jdata_ref.v();
+      v_ = m_jdata_mimicking.v();
       return v_;
     }
     MotionTypeRef v_accessor()
     {
       // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
       // const ref");
-      v_ = m_jdata_ref.v();
+      v_ = m_jdata_mimicking.v();
       return v_;
     }
 
     BiasTypeConstRef c_accessor() const
     {
-      c_ = m_jdata_ref.c();
+      c_ = m_jdata_mimicking.c();
       return c_;
     }
     BiasTypeRef c_accessor()
     {
       // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
       // const ref");
-      c_ = m_jdata_ref.c();
+      c_ = m_jdata_mimicking.c();
       return c_;
     }
 
     UTypeConstRef U_accessor() const
     {
-      U_ = m_jdata_ref.U();
+      U_ = m_jdata_mimicking.U();
       return U_;
     }
     UTypeRef U_accessor()
     {
       // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
       // const ref");
-      U_ = m_jdata_ref.U();
+      U_ = m_jdata_mimicking.U();
       return U_;
     }
 
     DTypeConstRef Dinv_accessor() const
     {
-      Dinv_ = m_jdata_ref.Dinv();
+      Dinv_ = m_jdata_mimicking.Dinv();
       return Dinv_;
     }
     DTypeRef Dinv_accessor()
     {
       // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
       // const ref");
-      Dinv_ = m_jdata_ref.Dinv();
+      Dinv_ = m_jdata_mimicking.Dinv();
       return Dinv_;
     }
 
     UDTypeConstRef UDinv_accessor() const
     {
-      UDinv_ = m_jdata_ref.UDinv();
+      UDinv_ = m_jdata_mimicking.UDinv();
       return UDinv_;
     }
     UDTypeRef UDinv_accessor()
     {
       // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
       // const ref");
-      UDinv_ = m_jdata_ref.UDinv();
+      UDinv_ = m_jdata_mimicking.UDinv();
       return UDinv_;
     }
 
     DTypeConstRef StU_accessor() const
     {
-      StU_ = m_jdata_ref.StU();
+      StU_ = m_jdata_mimicking.StU();
       return StU_;
     }
     DTypeRef StU_accessor()
     {
       // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
       // const ref");
-      StU_ = m_jdata_ref.StU();
+      StU_ = m_jdata_mimicking.StU();
       return StU_;
     }
 
@@ -513,11 +513,11 @@ namespace pinocchio
 
     const RefJointData & jdata() const
     {
-      return m_jdata_ref;
+      return m_jdata_mimicking;
     }
     RefJointData & jdata()
     {
-      return m_jdata_ref;
+      return m_jdata_mimicking;
     }
 
     ConfigVector_t & joint_q_accessor()
@@ -559,11 +559,11 @@ namespace pinocchio
     void disp(std::ostream & os) const
     {
       Base::disp(os);
-      os << "  Mimicking joint data: " << m_jdata_ref.shortname() << std::endl;
+      os << "  Mimicking joint data: " << m_jdata_mimicking.shortname() << std::endl;
     }
 
   protected:
-    RefJointData m_jdata_ref;
+    RefJointData m_jdata_mimicking;
 
     /// \brief original configuration vector
     ConfigVector_t joint_q;
@@ -647,7 +647,7 @@ namespace pinocchio
       const JointModelBase<JointModelMimicked> & jmodel_mimicked,
       const Scalar & scaling,
       const Scalar & offset)
-    : m_jmodel_ref(checkMimic((JointModel)jmodel_mimicking.derived()))
+    : m_jmodel_mimicking(checkMimic((JointModel)jmodel_mimicking.derived()))
     , m_scaling(scaling)
     , m_offset(offset)
     , m_nqExtended(jmodel_mimicking.nq())
@@ -687,7 +687,7 @@ namespace pinocchio
     void setIndexes_impl(JointIndex id, int /*q*/, int /*v*/, int vExtended)
     {
       PINOCCHIO_THROW(
-        (id > m_jmodel_ref.id()), std::invalid_argument,
+        (id > m_jmodel_mimicking.id()), std::invalid_argument,
         "Mimic joint index is lower than its directing joint. Should never happen");
       Base::i_id = id;
       // When setting the indexes q and v should remain on the mimicked joint
@@ -701,7 +701,7 @@ namespace pinocchio
     void setMimicIndexes(JointIndex id, int q, int v, int vExtended)
     {
       // Set idx_q, idx_v to zero so that only sub segment of q,v can be passed to ref joint
-      m_jmodel_ref.setIndexes(id, 0, 0, vExtended);
+      m_jmodel_mimicking.setIndexes(id, 0, 0, vExtended);
       // idx_q, idx_v kept separately
       Base::i_q = q;
       Base::i_v = v;
@@ -710,17 +710,18 @@ namespace pinocchio
     JointDataDerived createData() const
     {
 
-      return JointDataDerived(m_jmodel_ref.createData(), scaling(), m_nqExtended, m_nvExtended);
+      return JointDataDerived(
+        m_jmodel_mimicking.createData(), scaling(), m_nqExtended, m_nvExtended);
     }
 
     const std::vector<bool> hasConfigurationLimit() const
     {
-      return m_jmodel_ref.hasConfigurationLimit();
+      return m_jmodel_mimicking.hasConfigurationLimit();
     }
 
     const std::vector<bool> hasConfigurationLimitInTangent() const
     {
-      return m_jmodel_ref.hasConfigurationLimitInTangent();
+      return m_jmodel_mimicking.hasConfigurationLimitInTangent();
     }
 
     template<typename ConfigVector>
@@ -729,8 +730,8 @@ namespace pinocchio
     {
       jdata.joint_q = qs.segment(Base::i_q, m_nqExtended);
       configVectorAffineTransform(
-        m_jmodel_ref, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
-      m_jmodel_ref.calc(jdata.m_jdata_ref, jdata.joint_q_transformed);
+        m_jmodel_mimicking, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
+      m_jmodel_mimicking.calc(jdata.m_jdata_mimicking, jdata.joint_q_transformed);
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -742,9 +743,10 @@ namespace pinocchio
       jdata.joint_q = qs.segment(Base::i_q, m_nqExtended);
       jdata.joint_v = vs.segment(Base::i_v, m_nvExtended);
       configVectorAffineTransform(
-        m_jmodel_ref, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
+        m_jmodel_mimicking, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
       jdata.joint_v_transformed = m_scaling * jdata.joint_v;
-      m_jmodel_ref.calc(jdata.m_jdata_ref, jdata.joint_q_transformed, jdata.joint_v_transformed);
+      m_jmodel_mimicking.calc(
+        jdata.m_jdata_mimicking, jdata.joint_q_transformed, jdata.joint_v_transformed);
     }
 
     template<typename VectorLike, typename Matrix6Like>
@@ -776,20 +778,21 @@ namespace pinocchio
     {
       typedef typename CastType<NewScalar, JointModelMimicTpl>::type ReturnType;
       ReturnType res(
-        m_jmodel_ref.template cast<NewScalar>(), ScalarCast<NewScalar, Scalar>::cast(m_scaling),
+        m_jmodel_mimicking.template cast<NewScalar>(),
+        ScalarCast<NewScalar, Scalar>::cast(m_scaling),
         ScalarCast<NewScalar, Scalar>::cast(m_offset));
       res.setIndexes(id(), Base::i_q, Base::i_v, Base::i_vExtended);
-      res.setMimicIndexes(m_jmodel_ref.id(), Base::i_q, Base::i_v, Base::i_vExtended);
+      res.setMimicIndexes(m_jmodel_mimicking.id(), Base::i_q, Base::i_v, Base::i_vExtended);
       return res;
     }
 
     const JointModel & jmodel() const
     {
-      return m_jmodel_ref;
+      return m_jmodel_mimicking;
     }
     JointModel & jmodel()
     {
-      return m_jmodel_ref;
+      return m_jmodel_mimicking;
     }
 
     const Scalar & scaling() const
@@ -812,7 +815,7 @@ namespace pinocchio
 
   protected:
     // data
-    JointModel m_jmodel_ref;
+    JointModel m_jmodel_mimicking;
     Scalar m_scaling, m_offset;
     int m_nqExtended, m_nvExtended;
 
@@ -891,8 +894,8 @@ namespace pinocchio
     void disp(std::ostream & os) const
     {
       Base::disp(os);
-      os << "  Mimicking joint type: " << m_jmodel_ref.shortname() << std::endl;
-      os << "  Mimicked joint id: " << m_jmodel_ref.id() << std::endl;
+      os << "  Mimicking joint type: " << m_jmodel_mimicking.shortname() << std::endl;
+      os << "  Mimicked joint id: " << m_jmodel_mimicking.id() << std::endl;
       os << "  Mimic scaling: " << m_scaling << std::endl;
       os << "  Mimic offset: " << m_offset << std::endl;
     }
