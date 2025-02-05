@@ -789,8 +789,6 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & reduced_model,
     std::vector<GeometryModel, GeometryModelAllocator> & list_of_reduced_geom_models)
   {
-
-    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     buildReducedModel(input_model, list_of_joints_to_lock, reference_configuration, reduced_model);
 
     // for all GeometryModels
