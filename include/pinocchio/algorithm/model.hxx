@@ -639,16 +639,41 @@ namespace pinocchio
       }
       else
       {
-        // the joint should be added to the Model as it is
-        JointIndex reduced_joint_id = reduced_model.addJoint(
-          reduced_parent_joint_index, joint_input_model,
-          parent_frame_placement * input_model.jointPlacements[joint_id], joint_name,
-          joint_input_model.jointVelocitySelector(input_model.effortLimit),
-          joint_input_model.jointVelocitySelector(input_model.velocityLimit),
-          joint_input_model.jointConfigSelector(input_model.lowerPositionLimit),
-          joint_input_model.jointConfigSelector(input_model.upperPositionLimit),
-          joint_input_model.jointVelocitySelector(input_model.friction),
-          joint_input_model.jointVelocitySelector(input_model.damping));
+        JointIndex reduced_joint_id;
+        if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&joint_input_model))
+        {
+          auto mimic_joint =
+            boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(joint_input_model);
+
+          JointIndex mimicked_id =
+            reduced_model.getJointId(input_model.names[mimic_joint.jmodel().id()]);
+          mimic_joint.setMimicIndexes(
+            mimicked_id, reduced_model.idx_qs[mimicked_id], reduced_model.idx_vs[mimicked_id],
+            reduced_model.idx_vExtendeds[mimicked_id]);
+
+          reduced_joint_id = reduced_model.addJoint(
+            reduced_parent_joint_index, mimic_joint,
+            parent_frame_placement * input_model.jointPlacements[joint_id], joint_name,
+            mimic_joint.jointVelocitySelector(input_model.effortLimit),
+            mimic_joint.jointVelocitySelector(input_model.velocityLimit),
+            mimic_joint.jointConfigSelector(input_model.lowerPositionLimit),
+            mimic_joint.jointConfigSelector(input_model.upperPositionLimit),
+            mimic_joint.jointVelocitySelector(input_model.friction),
+            mimic_joint.jointVelocitySelector(input_model.damping));
+        }
+        else
+        {
+          // the joint should be added to the Model as it is
+          reduced_joint_id = reduced_model.addJoint(
+            reduced_parent_joint_index, joint_input_model,
+            parent_frame_placement * input_model.jointPlacements[joint_id], joint_name,
+            joint_input_model.jointVelocitySelector(input_model.effortLimit),
+            joint_input_model.jointVelocitySelector(input_model.velocityLimit),
+            joint_input_model.jointConfigSelector(input_model.lowerPositionLimit),
+            joint_input_model.jointConfigSelector(input_model.upperPositionLimit),
+            joint_input_model.jointVelocitySelector(input_model.friction),
+            joint_input_model.jointVelocitySelector(input_model.damping));
+        }
         // Append inertia
         reduced_model.appendBodyToJoint(
           reduced_joint_id, input_model.inertias[joint_id], SE3::Identity());
