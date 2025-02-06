@@ -102,17 +102,11 @@ namespace pinocchio
     {
       JointIndex c = (JointIndex)data.lastChild[j];
       CHECK_DATA((int)c < model.njoints);
-      int nv;
-      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[j]))
-        nv = boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(model.joints[j])
-               .jmodel()
-               .nv();
-      else
-        nv = model.joints[j].nv();
+      int nv = model.joints[j].nvExtended();
       for (JointIndex d = j + 1; d <= c; ++d) // explore all descendant
       {
         CHECK_DATA(model.parents[d] >= j);
-        nv += model.joints[d].nv();
+        nv += model.joints[d].nvExtended();
       }
       CHECK_DATA(nv == data.nvSubtree[j]);
 
