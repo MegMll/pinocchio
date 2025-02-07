@@ -103,5 +103,4 @@ namespace pinocchio
         ratio;
     }
   }
-
 } // namespace pinocchio
