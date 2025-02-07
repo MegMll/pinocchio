@@ -34,6 +34,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "utils/model-generator.hpp"
+
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_rnea)
@@ -347,31 +349,18 @@ BOOST_AUTO_TEST_CASE(test_compute_coriolis)
 
 void test_mimic_against_full_model(
   const pinocchio::Model & model_full,
-  const pinocchio::JointIndex & primary_id,
-  const pinocchio::JointIndex & secondary_id)
+  const std::vector<pinocchio::JointIndex> & primary_ids,
+  const std::vector<pinocchio::JointIndex> & secondary_ids)
 {
-  // constants
-  const int primary_idxq = model_full.joints[primary_id].idx_q();
-  const int primary_idxv = model_full.joints[primary_id].idx_v();
-  const int secondary_idxq = model_full.joints[secondary_id].idx_q();
-  const int secondary_idxv = model_full.joints[secondary_id].idx_v();
   const double ratio = 2.5;
   const double offset = 0.75;
-
-  // Build mimic model
   pinocchio::Model model_mimic;
-  pinocchio::transformJointIntoMimic(
-    model_full, primary_id, secondary_id, ratio, offset, model_mimic);
+  Eigen::MatrixXd G;
+  buildMimicModel(model_full, primary_ids, secondary_ids, ratio, offset, model_mimic, G);
+
   pinocchio::Data data_nle_mimic(model_mimic);
   pinocchio::Data data_rnea_mimic(model_mimic);
   pinocchio::Data data_full(model_full);
-
-  // Prepare test data
-  Eigen::MatrixXd G = Eigen::MatrixXd::Zero(model_full.nv, model_mimic.nv);
-  G.topLeftCorner(secondary_idxv, secondary_idxv).setIdentity();
-  G.bottomRightCorner(model_mimic.nv - secondary_idxv, model_mimic.nv - secondary_idxv)
-    .setIdentity();
-  G(secondary_idxv, primary_idxv) = ratio;
 
   Eigen::VectorXd q = pinocchio::randomConfiguration(model_mimic);
   Eigen::VectorXd v = Eigen::VectorXd::Random(model_mimic.nv);
@@ -383,8 +372,13 @@ void test_mimic_against_full_model(
 
   for (int n = 1; n < model_full.njoints; n++)
   {
-    const double joint_ratio = ((n == secondary_id) ? ratio : 1.0);
-    const double joint_offset = ((n == secondary_id) ? offset : 0.0);
+    double joint_ratio = 1.0;
+    double joint_offset = 0.0;
+    if (std::find(secondary_ids.begin(), secondary_ids.end(), n) != secondary_ids.end())
+    {
+      joint_ratio = ratio;
+      joint_offset = offset;
+    }
     model_full.joints[n].jointConfigExtendedModelSelector(q_full) =
       joint_ratio * model_mimic.joints[n].jointConfigExtendedModelSelector(q)
       + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
@@ -397,7 +391,6 @@ void test_mimic_against_full_model(
 
   // // Use equation of motion to compute tau from a_reduced
   Eigen::VectorXd tau_ref = G.transpose() * data_full.M * G * a + (G.transpose() * nle);
-
   pinocchio::rnea(model_mimic, data_rnea_mimic, q, v, a);
   BOOST_CHECK(tau_ref.isApprox(data_rnea_mimic.tau));
 
@@ -407,7 +400,7 @@ void test_mimic_against_full_model(
   Eigen::VectorXd tau_ref_nle =
     pinocchio::rnea(model_mimic, data_ref_nle, q, v, Eigen::VectorXd::Zero(model_mimic.nv));
   Eigen::VectorXd tau_nle = pinocchio::nonLinearEffects(model_mimic, data_nle, q, v);
-  BOOST_CHECK(tau_nle.isApprox(tau_nle));
+  BOOST_CHECK(tau_nle.isApprox(tau_ref_nle));
 
   // Generalized Gravity
   pinocchio::Data data_ref_gg(model_mimic);
@@ -438,20 +431,42 @@ BOOST_AUTO_TEST_CASE(test_rnea_mimic)
   pinocchio::Model humanoid_model;
   pinocchio::buildModels::humanoidRandom(humanoid_model);
 
-  // Test for direct parent/child joint mimic
-  test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("rleg1_joint"),
-    humanoid_model.getJointId("rleg2_joint"));
+  // Direct parent/Child
+  std::vector<pinocchio::JointIndex> primaries = {humanoid_model.getJointId("rleg1_joint")};
+  std::vector<pinocchio::JointIndex> secondaries = {humanoid_model.getJointId("rleg2_joint")};
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
 
-  // Test for spaced parent/child joint mimic
-  test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("rleg1_joint"),
-    humanoid_model.getJointId("rleg4_joint"));
+  // Spaced Parent/Child
+  primaries.clear();
+  secondaries.clear();
+  primaries = {humanoid_model.getJointId("rleg1_joint")};
+  secondaries = {humanoid_model.getJointId("rleg4_joint")};
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
 
-  // // Test for parallel joint mimic
-  test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("lleg4_joint"),
-    humanoid_model.getJointId("rleg4_joint"));
+  // Parallel
+  primaries.clear();
+  secondaries.clear();
+  primaries = {humanoid_model.getJointId("lleg1_joint")};
+  secondaries = {humanoid_model.getJointId("rleg1_joint")};
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
+
+  // Double mimic, not same primary
+  primaries.clear();
+  secondaries.clear();
+  primaries = {humanoid_model.getJointId("lleg1_joint"), humanoid_model.getJointId("rarm1_joint")};
+
+  secondaries = {
+    humanoid_model.getJointId("rleg1_joint"), humanoid_model.getJointId("larm1_joint")};
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
+
+  // Double Mimic, Same Primary
+  primaries.clear();
+  secondaries.clear();
+  primaries = {humanoid_model.getJointId("lleg1_joint"), humanoid_model.getJointId("lleg1_joint")};
+
+  secondaries = {
+    humanoid_model.getJointId("rleg1_joint"), humanoid_model.getJointId("lleg2_joint")};
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

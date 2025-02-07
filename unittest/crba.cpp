@@ -31,6 +31,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "utils/model-generator.hpp"
+
 template<typename JointModel>
 static void addJointAndBody(
   pinocchio::Model & model,
@@ -128,35 +130,40 @@ BOOST_AUTO_TEST_CASE(test_crba)
 
 void test_mimic_against_full_model(
   const pinocchio::Model & model_full,
-  const pinocchio::JointIndex & primary_id,
-  const pinocchio::JointIndex & secondary_id)
+  const std::vector<pinocchio::JointIndex> & primary_ids,
+  const std::vector<pinocchio::JointIndex> & secondary_ids)
 {
-  // constants
-  const int primary_idxq = model_full.joints[primary_id].idx_q();
-  const int primary_idxv = model_full.joints[primary_id].idx_v();
-  const int secondary_idxq = model_full.joints[secondary_id].idx_q();
-  const int secondary_idxv = model_full.joints[secondary_id].idx_v();
   const double ratio = 2.5;
   const double offset = 0.75;
-
-  // Build mimic model
   pinocchio::Model model_mimic;
-  pinocchio::transformJointIntoMimic(
-    model_full, primary_id, secondary_id, ratio, offset, model_mimic);
-  pinocchio::Data data_full(model_full);
-  pinocchio::Data data_mimic(model_mimic);
-  pinocchio::Data data_ref_mimic(model_mimic);
-
-  // Prepare test data
-  Eigen::MatrixXd G = Eigen::MatrixXd::Zero(model_full.nv, model_mimic.nv);
-  G.topLeftCorner(secondary_idxv, secondary_idxv).setIdentity();
-  G.bottomRightCorner(model_mimic.nv - secondary_idxv, model_mimic.nv - secondary_idxv)
-    .setIdentity();
-  G(secondary_idxv, primary_idxv) = ratio;
+  Eigen::MatrixXd G;
+  buildMimicModel(model_full, primary_ids, secondary_ids, ratio, offset, model_mimic, G);
 
   Eigen::VectorXd q_mimic = pinocchio::randomConfiguration(model_mimic);
   Eigen::VectorXd v_mimic = Eigen::VectorXd::Random(model_mimic.nv);
-  Eigen::VectorXd a_mimic = Eigen::VectorXd::Random(model_mimic.nv);
+  Eigen::VectorXd as_mimic = Eigen::VectorXd::Random(model_mimic.nv);
+
+  Eigen::VectorXd q_full = Eigen::VectorXd::Zero(model_full.nq);
+  Eigen::VectorXd v_full = G * v_mimic;
+  Eigen::VectorXd a_full = G * v_mimic;
+
+  for (int n = 1; n < model_full.njoints; n++)
+  {
+    double joint_ratio = 1.0;
+    double joint_offset = 0.0;
+    if (std::find(secondary_ids.begin(), secondary_ids.end(), n) != secondary_ids.end())
+    {
+      joint_ratio = ratio;
+      joint_offset = offset;
+    }
+    model_full.joints[n].jointConfigExtendedModelSelector(q_full) =
+      joint_ratio * model_mimic.joints[n].jointConfigExtendedModelSelector(q_mimic)
+      + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
+  }
+
+  pinocchio::Data data_full(model_full);
+  pinocchio::Data data_mimic(model_mimic);
+  pinocchio::Data data_ref_mimic(model_mimic);
 
   // World vs local
   pinocchio::crba(model_mimic, data_ref_mimic, q_mimic, pinocchio::Convention::WORLD);
@@ -164,21 +171,6 @@ void test_mimic_against_full_model(
 
   BOOST_CHECK(data_ref_mimic.M.isApprox(data_mimic.M));
 
-  Eigen::VectorXd q_full = Eigen::VectorXd::Zero(model_full.nq);
-  Eigen::VectorXd v_full = G * v_mimic;
-  Eigen::VectorXd a_full = G * a_mimic;
-
-  for (int n = 1; n < model_full.njoints; n++)
-  {
-    const double joint_ratio = ((n == secondary_id) ? ratio : 1.0);
-    const double joint_offset = ((n == secondary_id) ? offset : 0.0);
-    model_full.joints[n].jointConfigExtendedModelSelector(q_full) =
-      joint_ratio * model_mimic.joints[n].jointConfigExtendedModelSelector(q_mimic)
-      + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
-  }
-
-  // // // Run crba
-  // // pinocchio::crba(model_mimic, data_mimic, q_mimic);
   pinocchio::crba(model_full, data_full, q_full);
 
   // Compute other half of matrix
@@ -194,22 +186,52 @@ void test_mimic_against_full_model(
 BOOST_AUTO_TEST_CASE(test_crba_mimic)
 {
   pinocchio::Model humanoid_model;
-  pinocchio::buildModels::humanoidRandom(humanoid_model, true);
+  pinocchio::buildModels::humanoidRandom(humanoid_model);
 
-  // Test for direct parent/child joint mimic
-  test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("rleg4_joint"),
-    humanoid_model.getJointId("rleg5_joint"));
+  // Direct parent/Child
+  std::vector<pinocchio::JointIndex> primaries = {humanoid_model.getJointId("rleg1_joint")};
 
-  // Test for spaced parent/child joint mimic
-  test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("rleg1_joint"),
-    humanoid_model.getJointId("rleg4_joint"));
+  std::vector<pinocchio::JointIndex> secondaries = {humanoid_model.getJointId("rleg2_joint")};
 
-  // // Test for parallel joint mimic
-  test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("lleg4_joint"),
-    humanoid_model.getJointId("rleg4_joint"));
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
+
+  // Spaced Parent/Child
+  primaries.clear();
+  secondaries.clear();
+
+  primaries = {humanoid_model.getJointId("rleg1_joint")};
+
+  secondaries = {humanoid_model.getJointId("rleg4_joint")};
+
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
+
+  // Parallel
+  primaries.clear();
+  secondaries.clear();
+
+  primaries = {humanoid_model.getJointId("lleg1_joint")};
+
+  secondaries = {humanoid_model.getJointId("rleg1_joint")};
+
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
+
+  // Double mimic, not same primary
+  primaries.clear();
+  secondaries.clear();
+  primaries = {humanoid_model.getJointId("lleg1_joint"), humanoid_model.getJointId("rarm1_joint")};
+
+  secondaries = {
+    humanoid_model.getJointId("rleg1_joint"), humanoid_model.getJointId("larm1_joint")};
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
+
+  // Double Mimic, Same Primary
+  primaries.clear();
+  secondaries.clear();
+  primaries = {humanoid_model.getJointId("lleg1_joint"), humanoid_model.getJointId("lleg1_joint")};
+
+  secondaries = {
+    humanoid_model.getJointId("rleg1_joint"), humanoid_model.getJointId("lleg2_joint")};
+  test_mimic_against_full_model(humanoid_model, primaries, secondaries);
 }
 
 BOOST_AUTO_TEST_CASE(test_minimal_crba)
