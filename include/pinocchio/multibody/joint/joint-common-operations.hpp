@@ -96,14 +96,7 @@ namespace pinocchio
       const Scalar & offset,
       const Eigen::MatrixBase<ConfigVectorOut> & qOut)
     {
-      assert(
-        check_expression_if_real<Scalar>(
-          math::fabs(scaling - 1.0) < Eigen::NumTraits<Scalar>::dummy_precision())
-        && check_expression_if_real<Scalar>(
-          math::fabs(offset) < Eigen::NumTraits<Scalar>::dummy_precision())
-        && "No ConfigVectorAffineTransform specialized for this joint type");
-
-      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, qOut).noalias() = qIn;
+      assert(false && "Joint cannot be used with JointMimic.");
     }
   };
 
