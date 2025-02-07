@@ -313,9 +313,9 @@ namespace pinocchio
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
     typedef JointDataMimicTpl<Scalar, Options, JointCollectionTpl> JointDataDerived;
     typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelDerived;
+
     typedef ScaledJointMotionSubspaceTpl<Scalar, Options, MaxNVExtended> Constraint_t;
     typedef SE3Tpl<Scalar, Options> Transformation_t;
-
     typedef MotionTpl<Scalar, Options> Motion_t;
     typedef MotionTpl<Scalar, Options> Bias_t;
 
@@ -324,12 +324,31 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> D_t;
     typedef Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options> UD_t;
 
+    typedef Constraint_t ConstraintTypeConstRef;
+    typedef Constraint_t ConstraintTypeRef;
+    typedef Transformation_t TansformTypeConstRef;
+    typedef Transformation_t TansformTypeRef;
+    typedef Motion_t MotionTypeConstRef;
+    typedef Motion_t MotionTypeRef;
+    typedef Bias_t BiasTypeConstRef;
+    typedef Bias_t BiasTypeRef;
+    typedef U_t UTypeConstRef;
+    typedef U_t UTypeRef;
+    typedef D_t DTypeConstRef;
+    typedef D_t DTypeRef;
+    typedef UD_t UDTypeConstRef;
+    typedef UD_t UDTypeRef;
+
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> TangentVector_t;
 
-    typedef boost::mpl::false_ is_mimicable_t;
+    typedef ConfigVector_t ConfigVectorTypeConstRef;
+    typedef ConfigVector_t ConfigVectorTypeRef;
+    typedef TangentVector_t TangentVectorTypeConstRef;
+    typedef TangentVector_t TangentVectorTypeRef;
 
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
+    typedef boost::mpl::false_ is_mimicable_t;
+    // PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
   template<typename _Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -420,93 +439,74 @@ namespace pinocchio
 
     TansformTypeConstRef M_accessor() const
     {
-      M_ = m_jdata_mimicking.M();
-      return M_;
+      return m_jdata_mimicking.M();
     }
     TansformTypeRef M_accessor()
     {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      M_ = m_jdata_mimicking.M();
-      return M_;
+      assert(
+        false
+        && "Changes to non const ref on mimic joints won't be taken into account. Use const ref");
+      return m_jdata_mimicking.M();
     }
 
     MotionTypeConstRef v_accessor() const
     {
-      v_ = m_jdata_mimicking.v();
-      return v_;
+      return m_jdata_mimicking.v();
     }
     MotionTypeRef v_accessor()
     {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      v_ = m_jdata_mimicking.v();
-      return v_;
+      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
+      return m_jdata_mimicking.v();
     }
 
     BiasTypeConstRef c_accessor() const
     {
-      c_ = m_jdata_mimicking.c();
-      return c_;
+      return m_jdata_mimicking.c();
     }
     BiasTypeRef c_accessor()
     {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      c_ = m_jdata_mimicking.c();
-      return c_;
+      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
+      return m_jdata_mimicking.c();
     }
 
     UTypeConstRef U_accessor() const
     {
-      U_ = m_jdata_mimicking.U();
-      return U_;
+      return m_jdata_mimicking.U();
     }
     UTypeRef U_accessor()
     {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      U_ = m_jdata_mimicking.U();
-      return U_;
+      assert(false && "Changes to non const ref on mimic joints won't be taken into account. ");
+      return m_jdata_mimicking.U();
     }
 
     DTypeConstRef Dinv_accessor() const
     {
-      Dinv_ = m_jdata_mimicking.Dinv();
-      return Dinv_;
+      return m_jdata_mimicking.Dinv();
     }
     DTypeRef Dinv_accessor()
     {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      Dinv_ = m_jdata_mimicking.Dinv();
-      return Dinv_;
+      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
+      return m_jdata_mimicking.Dinv();
     }
 
     UDTypeConstRef UDinv_accessor() const
     {
-      UDinv_ = m_jdata_mimicking.UDinv();
-      return UDinv_;
+      return m_jdata_mimicking.UDinv();
     }
     UDTypeRef UDinv_accessor()
     {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      UDinv_ = m_jdata_mimicking.UDinv();
-      return UDinv_;
+      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
+      return m_jdata_mimicking.UDinv();
     }
 
     DTypeConstRef StU_accessor() const
     {
-      StU_ = m_jdata_mimicking.StU();
-      return StU_;
+      return m_jdata_mimicking.StU();
     }
     DTypeRef StU_accessor()
     {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      StU_ = m_jdata_mimicking.StU();
-      return StU_;
+      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
+      return m_jdata_mimicking.StU();
     }
 
     friend struct JointModelMimicTpl<_Scalar, _Options, JointCollectionTpl>;
@@ -577,17 +577,6 @@ namespace pinocchio
   public:
     // data
     Constraint_t S;
-
-  protected:
-    /// \brief Buffer variable for accessors to return references
-    mutable Transformation_t M_;
-    mutable Motion_t v_;
-    mutable Bias_t c_;
-    mutable U_t U_;
-    mutable D_t Dinv_;
-    mutable UD_t UDinv_;
-    mutable D_t StU_;
-
   }; // struct JointDataMimicTpl
 
   template<
