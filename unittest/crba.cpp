@@ -145,7 +145,7 @@ void test_mimic_against_full_model(
 
   Eigen::VectorXd q_full = Eigen::VectorXd::Zero(model_full.nq);
   Eigen::VectorXd v_full = G * v_mimic;
-  Eigen::VectorXd a_full = G * v_mimic;
+  Eigen::VectorXd a_full = G * as_mimic;
 
   for (int n = 1; n < model_full.njoints; n++)
   {
