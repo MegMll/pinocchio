@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/model.hpp"
 
 namespace pinocchio
 {
@@ -63,6 +64,44 @@ namespace pinocchio
     addJointAndBody(
       model, JointModelTranslation(), model.getJointId("sphericalZYX_joint"), SE3::Identity(),
       "translation", Inertia::Random());
+  }
+
+  void buildMimicModel(
+    const Model & model_full,
+    const std::vector<pinocchio::JointIndex> & primary_ids,
+    const std::vector<pinocchio::JointIndex> & secondary_ids,
+    const double & ratio,
+    const double & offset,
+    Model & model_mimic,
+    Eigen::MatrixXd & G)
+  {
+    Model model_temp;
+    model_temp = model_full;
+    for (int i = 0; i < primary_ids.size(); i++)
+    {
+      pinocchio::transformJointIntoMimic(
+        model_temp, primary_ids[i], secondary_ids[i], ratio, offset, model_mimic);
+      model_temp = model_mimic;
+    }
+    // Initialize G as a zero matrix
+    G.resize(model_full.nv, model_mimic.nv);
+    G.setZero();
+    // Set ones on the pseudo-diagonal
+    for (int j = 0; j < model_full.njoints; ++j)
+    {
+      if (std::find(secondary_ids.begin(), secondary_ids.end(), j) == secondary_ids.end())
+        G.block(
+           model_full.joints[j].idx_v(), model_mimic.joints[j].idx_v(), model_full.joints[j].nv(),
+           model_mimic.joints[j].nv())
+          .setIdentity();
+    }
+
+    // Set specific values for primary-secondary joint pairs
+    for (size_t i = 0; i < primary_ids.size(); ++i)
+    {
+      G(model_full.joints[secondary_ids[i]].idx_v(), model_full.joints[primary_ids[i]].idx_v()) =
+        ratio;
+    }
   }
 
 } // namespace pinocchio
