@@ -324,8 +324,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> D_t;
     typedef Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options> UD_t;
 
-    typedef Constraint_t ConstraintTypeConstRef;
-    typedef Constraint_t ConstraintTypeRef;
+    typedef const Constraint_t & ConstraintTypeConstRef;
+    typedef Constraint_t & ConstraintTypeRef;
     typedef Transformation_t TansformTypeConstRef;
     typedef Transformation_t TansformTypeRef;
     typedef Motion_t MotionTypeConstRef;
@@ -342,13 +342,12 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> TangentVector_t;
 
-    typedef ConfigVector_t ConfigVectorTypeConstRef;
-    typedef ConfigVector_t ConfigVectorTypeRef;
-    typedef TangentVector_t TangentVectorTypeConstRef;
-    typedef TangentVector_t TangentVectorTypeRef;
+    typedef const ConfigVector_t & ConfigVectorTypeConstRef;
+    typedef ConfigVector_t & ConfigVectorTypeRef;
+    typedef const TangentVector_t TangentVectorTypeConstRef;
+    typedef TangentVector_t & TangentVectorTypeRef;
 
     typedef boost::mpl::false_ is_mimicable_t;
-    // PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
   template<typename _Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -437,75 +436,38 @@ namespace pinocchio
       return S;
     }
 
-    TansformTypeConstRef M_accessor() const
+    Transformation_t M_accessor() const
     {
       return m_jdata_mimicking.M();
     }
-    TansformTypeRef M_accessor()
-    {
-      assert(
-        false
-        && "Changes to non const ref on mimic joints won't be taken into account. Use const ref");
-      return m_jdata_mimicking.M();
-    }
 
-    MotionTypeConstRef v_accessor() const
+    Motion_t v_accessor() const
     {
       return m_jdata_mimicking.v();
     }
-    MotionTypeRef v_accessor()
-    {
-      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
-      return m_jdata_mimicking.v();
-    }
 
-    BiasTypeConstRef c_accessor() const
+    Bias_t c_accessor() const
     {
       return m_jdata_mimicking.c();
     }
-    BiasTypeRef c_accessor()
-    {
-      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
-      return m_jdata_mimicking.c();
-    }
 
-    UTypeConstRef U_accessor() const
+    U_t U_accessor() const
     {
       return m_jdata_mimicking.U();
     }
-    UTypeRef U_accessor()
-    {
-      assert(false && "Changes to non const ref on mimic joints won't be taken into account. ");
-      return m_jdata_mimicking.U();
-    }
 
-    DTypeConstRef Dinv_accessor() const
+    D_t Dinv_accessor() const
     {
       return m_jdata_mimicking.Dinv();
     }
-    DTypeRef Dinv_accessor()
-    {
-      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
-      return m_jdata_mimicking.Dinv();
-    }
 
-    UDTypeConstRef UDinv_accessor() const
+    UD_t UDinv_accessor() const
     {
       return m_jdata_mimicking.UDinv();
     }
-    UDTypeRef UDinv_accessor()
-    {
-      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
-      return m_jdata_mimicking.UDinv();
-    }
 
-    DTypeConstRef StU_accessor() const
+    D_t StU_accessor() const
     {
-      return m_jdata_mimicking.StU();
-    }
-    DTypeRef StU_accessor()
-    {
-      assert(false && "Changes to non const ref on mimic joints won't be taken into account.");
       return m_jdata_mimicking.StU();
     }
 
@@ -520,11 +482,11 @@ namespace pinocchio
       return m_jdata_mimicking;
     }
 
-    ConfigVector_t & joint_q_accessor()
+    ConfigVectorTypeRef joint_q_accessor()
     {
       return joint_q;
     }
-    const ConfigVector_t & joint_q_accessor() const
+    ConfigVectorTypeConstRef joint_q_accessor() const
     {
       return joint_q;
     }
@@ -537,12 +499,11 @@ namespace pinocchio
     {
       return joint_q_transformed;
     }
-
-    TangentVector_t & joint_v_accessor()
+    TangentVectorTypeRef joint_v_accessor()
     {
       return joint_v;
     }
-    const TangentVector_t & joint_v_accessor() const
+    TangentVectorTypeConstRef joint_v_accessor() const
     {
       return joint_v;
     }
@@ -562,7 +523,6 @@ namespace pinocchio
       os << "  Mimicking joint data: " << m_jdata_mimicking.shortname() << std::endl;
     }
 
-  protected:
     RefJointData m_jdata_mimicking;
 
     /// \brief original configuration vector
@@ -573,8 +533,6 @@ namespace pinocchio
     TangentVector_t joint_v;
     /// \brief Transform velocity vector.
     TangentVector_t joint_v_transformed;
-
-  public:
     // data
     Constraint_t S;
   }; // struct JointDataMimicTpl
@@ -711,7 +669,6 @@ namespace pinocchio
 
     JointDataDerived createData() const
     {
-
       return JointDataDerived(
         m_jmodel_mimicking.createData(), scaling(), m_nqExtended, m_nvExtended);
     }
@@ -747,6 +704,7 @@ namespace pinocchio
       configVectorAffineTransform(
         m_jmodel_mimicking, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
       jdata.joint_v_transformed = m_scaling * jdata.joint_v;
+
       m_jmodel_mimicking.calc(
         jdata.m_jdata_mimicking, jdata.joint_q_transformed, jdata.joint_v_transformed);
     }

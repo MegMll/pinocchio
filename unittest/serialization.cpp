@@ -132,7 +132,6 @@ void generic_test(const T & object, const std::string & filename, const std::str
 
     delete &object_loaded;
   }
-
   // Load and save as XML
   const std::string xml_filename = filename + ".xml";
   saveToXML(object, xml_filename, tag_name);
@@ -140,7 +139,6 @@ void generic_test(const T & object, const std::string & filename, const std::str
   {
     T & object_loaded = *empty_contructor<T>();
     loadFromXML(object_loaded, xml_filename, tag_name);
-
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
@@ -607,7 +605,18 @@ struct TestJointData
   template<typename Scalar, int Options, template<typename, int> class JointCollection>
   void operator()(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> &)
   {
-    // Do nothing
+    typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
+    typedef typename JointModel::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointData;
+
+    JointModel jmodel = init<JointModel>::run();
+    JointData jdata = jmodel.createData();
+
+    Eigen::VectorXd q_random = Eigen::VectorXd::Random(jmodel.jmodel().nq());
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.jmodel().nv());
+    jmodel.calc(jdata, q_random, v_random);
+
+    test(jdata);
   }
 
   template<typename JointData>

@@ -62,24 +62,22 @@ namespace boost
         ar & make_nvp("StU", joint_data.StU());
       }
 
-      // template<
-      //   class Archive,
-      //   typename Scalar,
-      //   int Options,
-      //   template<typename, int> class JointCollection>
-      // void serialize(
-      //   Archive & ar,
-      //   pinocchio::JointDataBase<pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection>> &
-      //     joint_data,
-      //   const unsigned int /*version*/)
-      // {
-      //   typedef pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection> JointType;
-      //   fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint_data), version);
-      //   // ar & make_nvp("joint_q", joint_data.joint_q());
-      //   // ar & make_nvp("joint_v", joint_data.joint_v());
+      template<
+        class Archive,
+        typename Scalar,
+        int Options,
+        template<typename, int> class JointCollection>
+      void serialize(
+        Archive & ar,
+        pinocchio::JointDataBase<pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection>> &
+          joint_data,
+        const unsigned int /*version*/)
+      {
+        ar & make_nvp("joint_q", joint_data.joint_q());
+        ar & make_nvp("joint_v", joint_data.joint_v());
 
-      //   // ar & make_nvp("S", joint_data.S());
-      // }
+        ar & make_nvp("S", joint_data.S());
+      }
 
     } // namespace fix
 
@@ -235,7 +233,6 @@ namespace boost
     {
       typedef pinocchio::JointDataCompositeTpl<Scalar, Options, JointCollectionTpl> JointType;
       fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint), version);
-
       ::pinocchio::Serialize<JointType>::run(ar, joint);
     }
 
@@ -257,19 +254,19 @@ namespace boost
       class Archive,
       typename Scalar,
       int Options,
-      template<typename, int> typename JointCollection>
+      template<typename S, int O> class JointCollectionTpl>
     void serialize(
       Archive & ar,
-      pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection> & joint,
+      pinocchio::JointDataMimicTpl<Scalar, Options, JointCollectionTpl> & joint,
       const unsigned int version)
     {
-      // typedef pinocchio::JointDataMimicTpl<Scalar, Options, JointCollection> JointType;
-      // fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint), version);
+      ar & make_nvp("jdata", joint.jdata());
 
       ar & make_nvp("m_q_transform", joint.q_transformed());
       ar & make_nvp("m_v_transform", joint.v_transformed());
 
-      ar & make_nvp("jdata", joint.jdata());
+      typedef pinocchio::JointDataMimicTpl<Scalar, Options, JointCollectionTpl> JointType;
+      fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint), version);
     }
 
   } // namespace serialization
