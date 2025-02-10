@@ -270,17 +270,6 @@ BOOST_AUTO_TEST_CASE(test_transform_linear_revolute_unbounded)
     == ConfigVectorType(math::cos(theta * scaling + offset), math::sin(theta * scaling + offset)));
 }
 
-BOOST_AUTO_TEST_CASE(test_transform_no_affine)
-{
-  typedef JointModelRX::ConfigVector_t ConfigVectorType;
-  double scaling = 1., offset = 0.;
-
-  ConfigVectorType q0 = ConfigVectorType::Random();
-  ConfigVectorType q1;
-  NoAffineTransform::run(q0, scaling, offset, q1);
-  BOOST_CHECK(q0 == q1);
-}
-
 BOOST_AUTO_TEST_CASE(test_joint_generic_cast)
 {
   JointModelRX jmodel_ref;
