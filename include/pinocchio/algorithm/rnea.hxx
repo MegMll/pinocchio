@@ -99,6 +99,7 @@ namespace pinocchio
 
         const JointIndex i = jmodel.id();
         const JointIndex parent = model.parents[i];
+        // Mimic joint contributes to the torque of their primary and don't have their own
         jmodel.jointVelocityExtendedModelSelector(data.tau) += jdata.S().transpose() * data.f[i];
 
         if (parent > 0)
@@ -130,6 +131,7 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
 
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to take mimic joint into account
       data.tau.setZero();
       data.v[0].setZero();
       data.a_gf[0] = -model.gravity;
@@ -184,6 +186,7 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
 
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to take mimic joint into account
       data.tau.setZero();
       data.v[0].setZero();
       data.a_gf[0] = -model.gravity;
@@ -280,6 +283,7 @@ namespace pinocchio
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
 
+        // Mimic joint contributes to the nle of their primary and don't have their own
         jmodel.jointVelocityExtendedModelSelector(data.nle) += jdata.S().transpose() * data.f[i];
         if (parent > 0)
           data.f[parent] += data.liMi[i].act(data.f[i]);
@@ -307,6 +311,7 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
 
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to take mimic joint into account
       data.nle.setZero();
       data.v[0].setZero();
       data.a_gf[0] = -model.gravity;
@@ -388,7 +393,7 @@ namespace pinocchio
 
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
-
+        // Mimic joint contributes to the gravity of their primary and don't have their own
         jmodel.jointVelocityExtendedModelSelector(g) += jdata.S().transpose() * data.f[i];
         if (parent > 0)
           data.f[(size_t)parent] += data.liMi[i].act(data.f[i]);
@@ -413,6 +418,7 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
 
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to take mimic joint into account
       data.g.setZero();
       data.a_gf[0] = -model.gravity;
 
@@ -467,7 +473,7 @@ namespace pinocchio
           model.joints[i], data.joints[i], typename Pass1::ArgsType(model, data, q.derived()));
         data.f[i] -= fext[i];
       }
-
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to take mimic joint into account
       data.tau.setZero();
       typedef ComputeGeneralizedGravityBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
