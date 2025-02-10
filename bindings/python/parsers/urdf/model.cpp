@@ -131,7 +131,7 @@ namespace pinocchio
         "buildModelFromUrdf",
         static_cast<Model (*)(const bp::object &, const JointModel &, const bool)>(
           pinocchio::python::buildModelFromUrdf),
-        (bp::arg("urdf_filename"), bp::arg("root"), bp::arg("mimic") = false),
+        (bp::arg("urdf_filename"), bp::arg("root_joint"), bp::arg("mimic") = false),
         "Parse the URDF file given in input and return a pinocchio Model starting with the "
         "given root joint.");
 

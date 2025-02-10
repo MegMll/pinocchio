@@ -635,8 +635,8 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic,
-      const bool verbose)
+      const bool verbose,
+      const bool mimic)
     {
       if (rootJointName.empty())
         throw std::invalid_argument(
@@ -655,8 +655,8 @@ namespace pinocchio
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic,
-      const bool verbose)
+      const bool verbose,
+      const bool mimic)
     {
       return buildModel(filename, rootJoint, "root_joint", model, mimic, verbose);
     }
@@ -665,8 +665,8 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic,
-      const bool verbose)
+      const bool verbose,
+      const bool mimic)
     {
       details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor(model);
       if (verbose)
@@ -681,8 +681,8 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic,
-      const bool verbose)
+      const bool verbose,
+      const bool mimic)
     {
       if (rootJointName.empty())
         throw std::invalid_argument(
@@ -701,8 +701,8 @@ namespace pinocchio
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic,
-      const bool verbose)
+      const bool verbose,
+      const bool mimic)
     {
       return buildModelFromXML(xmlStream, rootJoint, "root_joint", model, mimic, verbose);
     }
@@ -711,8 +711,8 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStream,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic,
-      const bool verbose)
+      const bool verbose,
+      const bool mimic)
     {
       details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor(model);
       if (verbose)
@@ -727,8 +727,8 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic,
-      const bool verbose)
+      const bool verbose,
+      const bool mimic)
     {
       if (rootJointName.empty())
         throw std::invalid_argument(
@@ -748,8 +748,8 @@ namespace pinocchio
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic,
-      const bool verbose)
+      const bool verbose,
+      const bool mimic)
     {
       return buildModel(urdfTree, rootJoint, "root_joint", model, mimic, verbose);
     }
