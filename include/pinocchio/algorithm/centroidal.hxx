@@ -175,7 +175,8 @@ namespace pinocchio
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
 
       typedef CcrbaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
-      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to take mimic joint into account
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to
+      // take mimic joint into account
       data.Ag.setZero();
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
@@ -224,7 +225,8 @@ namespace pinocchio
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
 
       typedef CcrbaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
-      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to take mimic joint into account
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to
+      // take mimic joint into account
       data.Ag.setZero();
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
