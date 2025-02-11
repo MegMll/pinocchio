@@ -961,6 +961,11 @@ namespace pinocchio
           jmodel_input.jointVelocitySelector(input_model.damping);
       }
     }
+
+    output_model.mimic_joints.push_back(index_secondary);
+    size_t anc_prim, anc_sec;
+    findCommonAncestor(output_model, index_primary, index_secondary, anc_prim, anc_sec);
+    output_model.mimic_pairs.push_back(std::make_pair(anc_prim, anc_sec));
   }
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>

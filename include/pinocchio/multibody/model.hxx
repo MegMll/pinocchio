@@ -162,7 +162,7 @@ namespace pinocchio
       mimic_joints.push_back(jmodel.id());
 
       size_t anc_prim, anc_sec;
-      findCommonAncestor(*this, jmodel.id(), jmodel_->jmodel().id(), anc_sec, anc_prim);
+      findCommonAncestor(*this, jmodel_->jmodel().id(), jmodel.id(), anc_sec, anc_prim);
       mimic_pairs.push_back(std::make_pair(anc_prim, anc_sec));
     }
     return joint_id;
