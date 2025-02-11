@@ -135,6 +135,8 @@ namespace pinocchio
             "subtrees", &Model::subtrees,
             "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
 
+          .def_readwrite("mimic_joints", &Model::mimic_joints, "Vector of mimic joints indexes")
+
           .def_readwrite(
             "gravity", &Model::gravity,
             "Motion vector corresponding to the gravity field expressed in the world Frame.")

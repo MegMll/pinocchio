@@ -8,6 +8,7 @@
 
 #include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
+#include "pinocchio/algorithm/model.hpp"
 
 /// @cond DEV
 
@@ -156,6 +157,14 @@ namespace pinocchio
     supports.push_back(supports[parent]);
     supports[joint_id].push_back(joint_id);
 
+    if (auto jmodel_ = boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&jmodel))
+    {
+      mimic_joints.push_back(jmodel.id());
+
+      size_t anc_prim, anc_sec;
+      findCommonAncestor(*this, jmodel.id(), jmodel_->jmodel().id(), anc_sec, anc_prim);
+      mimic_pairs.push_back(std::make_pair(anc_prim, anc_sec));
+    }
     return joint_id;
   }
 
@@ -242,6 +251,8 @@ namespace pinocchio
     res.names = names;
     res.subtrees = subtrees;
     res.supports = supports;
+    res.mimic_joints = mimic_joints;
+    res.mimic_pairs = mimic_pairs;
     res.gravity = gravity.template cast<NewScalar>();
     res.name = name;
 
@@ -297,7 +308,9 @@ namespace pinocchio
     bool res = other.nq == nq && other.nv == nv && other.nvExtended == nvExtended
                && other.njoints == njoints && other.nbodies == nbodies && other.nframes == nframes
                && other.parents == parents && other.children == children && other.names == names
-               && other.subtrees == subtrees && other.gravity == gravity && other.name == name;
+               && other.subtrees == subtrees && other.mimic_joints == mimic_joints
+               && other.mimic_pairs == mimic_pairs && other.gravity == gravity
+               && other.name == name;
 
     res &= other.idx_qs == idx_qs && other.nqs == nqs && other.idx_vs == idx_vs && other.nvs == nvs
            && other.idx_vExtendeds == idx_vExtendeds && other.nvExtendeds == nvExtendeds;

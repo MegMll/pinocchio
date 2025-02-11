@@ -94,6 +94,9 @@ namespace pinocchio
     ///        It also handles the notion of co-tangent vector (e.g. torque, etc).
     typedef VectorXs TangentVectorType;
 
+    /// \brief Pairs of index for common ancestor of a mimic and its primary
+    typedef std::pair<size_t, size_t> MimicAncestorPair;
+
     /// \brief Dimension of the configuration vector representation.
     int nq;
 
@@ -146,6 +149,13 @@ namespace pinocchio
     /// \brief Vector of children index. Chidren of the *i*th joint, denoted *mu(i)* corresponds to
     /// the set (i==parents[k] for k in mu(i)).
     std::vector<IndexVector> children;
+
+    /// \brief Vector of mimic joints in the tree
+    std::vector<JointIndex> mimic_joints;
+
+    /// \brief Vector of mimic joints and its primary common ancestors. It corresponds to the index
+    /// in their respective model.supports.
+    std::vector<MimicAncestorPair> mimic_pairs;
 
     /// \brief Name of the joints.
     std::vector<std::string> names;
