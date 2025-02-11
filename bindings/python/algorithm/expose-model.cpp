@@ -84,7 +84,7 @@ namespace pinocchio
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    ModelTpl<Scalar, Options, JointCollectionTpl> transformJointIntoMimic(
+    ModelTpl<Scalar, Options, JointCollectionTpl> transformJointIntoMimic_proxy(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & input_model,
       const JointIndex & index_primary,
       const JointIndex & index_secondary,
@@ -194,9 +194,7 @@ namespace pinocchio
 
       bp::def(
         "transformJointIntoMimic",
-        (Model(*)(
-          const Model &, const JointIndex &, const JointIndex &, const double &, const double &))(
-          transformJointIntoMimic<double, 0, JointCollectionDefaultTpl>),
+        transformJointIntoMimic_proxy<double, 0, JointCollectionDefaultTpl>,
         bp::args("input_model", "index_primary", "index_secondary", "scaling", "offset"),
         "Transform of a joint of the model into a mimic joint. Keep the type of the joint as it "
         "was previously. \n\n"
