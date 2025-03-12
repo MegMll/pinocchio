@@ -85,6 +85,7 @@ function(PINOCCHIO_TARGET target_name)
 
   add_library(${LIB_NAME} ${LIBRARY_TYPE})
   target_link_libraries(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} ${PROJECT_NAME}_headers)
+  # target_precompile_headers(${LIB_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/pinocchio-default-pch.hpp)
 
   # On CMake 3.16 we can't call target_sources or set_target_properties with LINKER_LANGUAGE,
   # INSTALL_RPATH and VERSION on an INTERFACE target.
