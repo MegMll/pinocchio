@@ -131,6 +131,11 @@ jobs:
         run: |
           cmake --build build --target uninstall
 
+      - name: Display ccache statistics
+        shell: bash -el {0}
+        run: |
+          ccache -s
+
   check:
     if: always()
     name: check-macos-linux-windows-pixi

@@ -204,6 +204,10 @@ jobs:
           cd build
           make uninstall
 
+      - name: Display ccache statistics
+        run: |
+          ccache -s
+
   check:
     if: always()
     name: check-linux-apt
