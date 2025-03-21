@@ -206,7 +206,8 @@ jobs:
 
       - name: Display ccache statistics
         run: |
-          ccache -sv
+          # TODO: Add -v option when we drop ubuntu-20.04
+          ccache -s
 
   check:
     if: always()
