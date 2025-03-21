@@ -61,8 +61,10 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   # * -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
   # * -Wcomment as latex equations have multi-line comments.
   # * -Wself-assign-overloaded as bp::self operations trigger this (Clang only).
+  # * - -fno-pch-timesptamp for windows clang so clang does not put timestamps for pch
   cxx_flags_by_compiler_frontend(
     GNU -Wno-conversion -Wno-comment -Wno-self-assign-overloaded
+    MSVC -Xclang -fno-pch-timestamp
     OUTPUT PRIVATE_OPTIONS
     FILTER)
   target_compile_options(${PYTHON_LIB_NAME} PRIVATE ${PRIVATE_OPTIONS})
