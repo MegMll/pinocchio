@@ -206,7 +206,7 @@ jobs:
 
       - name: Display ccache statistics
         run: |
-          ccache -s
+          ccache -sv
 
   check:
     if: always()

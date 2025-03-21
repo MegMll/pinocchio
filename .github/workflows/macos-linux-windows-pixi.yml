@@ -129,12 +129,12 @@ jobs:
       - name: Uninstall Pinocchio
         shell: bash -el {0}
         run: |
-          cmake --build build --target uninstall
+          pixi run -e ${{ matrix.environment }} cmake --build build --target uninstall
 
       - name: Display ccache statistics
         shell: bash -el {0}
         run: |
-          ccache -s
+          pixi run -e ${{ matrix.environment }} ccache -sv
 
   check:
     if: always()
