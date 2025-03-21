@@ -126,7 +126,8 @@ jobs:
           export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
           export CMAKE_PREFIX_PATH=/opt/openrobots/lib
-
+          ccache --set-config sloppiness=time_macros,pch_defines
+          
           mkdir build
           cd build
           cmake .. \

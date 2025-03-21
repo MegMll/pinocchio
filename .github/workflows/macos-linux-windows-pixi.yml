@@ -122,6 +122,7 @@ jobs:
           pixi run -e ${{ matrix.environment }} configure \
             -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
             ${{ steps.get_labels.outputs.cmakeFlags }}
+          pixi run -e ${{ matrix.environment }} ccache --set-config sloppiness=time_macros,pch_defines
           pixi run -e ${{ matrix.environment }} cmake --build build --target all
           pixi run -e ${{ matrix.environment }} ctest --test-dir build --output-on-failure
           pixi run -e ${{ matrix.environment }} cmake --install build
