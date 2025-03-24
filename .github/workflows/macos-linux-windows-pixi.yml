@@ -123,7 +123,6 @@ jobs:
             -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
             ${{ steps.get_labels.outputs.cmakeFlags }}
           # Apply advise from https://ccache.dev/manual/latest.html#_precompiled_headers
-          pixi run -e ${{ matrix.environment }} ccache --set-config sloppiness=time_macros,pch_defines,include_file_mtime,include_file_ctime 
           export CCACHE_DEBUG=1
           mkdir ${GITHUB_WORKSPACE}/ccache_logs
           export CCACHE_DEBUGDIR=${GITHUB_WORKSPACE}/ccache_logs
