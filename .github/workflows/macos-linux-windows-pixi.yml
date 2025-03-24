@@ -127,6 +127,7 @@ jobs:
           export CCACHE_DEBUG=1
           mkdir ${GITHUB_WORKSPACE}/ccache_logs
           export CCACHE_DEBUGDIR=${GITHUB_WORKSPACE}/ccache_logs
+          export CCACHE_COMPILERCHECK=content
           pixi run -e ${{ matrix.environment }} cmake --build build --target all
           pixi run -e ${{ matrix.environment }} ctest --test-dir build --output-on-failure
           pixi run -e ${{ matrix.environment }} cmake --install build
