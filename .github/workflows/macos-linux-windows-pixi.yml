@@ -143,12 +143,12 @@ jobs:
         run: |
           pixi run -e ${{ matrix.environment }} ccache -sv
 
-      - name: Start SSH session
-        uses: lhotari/action-upterm@v1
+      - name: Upload logs directory
+        uses: actions/upload-artifact@v3
         with:
-          limit-access-to-actor: true
-          wait-timeout-minutes: 30
-
+          name: ccache-logs
+          path: /home/runner/work/pinocchio/pinocchio/ccache_logs
+        
   check:
     if: always()
     name: check-macos-linux-windows-pixi
