@@ -118,6 +118,7 @@ jobs:
           CMAKE_BUILD_PARALLEL_LEVEL: 2
           PINOCCHIO_BUILD_TYPE: ${{ matrix.build_type }}
         run: |
+          pixi run -e ${{ matrix.environment }} ccache -z
           # Launch configure but overwrite default options
           pixi run -e ${{ matrix.environment }} configure \
             -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
@@ -128,7 +129,6 @@ jobs:
           export CCACHE_DEBUGDIR=${GITHUB_WORKSPACE}/ccache_logs
           export CCACHE_COMPILERCHECK=content
           export CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime,pch_defines,time_macros
-          export CMAKE_DISABLE_PRECOMPILE_HEADERS=ON
           export CCACHE_LOGFILE=${GITHUB_WORKSPACE}/ccache_logs/log_file.log
           pixi run -e ${{ matrix.environment }} cmake --build build --target all
           pixi run -e ${{ matrix.environment }} ctest --test-dir build --output-on-failure
@@ -147,14 +147,9 @@ jobs:
       - name: Upload logs directory
         uses: actions/upload-artifact@v4
         with:
-          name: ccache-logs-${{ matrix.environment }}
+          name: ccache-logs-${{matrix.os}}-${{ matrix.environment }}
           path: ${{ github.workspace }}/ccache_logs
           
-      - name: Start SSH session
-        uses: lhotari/action-upterm@v1
-        with:
-          wait-timeout-minutes: 30
-
   check:
     if: always()
     name: check-macos-linux-windows-pixi
