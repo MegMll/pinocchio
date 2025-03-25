@@ -144,7 +144,7 @@ jobs:
           pixi run -e ${{ matrix.environment }} ccache -sv
 
       - name: Upload logs directory
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ccache-logs
           path: /home/runner/work/pinocchio/pinocchio/ccache_logs
