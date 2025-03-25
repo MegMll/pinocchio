@@ -129,6 +129,7 @@ jobs:
           export CCACHE_COMPILERCHECK=content
           export CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime,pch_defines,time_macros
           export CMAKE_DISABLE_PRECOMPILE_HEADERS=ON
+          export CCACHE_LOGFILE=${GITHUB_WORKSPACE}/ccache_logs/log_file.log
           pixi run -e ${{ matrix.environment }} cmake --build build --target all
           pixi run -e ${{ matrix.environment }} ctest --test-dir build --output-on-failure
           pixi run -e ${{ matrix.environment }} cmake --install build
