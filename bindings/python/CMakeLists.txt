@@ -167,8 +167,8 @@ if(BUILD_PYTHON_INTERFACE)
   # precompiling headers for the main library's `pinocchio_default` target, but the time gain there
   # was negligible compared to the time gained in the Python bindings. We also precompile headers
   # for other scalar types as well.
-  # target_precompile_headers(${PYWRAP}_default PRIVATE
-  #                           ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp)
+  target_precompile_headers(${PYWRAP}_default PRIVATE
+                            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp)
   set(PYTHON_LIB_NAME "${PYWRAP}_default")
   set(STUBGEN_DEPENDENCIES "${PYWRAP}_default")
 
