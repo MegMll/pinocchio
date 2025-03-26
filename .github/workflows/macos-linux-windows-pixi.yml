@@ -40,6 +40,9 @@ jobs:
       CCACHE_DIR: ${GITHUB_WORKSPACE}/.ccache
       CCACHE_COMPRESS: true
       CCACHE_COMPRESSLEVEL: 5
+      # Since pixi will install a compiler, the compiler mtime will be changed.
+      # This can invalidate the cache (https://ccache.dev/manual/latest.html#config_compiler_check)
+      CCACHE_COMPILERCHECK: content
       BUILD_ADVANCED_TESTING: ${{ matrix.BUILD_ADVANCED_TESTING }}
 
     strategy:
@@ -127,7 +130,6 @@ jobs:
           export CCACHE_DEBUG=1
           mkdir ${GITHUB_WORKSPACE}/ccache_logs
           export CCACHE_DEBUGDIR=${GITHUB_WORKSPACE}/ccache_logs
-          export CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime,pch_defines,time_macros
           export CCACHE_LOGFILE=${GITHUB_WORKSPACE}/ccache_logs/log_file.log
           pixi run -e ${{ matrix.environment }} cmake --build build --target all
           pixi run -e ${{ matrix.environment }} ctest --test-dir build --output-on-failure
