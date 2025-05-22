@@ -5,14 +5,18 @@
 #ifndef __pinocchio_multibody_model_configuration_converter_hpp__
 #define __pinocchio_multibody_model_configuration_converter_hpp__
 
-#include "pinocchio/multibody/model-graph.hpp"
+#include "pinocchio/parsers/graph/model-graph.hpp"
 
 #include "pinocchio/multibody/joint/fwd.hpp"
-#include <boost/variant/detail/apply_visitor_unary.hpp>
+
+#include <boost/variant.hpp>
+
+#include <unordered_map>
 
 namespace pinocchio
 {
 
+  /// Convert configuration or tangent vector from two model with different root.
   template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
   struct ModelConfigurationConverterTpl
   {
@@ -40,9 +44,17 @@ namespace pinocchio
 
     struct JointMapping
     {
+      JointMapping() = default;
+      JointMapping(JointModelVariant joint, bool same_direction)
+      : joint(joint)
+      , direction_sign(same_direction ? Scalar(1.) : Scalar(-1.))
+      , same_direction(same_direction)
+      {
+      }
+
       JointModelVariant joint;
       Scalar direction_sign;
-      bool forward;
+      bool same_direction;
     };
 
     ModelConfigurationConverterTpl() = default;
@@ -56,6 +68,8 @@ namespace pinocchio
     {
     }
 
+    /// Convert \p q_source configuration vector from source model to \p q_target configuration
+    /// vector from target model.
     template<typename ConfigVectorType>
     void convertConfiguration(
       const Eigen::MatrixBase<ConfigVectorType> & q_source,
@@ -66,16 +80,94 @@ namespace pinocchio
     std::vector<JointMapping> joint_mapping;
   };
 
+  namespace internal
+  {
+    /// Record joint direction when walking in a graph
+    struct RecordJointDirectionVisitor : public boost::default_dfs_visitor
+    {
+      typedef std::unordered_map<std::string, bool> JointNameToDirection;
+
+      RecordJointDirectionVisitor(JointNameToDirection * joint_forward)
+      : joint_forward(joint_forward)
+      {
+      }
+
+      void tree_edge(ModelGraph::EdgeDesc edge_desc, const ModelGraph::Graph & g) const
+      {
+        const ModelGraphEdge & edge = g[edge_desc];
+        (*joint_forward)[edge.name] = !edge.reverse;
+      }
+
+      /// Joint name to a bool that hold true if the joint is in forward direction
+      JointNameToDirection * joint_forward;
+    };
+  } // namespace internal
+
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl> createConverter(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model_source,
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model_target,
     const ModelGraph & graph)
   {
+    typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
+      ModelConfigurationConverter;
+    typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
+    typedef typename ModelConfigurationConverter::TangentMapping TangentMapping;
+    typedef typename ModelConfigurationConverter::JointMapping JointMapping;
+
+    std::vector<ConfigurationMapping> configuration_mapping;
+    std::vector<TangentMapping> tangent_mapping;
+    std::vector<JointMapping> joint_mapping;
+
+    // Retrieve root frame
+    const auto & root_frame_source = model_source.frames[1];
+    const auto & root_frame_target = model_target.frames[1];
+
+    // Retrieve Model graph root vertex
+    const auto & root_vertex_source = graph.name_to_vertex.find(root_frame_source.name);
+    const auto & root_vertex_target = graph.name_to_vertex.find(root_frame_target.name);
+
+    // Store joint direction for each root vertex
+    std::vector<boost::default_color_type> colors(
+      boost::num_vertices(graph.g), boost::default_color_type::white_color);
+    internal::RecordJointDirectionVisitor::JointNameToDirection joint_direction_source;
+    internal::RecordJointDirectionVisitor::JointNameToDirection joint_direction_target;
+    boost::depth_first_search(
+      graph.g, internal::RecordJointDirectionVisitor(&joint_direction_source), colors.data(),
+      root_vertex_source->second);
+    colors.assign(colors.size(), boost::default_color_type::white_color);
+    boost::depth_first_search(
+      graph.g, internal::RecordJointDirectionVisitor(&joint_direction_target), colors.data(),
+      root_vertex_target->second);
+
+    // Construct the mapping between source and target configuration and tangent vector
+    for (std::size_t index_source = 1; index_source < model_source.joints.size(); ++index_source)
+    {
+      ConfigurationMapping configuration;
+      TangentMapping tangent;
+      const std::string & joint_name = model_source.names[index_source];
+      auto index_target = model_target.getJointId(joint_name);
+
+      configuration.idx_qs_source = model_source.idx_qs[index_source];
+      configuration.idx_qs_target = model_target.idx_qs[index_target];
+      configuration.nq = model_source.nqs[index_source];
+
+      tangent.idx_vs_source = model_source.idx_vs[index_source];
+      tangent.idx_vs_target = model_target.idx_vs[index_target];
+      tangent.nv = model_source.nvs[index_source];
+
+      configuration_mapping.push_back(configuration);
+      tangent_mapping.push_back(tangent);
+      joint_mapping.emplace_back(
+        model_source.joints[index_source],
+        joint_direction_source.at(joint_name) == joint_direction_target.at(joint_name));
+    }
+
+    return ModelConfigurationConverter(configuration_mapping, tangent_mapping, joint_mapping);
   }
 
   // TODO: put in a .hxx
-  // TODO: construct mapping
+  // TODO: manage root joint in converter
   // TODO: missing joints
   // TODO: tangent space
   // TODO: TU
@@ -100,7 +192,7 @@ namespace pinocchio
     typedef void ReturnType;
 
     const Eigen::MatrixBase<ConfigVectorType> & q_source;
-    const Eigen::MatrixBase<ConfigVectorType> & q_target;
+    ConfigVectorType & q_target;
     const ConfigurationMapping & configuration;
     const JointMapping & joint;
 
@@ -110,7 +202,7 @@ namespace pinocchio
       const ConfigurationMapping & configuration,
       const JointMapping & joint)
     : q_source(q_source)
-    , q_target(q_target)
+    , q_target(PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorType, q_target))
     , configuration(configuration)
     , joint(joint)
     {
@@ -155,7 +247,7 @@ namespace pinocchio
 
     ReturnType operator()(const JointModelSphericalZYXTpl<Scalar, Options> &) const
     {
-      if (joint.forward)
+      if (joint.same_direction)
       {
       }
       else
