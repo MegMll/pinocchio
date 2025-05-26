@@ -583,6 +583,44 @@ BOOST_AUTO_TEST_CASE(test_tree_robot)
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_right_leg")] == m1.getJointId("torso_to_left_leg"));
 }
 
+BOOST_AUTO_TEST_CASE(test_other_frame)
+{
+  pinocchio::ModelGraph g = buildReversableModelGraph(
+    pinocchio::JointGraphVariant(pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX())));
+
+  g.addFrame("sensor1", pinocchio::SensorFrameGraph());
+
+  /////////////////////////////////////// Joints
+  g.addJoint(
+    "body2_to_sensor1", pinocchio::JointFixedGraph(), "body2",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "sensor1",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
+
+  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+
+  pinocchio::Data d_f(m_forward);
+  Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
+  q[0] = M_PI / 2;
+  pinocchio::framesForwardKinematics(m_forward, d_f, q);
+
+  //////////////////////////////////// Reverse model
+  pinocchio::Model m_reverse =
+    g.buildModel("sensor1", d_f.oMf[m_forward.getFrameId("sensor1", pinocchio::SENSOR)]);
+  pinocchio::Data d_reverse(m_reverse);
+  pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
+
+  BOOST_CHECK(SE3isApprox(
+    d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
+    d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
+
+  g.addFrame("sensor2", pinocchio::SensorFrameGraph());
+  BOOST_CHECK_THROW(
+    g.addJoint(
+      "sensor2_sensor1", pinocchio::JointFixedGraph(), "sensor1", pinocchio::SE3::Identity(),
+      "sensor2", pinocchio::SE3::Identity()),
+    std::runtime_error);
+}
+
 /// @brief  Test the algorithm to merge 2 graphs
 BOOST_AUTO_TEST_CASE(test_merge_graphs)
 {
