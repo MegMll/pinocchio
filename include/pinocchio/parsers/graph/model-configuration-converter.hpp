@@ -101,6 +101,19 @@ namespace pinocchio
       /// Joint name to a bool that hold true if the joint is in forward direction
       JointNameToDirection * joint_forward;
     };
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    FrameIndex findRootBodyFrame(const ModelTpl<Scalar, Options, JointCollectionTpl> & model)
+    {
+      for (std::size_t i = 0; i < model.frames.size(); ++i)
+      {
+        if (model.frames[i].type == FrameType::BODY)
+        {
+          return i;
+        }
+      }
+      PINOCCHIO_THROW_PRETTY(std::runtime_error, "findRootBodyFrame - No BODY frame");
+    }
   } // namespace internal
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -119,9 +132,15 @@ namespace pinocchio
     std::vector<TangentMapping> tangent_mapping;
     std::vector<JointMapping> joint_mapping;
 
+    auto root_frame_index_source = internal::findRootBodyFrame(model_source);
+    auto root_frame_index_target = internal::findRootBodyFrame(model_target);
+
     // Retrieve root frame
-    const auto & root_frame_source = model_source.frames[1];
-    const auto & root_frame_target = model_target.frames[1];
+    const auto & root_frame_source = model_source.frames[root_frame_index_source];
+    const auto & root_frame_target = model_target.frames[root_frame_index_target];
+
+    // Is root joint fixed ?
+    bool is_fixed_base_source = root_frame_source.parentJoint == 0;
 
     // Retrieve Model graph root vertex
     const auto & root_vertex_source = graph.name_to_vertex.find(root_frame_source.name);
@@ -140,8 +159,15 @@ namespace pinocchio
       graph.g, internal::RecordJointDirectionVisitor(&joint_direction_target), colors.data(),
       root_vertex_target->second);
 
-    // Construct the mapping between source and target configuration and tangent vector
-    for (std::size_t index_source = 1; index_source < model_source.joints.size(); ++index_source)
+    // Construct the mapping between source and target configuration and tangent vector.
+    // If source model doesn't have a fixed base, we skip the first joint (usually a FF joint)
+    // that can not be in the target model.
+    std::size_t index_source = 1;
+    if (!is_fixed_base_source)
+    {
+      index_source = 2;
+    }
+    for (; index_source < model_source.joints.size(); ++index_source)
     {
       ConfigurationMapping configuration;
       TangentMapping tangent;
@@ -167,7 +193,7 @@ namespace pinocchio
   }
 
   // TODO: put in a .hxx
-  // TODO: manage root joint in converter
+  // TODO: check configuration vector size
   // TODO: missing joints
   // TODO: tangent space
   // TODO: TU
