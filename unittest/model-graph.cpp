@@ -609,6 +609,9 @@ BOOST_AUTO_TEST_CASE(test_other_frame)
   pinocchio::Data d_reverse(m_reverse);
   pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
 
+  BOOST_CHECK(m_forward.frames.size() == 5); // All the bodies (2), joints (2) and one sensor
+  BOOST_CHECK(m_reverse.frames.size() == 5); // same
+
   BOOST_CHECK(SE3isApprox(
     d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
     d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
