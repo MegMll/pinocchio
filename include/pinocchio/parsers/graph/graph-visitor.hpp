@@ -263,79 +263,50 @@ namespace pinocchio
     {
     }
 
-    void addJointToModel(const JointModel & joint_model)
+    template<typename JointGraph, typename FrameGraph>
+    void operator()(const JointGraph & /*joint*/, const FrameGraph & /*f_*/)
     {
+      PINOCCHIO_THROW_PRETTY(
+        std::runtime_error, "Graph - Joint linking frame to model is not possible ?");
+    }
+
+    template<typename JointGraph>
+    void operator()(const JointGraph & joint, const BodyFrameGraph & b_f)
+    {
+      if (source_vertex.frame.which() != 0) // body frame is index 0 in variant
+        PINOCCHIO_THROW_PRETTY(
+          std::runtime_error, "Graph -Invalid joint between a body and a non body frame.");
+
       const pinocchio::SE3 & joint_pose = edge.out_to_joint;
       const pinocchio::SE3 & body_pose = edge.joint_to_in;
 
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, joint_model, previous_body.placement * joint_pose, edge.name);
+        previous_body.parentJoint, cjm(joint), previous_body.placement * joint_pose, edge.name);
 
       model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // check this
+      model.appendBodyToJoint(j_id, b_f.inertia); // check this
       model.addBodyFrame(target_vertex.name, j_id, body_pose);
     }
 
-    void operator()(const JointRevoluteGraph & joint)
+    template<typename FrameGraph>
+    void operator()(const JointFixedGraph & /*joint*/, const FrameGraph & f_)
     {
-      addJointToModel(cjm(joint));
+      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+
+      model.addFrame(Frame(
+        target_vertex.name, previous_body.parentJoint,
+        previous_body.placement * edge.out_to_joint * edge.joint_to_in, f_.f_type));
     }
 
-    void operator()(const JointRevoluteUnboundedGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointPrismaticGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointHelicalGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointFreeFlyerGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointSphericalGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointSphericalZYXGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointPlanarGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointTranslationGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointUniversalGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointCompositeGraph & joint)
-    {
-      addJointToModel(cjm(joint));
-    }
-
-    void operator()(const JointMimicGraph & joint)
+    void operator()(const JointMimicGraph & joint, const BodyFrameGraph & b_f)
     {
       if (edge.reverse)
         PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - JointMimic cannot be reversed.");
+
+      if (source_vertex.frame.which() != 0) // body frame is index 0 in variant
+        PINOCCHIO_THROW_PRETTY(
+          std::runtime_error, "Graph - Invalid joint between a body and a non body frame.");
 
       if (!model.existJointName(joint.primary_name))
         PINOCCHIO_THROW_PRETTY(
@@ -343,18 +314,74 @@ namespace pinocchio
           "Graph - The parent joint of the mimic node is not in the kinematic tree");
 
       auto primary_joint = model.joints[model.getJointId(joint.primary_name)];
-      addJointToModel(JointModelMimic(cjm(joint), primary_joint, joint.scaling, joint.offset));
+
+      const pinocchio::SE3 & joint_pose = edge.out_to_joint;
+      const pinocchio::SE3 & body_pose = edge.joint_to_in;
+
+      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+      JointIndex j_id = model.addJoint(
+        previous_body.parentJoint,
+        JointModelMimic(cjm(joint), primary_joint, joint.scaling, joint.offset),
+        previous_body.placement * joint_pose, edge.name);
+
+      model.addJointFrame(j_id);
+      model.appendBodyToJoint(j_id, b_f.inertia); // check this
+      model.addBodyFrame(target_vertex.name, j_id, body_pose);
     }
 
-    void operator()(const JointFixedGraph & /*joint*/)
+    void operator()(const JointFixedGraph & /*joint*/, const BodyFrameGraph & b_f)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
-      // Don't add a new joint in the model — create the fixed_joint frame
-      FrameIndex f_id = model.addFrame(Frame(
-        edge.name, previous_body.parentJoint, previous_body.placement * edge.out_to_joint,
-        FIXED_JOINT, target_vertex.inertia));
-      model.addBodyFrame(
-        target_vertex.name, previous_body.parentJoint, edge.joint_to_in, (int)f_id);
+      if (source_vertex.frame.which() != 0) // body frame is index 0 in variant
+      {
+        FrameIndex prev_f_id = model.getFrameId(source_vertex.name, OP_FRAME);
+        if (prev_f_id == model.frames.size())
+          prev_f_id = model.getFrameId(source_vertex.name, SENSOR);
+
+        const Frame & previous_frame = model.frames[prev_f_id];
+        model.addFrame(Frame(
+          target_vertex.name, previous_frame.parentJoint,
+          previous_frame.placement * edge.out_to_joint * edge.joint_to_in, BODY, b_f.inertia));
+      }
+      else
+      {
+        const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+        // Don't add a new joint in the model — create the fixed_joint frame
+        FrameIndex f_id = model.addFrame(Frame(
+          edge.name, previous_body.parentJoint, previous_body.placement * edge.out_to_joint,
+          FIXED_JOINT, b_f.inertia));
+        model.addBodyFrame(
+          target_vertex.name, previous_body.parentJoint, edge.joint_to_in, (int)f_id);
+      }
+    }
+  };
+
+  struct AddRootFrameVisitor : public boost::static_visitor<>
+  {
+    const ModelGraphVertex vertex;
+    const pinocchio::SE3 position;
+    const JointIndex j;
+    Model & model;
+
+    AddRootFrameVisitor(
+      const ModelGraphVertex & v, const JointIndex & j_id, const pinocchio::SE3 & pose, Model & m)
+    : vertex(v)
+    , j(j_id)
+    , position(pose)
+    , model(m)
+    {
+    }
+
+    void operator()(const BodyFrameGraph & b_f) const
+    {
+      const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
+      model.addFrame(Frame(vertex.name, j, f_id, position, BODY, b_f.inertia));
+    }
+
+    template<typename FrameGraph>
+    void operator()(const FrameGraph & f_) const
+    {
+      const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
+      model.addFrame(Frame(vertex.name, j, f_id, position, f_.f_type));
     }
   };
 
