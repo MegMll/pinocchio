@@ -7,7 +7,7 @@
 
 namespace pinocchio
 {
-  void ModelGraph::addBody(const std::string & vertex_name, const Inertia & inertia)
+  void ModelGraph::addFrame(const std::string & vertex_name, const FrameGraphVariant & frame)
   {
     if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
       PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - vertex already in graph");
@@ -15,8 +15,8 @@ namespace pinocchio
     auto vertex_desc = boost::add_vertex(g);
     ModelGraphVertex & vertex = g[vertex_desc];
     vertex.name = vertex_name;
-    vertex.inertia = inertia;
 
+    vertex.frame = frame;
     name_to_vertex.insert({vertex_name, vertex_desc});
   }
 
@@ -38,8 +38,11 @@ namespace pinocchio
     {
       PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - in_vertex does not exist");
     }
-    auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, g);
+    if (g[out_vertex->second].frame.which() != 0)
+      PINOCCHIO_THROW_PRETTY(
+        std::runtime_error, "Graph - sensor and op_frame can only be appened to bodies");
 
+    auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, g);
     if (!edge_desc.second)
     {
       PINOCCHIO_THROW_PRETTY(
@@ -91,15 +94,14 @@ namespace pinocchio
       JointIndex j_id = model.addJoint(
         0, boost::apply_visitor(CreateJointModel(), *root_joint), root_position, root_joint_name);
       model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, root_vertex_data.inertia);
-      model.addBodyFrame(root_vertex_data.name, j_id);
+
+      AddRootFrameVisitor afv(root_vertex_data, j_id, pinocchio::SE3::Identity(), model);
+      boost::apply_visitor(afv, root_vertex_data.frame);
     }
     else // Fixed to world
     {
-      const Frame & parent_frame = model.frames[0];
-      model.addFrame(Frame(
-        root_vertex_data.name, parent_frame.parentJoint, 0, parent_frame.placement * root_position,
-        BODY, root_vertex_data.inertia));
+      AddRootFrameVisitor afv(root_vertex_data, (JointIndex)0, root_position, model);
+      boost::apply_visitor(afv, root_vertex_data.frame);
     }
 
     // Go through rest of the graph
@@ -112,7 +114,7 @@ namespace pinocchio
       const ModelGraphVertex & target_vertex = g[target_vertex_desc];
 
       AddJointModel visitor(source_vertex, target_vertex, edge, model);
-      boost::apply_visitor(visitor, edge.joint);
+      boost::apply_visitor(visitor, edge.joint, target_vertex.frame);
     }
     return model;
   }
@@ -126,7 +128,7 @@ namespace pinocchio
       const auto & old_v = pair.second;
       const auto & vertex_data = g.g[old_v];
 
-      this->addBody(prefix + name, vertex_data.inertia);
+      this->addFrame(prefix + name, vertex_data.frame);
     }
 
     // Copy all edges from g

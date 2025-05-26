@@ -12,6 +12,7 @@
 #include "pinocchio/spatial/se3.hpp"
 
 #include "pinocchio/parsers/graph/joints.hpp"
+#include "pinocchio/parsers/graph/frames.hpp"
 
 #include <Eigen/Core>
 
@@ -37,11 +38,13 @@ namespace pinocchio
     /// @brief Unique name of the body.
     std::string name;
 
+    FrameGraphVariant frame;
+
     /// @brief Spatial inertia of the body, expressed at its center of mass (CoM).
     ///
     /// Note: If the joint is reversed in the model graph, the body frame pose
     /// is kept the same in the model, so this inertia remains valid.
-    Inertia inertia;
+    // Inertia inertia;
   };
 
   /// @brief Represents an edge (joint) in the model graph.
@@ -81,8 +84,8 @@ namespace pinocchio
     /// \brief Add a new vertex (body) to the graph
     ///
     /// \param[in] vertex_name Name of the vertex
-    /// \param[in] inertia pinocchio inertia of the body taken at the Center of Mass of said body.
-    void addBody(const std::string & vertex_name, const Inertia & inertia);
+    /// \param[in] frame which type of frame will be added to the model (op_frame, sensor, body)
+    void addFrame(const std::string & vertex_name, const FrameGraphVariant & frame);
 
     /// \brief Add edges (joint) to the graph. Since it's a bidirectional graph,
     /// edge and its reverse are added to the graph.

@@ -14,10 +14,10 @@ pinocchio::ModelGraph buildReversableModelGraph(const pinocchio::JointGraphVaria
 {
   pinocchio::ModelGraph g;
   //////////////////////////////////////// Bodies
-  g.addBody("body1", pinocchio::Inertia::Identity());
-  g.addBody(
-    "body2",
-    pinocchio::Inertia(4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
+  g.addFrame("body1", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame(
+    "body2", pinocchio::BodyFrameGraph(pinocchio::Inertia(
+               4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero())));
 
   /////////////////////////////////////// Joints
   pinocchio::SE3 poseBody1 =
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_add_vertex)
 {
   pinocchio::ModelGraph g;
 
-  g.addBody("body1", pinocchio::Inertia::Identity());
+  g.addFrame("body1", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
   BOOST_CHECK(g.name_to_vertex.find("body1") != g.name_to_vertex.end());
 }
 
@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE(test_add_edges)
 {
   pinocchio::ModelGraph g;
   ////////////////////////////////////// Bodies
-  g.addBody("body1", pinocchio::Inertia::Identity());
-  g.addBody("body2", pinocchio::Inertia::Identity());
+  g.addFrame("body1", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
 
   /////////////////////////////////////// Joints
   g.addJoint(
@@ -127,13 +127,9 @@ BOOST_AUTO_TEST_CASE(test_fixed_joint)
 {
   pinocchio::ModelGraph g;
   //////////////////////////////////////// Bodies
-  g.addBody("body1", pinocchio::Inertia::Identity());
-  g.addBody(
-    "body2",
-    pinocchio::Inertia(4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
-  g.addBody(
-    "body3", pinocchio::Inertia(
-               3., pinocchio::Inertia::Vector3(0., -3, -2.), pinocchio::Symmetric3::Zero()));
+  g.addFrame("body1", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body3", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
 
   /////////////////////////////////////// Joints
   g.addJoint(
@@ -160,9 +156,9 @@ BOOST_AUTO_TEST_CASE(test_mimic_joint)
 {
   pinocchio::ModelGraph g;
   //////////////////////////////////////// Bodies
-  g.addBody("body1", pinocchio::Inertia::Identity());
-  g.addBody("body2", pinocchio::Inertia::Identity());
-  g.addBody("body3", pinocchio::Inertia::Identity());
+  g.addFrame("body1", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body3", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
 
   /////////////////////////////////////// Joints
   pinocchio::SE3 pose_body1_joint1(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
@@ -491,9 +487,9 @@ BOOST_AUTO_TEST_CASE(test_reverse_mimic)
 {
   pinocchio::ModelGraph g;
   //////////////////////////////////////// Bodies
-  g.addBody("body1", pinocchio::Inertia::Identity());
-  g.addBody("body2", pinocchio::Inertia::Identity());
-  g.addBody("body3", pinocchio::Inertia::Identity());
+  g.addFrame("body1", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body3", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
 
   /////////////////////////////////////// Joints
   pinocchio::SE3 pose_body1_joint1(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
@@ -524,11 +520,11 @@ BOOST_AUTO_TEST_CASE(test_inertia)
   //////////////////////////////////////// Bodies
   pinocchio::Inertia inert = pinocchio::Inertia(
     1., pinocchio::Inertia::Vector3(0., -2., 1.), pinocchio::Symmetric3::Random());
-  g.addBody("body1", inert);
-  g.addBody(
-    "body2", pinocchio::Inertia(
-               4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Random()));
-  g.addBody("body3", inert);
+  g.addFrame("body1", pinocchio::BodyFrameGraph(inert));
+  g.addFrame(
+    "body2", pinocchio::BodyFrameGraph(pinocchio::Inertia(
+               4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Random())));
+  g.addFrame("body3", pinocchio::BodyFrameGraph(inert));
 
   /////////////////////////////////////// Joints
   g.addJoint(
@@ -562,9 +558,10 @@ BOOST_AUTO_TEST_CASE(test_inertia)
 BOOST_AUTO_TEST_CASE(test_tree_robot)
 {
   pinocchio::ModelGraph g;
-  g.addBody("torso", pinocchio::Inertia::Identity());
-  g.addBody("left_leg", pinocchio::Inertia::Identity());
-  g.addBody("right_leg", pinocchio::Inertia::Identity());
+  g.addFrame("torso", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("left_leg", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("right_leg", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+
   g.addJoint(
     "torso_to_left_leg", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
     pinocchio::SE3::Identity(), "left_leg", pinocchio::SE3::Identity());
@@ -590,9 +587,9 @@ BOOST_AUTO_TEST_CASE(test_tree_robot)
 BOOST_AUTO_TEST_CASE(test_merge_graphs)
 {
   pinocchio::ModelGraph g;
-  g.addBody("torso", pinocchio::Inertia::Identity());
-  g.addBody("left_leg", pinocchio::Inertia::Identity());
-  g.addBody("right_leg", pinocchio::Inertia::Identity());
+  g.addFrame("torso", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("left_leg", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("right_leg", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
   g.addJoint(
     "torso2left_leg", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
     pinocchio::SE3::Identity(), "left_leg", pinocchio::SE3::Identity());
@@ -601,9 +598,9 @@ BOOST_AUTO_TEST_CASE(test_merge_graphs)
     pinocchio::SE3::Identity(), "right_leg", pinocchio::SE3::Identity());
 
   pinocchio::ModelGraph g1;
-  g1.addBody("upper_arm", pinocchio::Inertia::Identity());
-  g1.addBody("lower_arm", pinocchio::Inertia::Identity());
-  g1.addBody("hand", pinocchio::Inertia::Identity());
+  g1.addFrame("upper_arm", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g1.addFrame("lower_arm", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g1.addFrame("hand", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
   g1.addJoint(
     "upper2lower", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "upper_arm",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "lower_arm",
