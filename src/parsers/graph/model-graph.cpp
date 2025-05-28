@@ -7,6 +7,36 @@
 
 namespace pinocchio
 {
+  struct AddRootFrameVisitor : public boost::static_visitor<>
+  {
+    const ModelGraphVertex vertex;
+    const pinocchio::SE3 position;
+    const JointIndex j;
+    Model & model;
+
+    AddRootFrameVisitor(
+      const ModelGraphVertex & v, const JointIndex & j_id, const pinocchio::SE3 & pose, Model & m)
+    : vertex(v)
+    , j(j_id)
+    , position(pose)
+    , model(m)
+    {
+    }
+
+    void operator()(const BodyFrameGraph & b_f) const
+    {
+      const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
+      model.addFrame(Frame(vertex.name, j, f_id, position, BODY, b_f.inertia));
+    }
+
+    template<typename FrameGraph>
+    void operator()(const FrameGraph & f_) const
+    {
+      const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
+      model.addFrame(Frame(vertex.name, j, f_id, position, f_.f_type));
+    }
+  };
+
   void ModelGraph::addFrame(const std::string & vertex_name, const FrameGraphVariant & frame)
   {
     if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
