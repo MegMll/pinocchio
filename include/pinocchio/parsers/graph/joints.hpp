@@ -14,6 +14,7 @@ namespace pinocchio
   struct JointFixedGraph
   {
     pinocchio::SE3 joint_offset = pinocchio::SE3::Identity();
+    int nq = 0;
 
     JointFixedGraph() = default;
     JointFixedGraph(const pinocchio::SE3 & pose)
@@ -26,11 +27,10 @@ namespace pinocchio
   {
     // rotation axis
     Eigen::Vector3d axis;
-    double q_ref;
+    int nq = 1;
 
-    explicit JointRevoluteGraph(const Eigen::Vector3d & ax, const double q_ = 0)
+    explicit JointRevoluteGraph(const Eigen::Vector3d & ax)
     : axis(ax)
-    , q_ref(q_)
     {
     }
   };
@@ -38,17 +38,10 @@ namespace pinocchio
   struct JointRevoluteUnboundedGraph
   {
     Eigen::Vector3d axis;
-    Eigen::Vector2d q_ref = Eigen::Vector2d::Zero();
+    int nq = 2;
 
     explicit JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax)
     : axis(ax)
-    {
-      q_ref << 1, 0; // cos(0), sin(0)
-    }
-
-    explicit JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax, const Eigen::Vector2d & q_)
-    : axis(ax)
-    , q_ref(q_)
     {
     }
   };
@@ -56,81 +49,48 @@ namespace pinocchio
   struct JointPrismaticGraph
   {
     Eigen::Vector3d axis;
-    double q_ref;
+    int nq = 1;
 
-    explicit JointPrismaticGraph(const Eigen::Vector3d & ax, const double q_ = 0)
+    explicit JointPrismaticGraph(const Eigen::Vector3d & ax)
     : axis(ax)
-    , q_ref(q_)
     {
     }
   };
 
   struct JointFreeFlyerGraph
   {
-    Eigen::VectorXd q_ref = Eigen::VectorXd::Zero(7);
+    int nq = 7;
 
-    JointFreeFlyerGraph()
-    {
-      q_ref << 0, 0, 0, 0, 0, 0, 1;
-    }
-
-    JointFreeFlyerGraph(const Eigen::VectorXd & q_)
-    : q_ref(q_)
-    {
-    }
+    JointFreeFlyerGraph() = default;
   };
 
   struct JointSphericalGraph
   {
-    Eigen::VectorXd q_ref = Eigen::VectorXd::Zero(4); // quaternion - x, y, z, w
+    int nq = 4;
 
-    JointSphericalGraph()
-    {
-      q_ref << 0, 0, 0, 1;
-    }
-
-    JointSphericalGraph(const Eigen::VectorXd & q_)
-    : q_ref(q_)
-    {
-    }
+    JointSphericalGraph() = default;
   };
 
   // Flipped whne model is reversed ?
   struct JointSphericalZYXGraph
   {
-    Eigen::Vector3d q_ref = Eigen::Vector3d::Zero();
+    int nq = 3;
 
     JointSphericalZYXGraph() = default;
-    JointSphericalZYXGraph(const Eigen::Vector3d & q_)
-    : q_ref(q_)
-    {
-    }
   };
 
   struct JointTranslationGraph
   {
-    Eigen::Vector3d q_ref = Eigen::Vector3d::Zero(); // T_x, T_y, T_z
+    int nq = 3;
 
     JointTranslationGraph() = default;
-    JointTranslationGraph(const Eigen::Vector3d & q_)
-    : q_ref(q_)
-    {
-    }
   };
 
   struct JointPlanarGraph
   {
-    Eigen::VectorXd q_ref = Eigen::VectorXd::Zero(4); // T_x, T_y, cos(a), sin(a)
+    int nq = 4;
 
-    JointPlanarGraph()
-    {
-      q_ref << 0, 0, 1, 0;
-    }
-
-    JointPlanarGraph(const Eigen::VectorXd & q_)
-    : q_ref(q_)
-    {
-    }
+    JointPlanarGraph() = default;
   };
 
   struct JointHelicalGraph
@@ -138,12 +98,10 @@ namespace pinocchio
     Eigen::Vector3d axis;
     double pitch;
 
-    double q_ref;
-
-    JointHelicalGraph(const Eigen::Vector3d & ax, const double p, const double q_ = 0)
+    int nq = 1;
+    JointHelicalGraph(const Eigen::Vector3d & ax, const double p)
     : axis(ax)
     , pitch(p)
-    , q_ref(q_)
     {
     }
   };
@@ -153,15 +111,10 @@ namespace pinocchio
     Eigen::Vector3d axis1;
     Eigen::Vector3d axis2;
 
-    Eigen::Vector2d q_ref;
-
-    JointUniversalGraph(
-      const Eigen::Vector3d & ax1,
-      const Eigen::Vector3d & ax2,
-      const Eigen::Vector2d & q_ = Eigen::Vector2d::Zero())
+    int nq = 2;
+    JointUniversalGraph(const Eigen::Vector3d & ax1, const Eigen::Vector3d & ax2)
     : axis1(ax1)
     , axis2(ax2)
-    , q_ref(q_)
     {
     }
   };
@@ -171,7 +124,7 @@ namespace pinocchio
   // Forward declare
   struct JointMimicGraph;
 
-  using JointGraphVariant = boost::variant<
+  typedef boost::variant<
     JointFixedGraph,
     JointRevoluteGraph,
     JointRevoluteUnboundedGraph,
@@ -184,33 +137,8 @@ namespace pinocchio
     JointHelicalGraph,
     JointUniversalGraph,
     boost::recursive_wrapper<JointCompositeGraph>,
-    boost::recursive_wrapper<JointMimicGraph>>;
-
-  struct JointCompositeGraph
-  {
-    std::vector<JointGraphVariant> joints;
-    std::vector<SE3> jointsPlacements;
-
-    JointCompositeGraph() = default;
-
-    JointCompositeGraph(const JointGraphVariant & j, const SE3 & jPose)
-    {
-      joints.push_back(j);
-      jointsPlacements.push_back(jPose);
-    }
-
-    JointCompositeGraph(const std::vector<JointGraphVariant> & js, const std::vector<SE3> & jPoses)
-    : joints(js)
-    , jointsPlacements(jPoses)
-    {
-    }
-
-    void addJoint(const JointGraphVariant & jm, const SE3 & pose = SE3::Identity())
-    {
-      joints.push_back(jm);
-      jointsPlacements.push_back(pose);
-    }
-  };
+    boost::recursive_wrapper<JointMimicGraph>>
+    JointGraphVariant;
 
   struct JointMimicGraph
   {
@@ -219,6 +147,8 @@ namespace pinocchio
     JointGraphVariant secondary_joint;
     double scaling;
     double offset;
+
+    int nq = 0;
 
     JointMimicGraph() = default;
 
@@ -232,6 +162,37 @@ namespace pinocchio
     , scaling(scaling_)
     , offset(offset_)
     {
+    }
+  };
+
+  struct JointCompositeGraph
+  {
+    std::vector<JointGraphVariant> joints;
+    std::vector<SE3> jointsPlacements;
+
+    int nq = 0;
+    JointCompositeGraph() = default;
+
+    JointCompositeGraph(const JointGraphVariant & j, const SE3 & jPose)
+    {
+      joints.push_back(j);
+      jointsPlacements.push_back(jPose);
+      nq += boost::apply_visitor([](const auto & j_) { return j_.nq; }, j);
+    }
+
+    JointCompositeGraph(const std::vector<JointGraphVariant> & js, const std::vector<SE3> & jPoses)
+    : joints(js)
+    , jointsPlacements(jPoses)
+    {
+      for (const auto & j : js)
+        nq += boost::apply_visitor([](const auto & j_) { return j_.nq; }, j);
+    }
+
+    void addJoint(const JointGraphVariant & jm, const SE3 & pose = SE3::Identity())
+    {
+      joints.push_back(jm);
+      jointsPlacements.push_back(pose);
+      nq += boost::apply_visitor([](const auto & j) { return j.nq; }, jm);
     }
   };
 } // namespace pinocchio
