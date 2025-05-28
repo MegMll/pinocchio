@@ -2,8 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_joint_graph_hpp__
-#define __pinocchio_joint_graph_hpp__
+#ifndef __pinocchio_parsers_joints_graph_hpp__
+#define __pinocchio_parsers_joints_graph_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-generic.hpp"

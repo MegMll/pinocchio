@@ -2,8 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_multibody_model_graph_hpp__
-#define __pinocchio_multibody_model_graph_hpp__
+#ifndef __pinocchio_parsers_model_graph_hpp__
+#define __pinocchio_parsers_model_graph_hpp__
 
 #include "pinocchio/config.hpp"
 #include "pinocchio/multibody/fwd.hpp"

@@ -2,8 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_graph_visitor_hpp__
-#define __pinocchio_graph_visitor_hpp__
+#ifndef __pinocchio_parsers_graph_visitor_hpp__
+#define __pinocchio_parsers_graph_visitor_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
