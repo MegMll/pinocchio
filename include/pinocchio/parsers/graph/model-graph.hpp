@@ -60,6 +60,7 @@ namespace pinocchio
     ///
     /// Correspond to the transformation from body supporting joint to said joint
     SE3 out_to_joint;
+
     /// @brief Transformation from edge to next vertex
     ///
     /// Correspond to the transformation from the current joint to its supported body.
@@ -81,11 +82,17 @@ namespace pinocchio
     typedef typename boost::graph_traits<Graph>::vertex_descriptor VertexDesc;
     typedef typename boost::graph_traits<Graph>::edge_descriptor EdgeDesc;
 
-    /// \brief Add a new vertex (body) to the graph
+    /// \brief Add a new vertex to the graph
     ///
     /// \param[in] vertex_name Name of the vertex
     /// \param[in] frame which type of frame will be added to the model (op_frame, sensor, body)
     void addFrame(const std::string & vertex_name, const FrameGraphVariant & frame);
+
+    /// \brief Add a new body to the graph
+    ///
+    /// \param[in] vertex_name Name of the vertex
+    /// \param[in] inert inertia of the body
+    void addBody(const std::string & vertex_name, const Inertia & inert);
 
     /// \brief Add edges (joint) to the graph. Since it's a bidirectional graph,
     /// edge and its reverse are added to the graph.
@@ -106,6 +113,28 @@ namespace pinocchio
       const SE3 & out_to_joint,
       const std::string & in_body,
       const SE3 & joint_to_in);
+
+    /// \brief Add edges (joint) to the graph. Since it's a bidirectional graph,
+    /// edge and its reverse are added to the graph.
+    ///
+    /// \param[in] joint_name Name of the edge
+    /// \param[in] joint Type of the joint
+    /// \param[in] out_body Vertex that is supporting the edge
+    /// \param[in] out_to_joint Transformation from supporting vertex to edge
+    /// \param[in] in_body Vertex that is supported by edge
+    /// \param[in] joint_to_in Transformation from edge to supported vertex
+    /// \param[in] q_ref q offset of the joint
+    ///
+    /// \note Since it's a bidirectional graph, two edges are added to the graph.
+    /// Joints and transformation are inverted, to create reverse edge.
+    void addJoint(
+      const std::string & joint_name,
+      const JointGraphVariant & joint,
+      const std::string & out_body,
+      const SE3 & out_to_joint,
+      const std::string & in_body,
+      const SE3 & joint_to_in,
+      const Eigen::VectorXd & q_ref);
 
     /// @brief  Build a pinocchio model based on the graph that was built previously, that allows to
     /// have a root_joint.

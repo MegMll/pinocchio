@@ -20,6 +20,11 @@ namespace pinocchio
     name_to_vertex.insert({vertex_name, vertex_desc});
   }
 
+  void ModelGraph::addBody(const std::string & vertex_name, const Inertia & inert)
+  {
+    addFrame(vertex_name, BodyFrameGraph(inert));
+  }
+
   void ModelGraph::addJoint(
     const std::string & joint_name,
     const JointGraphVariant & joint,
@@ -27,6 +32,19 @@ namespace pinocchio
     const SE3 & out_to_joint,
     const std::string & in_body,
     const SE3 & joint_to_in)
+  {
+    Eigen::VectorXd q_ref = boost::apply_visitor(QRefDefaultInitializer(), joint);
+    addJoint(joint_name, joint, out_body, out_to_joint, in_body, joint_to_in, q_ref);
+  }
+
+  void ModelGraph::addJoint(
+    const std::string & joint_name,
+    const JointGraphVariant & joint,
+    const std::string & out_body,
+    const SE3 & out_to_joint,
+    const std::string & in_body,
+    const SE3 & joint_to_in,
+    const Eigen::VectorXd & q_ref)
   {
     auto out_vertex = name_to_vertex.find(out_body);
     if (out_vertex == name_to_vertex.end())
@@ -38,9 +56,9 @@ namespace pinocchio
     {
       PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - in_vertex does not exist");
     }
-    if (g[out_vertex->second].frame.which() != 0)
+    if (boost::get<BodyFrameGraph>(&g[out_vertex->second].frame) == nullptr)
       PINOCCHIO_THROW_PRETTY(
-        std::runtime_error, "Graph - sensor and op_frame can only be appened to bodies");
+        std::runtime_error, "Graph - sensor and op_frame can only be appended to bodies");
 
     auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, g);
     if (!edge_desc.second)
@@ -48,10 +66,12 @@ namespace pinocchio
       PINOCCHIO_THROW_PRETTY(
         std::runtime_error, "Graph - Edge cannot be added between these two vertexes");
     }
+
     ModelGraphEdge & edge = g[edge_desc.first];
     edge.name = joint_name;
     edge.joint = joint;
-    edge.out_to_joint = out_to_joint;
+    edge.out_to_joint = out_to_joint * boost::apply_visitor(UpdateJointGraphPose(q_ref), joint);
+
     edge.joint_to_in = joint_to_in;
 
     auto reverse_edge_desc = boost::add_edge(in_vertex->second, out_vertex->second, g);
@@ -60,11 +80,15 @@ namespace pinocchio
       PINOCCHIO_THROW_PRETTY(
         std::runtime_error, "Graph - Reverse edge cannot be added between these two vertexes");
     }
+
+    const Eigen::VectorXd q_ref_reverse = boost::apply_visitor(ReverseQVisitor(q_ref), joint);
     ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
     reverse_edge.name = joint_name;
     auto reversed_joint = boost::apply_visitor(ReverseJointVisitor(), joint);
     reverse_edge.joint = reversed_joint.first;
-    reverse_edge.out_to_joint = joint_to_in.inverse();
+    reverse_edge.out_to_joint =
+      joint_to_in.inverse() * boost::apply_visitor(UpdateJointGraphPose(q_ref_reverse), joint);
+
     reverse_edge.joint_to_in = reversed_joint.second * out_to_joint.inverse();
     reverse_edge.reverse = true;
   }
