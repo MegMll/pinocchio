@@ -583,6 +583,9 @@ BOOST_AUTO_TEST_CASE(test_tree_robot)
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_right_leg")] == m1.getJointId("torso_to_left_leg"));
 }
 
+/// @brief Test to make sure that we can't chain sensor or OpFrame, that not fixed joint is created
+/// when adding a sensor frame
+/// @param
 BOOST_AUTO_TEST_CASE(test_other_frame)
 {
   pinocchio::ModelGraph g = buildReversableModelGraph(
@@ -622,6 +625,44 @@ BOOST_AUTO_TEST_CASE(test_other_frame)
       "sensor2_sensor1", pinocchio::JointFixedGraph(), "sensor1", pinocchio::SE3::Identity(),
       "sensor2", pinocchio::SE3::Identity()),
     std::runtime_error);
+}
+
+/// @brief Test q_ref positioning
+BOOST_AUTO_TEST_CASE(test_q_ref_revolute)
+{
+  pinocchio::ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addFrame("body1", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+
+  /////////////////////////////////////// Joints
+  pinocchio::SE3 poseBody1 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
+  pinocchio::SE3 poseBody2 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 3., 0.));
+  Eigen::VectorXd q_ref = Eigen::VectorXd::Zero(1);
+  q_ref[0] = M_PI / 4;
+  g.addJoint(
+    "body1_to_body2", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "body1", poseBody1,
+    "body2", poseBody2, q_ref);
+
+  /////////////////////////////////////// Joints
+  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+
+  pinocchio::Data d_f(m_forward);
+  Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
+  q[0] = M_PI / 4;
+  pinocchio::framesForwardKinematics(m_forward, d_f, q);
+
+  //////////////////////////////////// Reverse model
+  pinocchio::Model m_reverse =
+    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+  pinocchio::Data d_reverse(m_reverse);
+  pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
+
+  BOOST_CHECK(SE3isApprox(
+    d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
+    d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
 }
 
 /// @brief  Test the algorithm to merge 2 graphs
