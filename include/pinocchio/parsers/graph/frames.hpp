@@ -11,38 +11,40 @@
 
 namespace pinocchio
 {
-  struct BodyFrameGraph
+  namespace graph
   {
-    /// @brief Spatial inertia of the body, expressed at its center of mass (CoM).
-    ///
-    /// Note: If the joint is reversed in the model graph, the body frame pose
-    /// is kept the same in the model, so this inertia remains valid.
-    Inertia inertia = pinocchio::Inertia::Identity();
-
-    pinocchio::FrameType f_type = BODY;
-
-    BodyFrameGraph() = default;
-    BodyFrameGraph(const pinocchio::Inertia & in)
-    : inertia(in)
+    struct BodyFrameGraph
     {
-    }
-  };
+      /// @brief Spatial inertia of the body, expressed at its center of mass (CoM).
+      ///
+      /// Note: If the joint is reversed in the model graph, the body frame pose
+      /// is kept the same in the model, so this inertia remains valid.
+      Inertia inertia = pinocchio::Inertia::Identity();
 
-  struct SensorFrameGraph
-  {
-    pinocchio::FrameType f_type = SENSOR;
+      pinocchio::FrameType f_type = BODY;
 
-    SensorFrameGraph() = default;
-  };
+      BodyFrameGraph() = default;
+      BodyFrameGraph(const pinocchio::Inertia & in)
+      : inertia(in)
+      {
+      }
+    };
 
-  struct OpFrameGraph
-  {
-    pinocchio::FrameType f_type = OP_FRAME;
+    struct SensorFrameGraph
+    {
+      pinocchio::FrameType f_type = SENSOR;
 
-    OpFrameGraph() = default;
-  };
+      SensorFrameGraph() = default;
+    };
 
-  typedef boost::variant<BodyFrameGraph, SensorFrameGraph, OpFrameGraph> FrameGraphVariant;
+    struct OpFrameGraph
+    {
+      pinocchio::FrameType f_type = OP_FRAME;
 
+      OpFrameGraph() = default;
+    };
+
+    typedef boost::variant<BodyFrameGraph, SensorFrameGraph, OpFrameGraph> FrameGraphVariant;
+  } // namespace graph
 } // namespace pinocchio
 #endif
