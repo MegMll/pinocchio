@@ -665,6 +665,63 @@ BOOST_AUTO_TEST_CASE(test_q_ref_revolute)
     d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
 }
 
+/// @brief Test q_ref positioning
+BOOST_AUTO_TEST_CASE(test_q_ref_composite)
+{
+  pinocchio::ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addFrame("body1", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", pinocchio::BodyFrameGraph(pinocchio::Inertia::Identity()));
+
+  /////////////////////////////////////// Joints
+  pinocchio::SE3 poseBody1 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
+  pinocchio::SE3 poseBody2 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 3., 0.));
+
+  pinocchio::JointCompositeGraph jmodel;
+  pinocchio::SE3 jPose1 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 3., 0.)); // from body to j1
+  pinocchio::SE3 jPose2 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)); // from j1 to j2
+  pinocchio::SE3 jPose3 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)); // from j2 to j3
+  jmodel.addJoint(pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), jPose1);
+  jmodel.addJoint(pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitZ()), jPose2);
+  jmodel.addJoint(pinocchio::JointPrismaticGraph(Eigen::Vector3d::UnitY()), jPose3);
+
+  Eigen::VectorXd q_ref = Eigen::Vector3d::Zero();
+  q_ref[0] = M_PI / 4;
+  q_ref[1] = -M_PI / 3;
+  q_ref[2] = 0.2;
+
+  g.addJoint("body1_to_body2", jmodel, "body1", poseBody1, "body2", poseBody2, q_ref);
+
+  /////////////////////////////////////// Joints
+  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+
+  pinocchio::Data d_f(m_forward);
+
+  Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
+  q << M_PI / 2, M_PI / 5, 0.4;
+
+  pinocchio::framesForwardKinematics(m_forward, d_f, q);
+
+  //////////////////////////////////// Reverse model
+  pinocchio::Model m_reverse =
+    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+  pinocchio::Data d_reverse(m_reverse);
+
+  Eigen::VectorXd q_reverse(m_reverse.nq);
+  q_reverse << -q[2], -q[1], -q[0];
+
+  pinocchio::framesForwardKinematics(m_reverse, d_reverse, q_reverse);
+
+  BOOST_CHECK(SE3isApprox(
+    d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
+    d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
+}
+
 /// @brief  Test the algorithm to merge 2 graphs
 BOOST_AUTO_TEST_CASE(test_merge_graphs)
 {

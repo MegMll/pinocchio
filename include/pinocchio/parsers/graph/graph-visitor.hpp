@@ -607,7 +607,7 @@ namespace pinocchio
 
     pinocchio::SE3 operator()(const JointTranslationGraph & /*joint*/) const
     {
-      if (q_ref.size() != 4)
+      if (q_ref.size() != 3)
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Graph - Joint Translation nq is 3. q_ref is the wrong size");
 
@@ -622,26 +622,28 @@ namespace pinocchio
     pinocchio::SE3 operator()(const JointCompositeGraph & joint) const
     {
       return pinocchio::SE3::Identity();
-      
-      // int index_back =
-      //   static_cast<int>(joint.joints.size())
-      //   - boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints.back());
-      // for (int i = static_cast<int>(joint.joints.size() - 1); i > 0; i--)
-      // {
-      //   int nq_curr = boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[i]);
-      //   UpdateJointGraphPose u_temp(q_ref.segment(index_back, nq_curr));
-      //   pinocchio::SE3 pose_temp = boost::apply_visitor(u_temp, joint.joints[i]);
-      //   joint.jointsPlacements[i - 1] = joint.jointsPlacements[i - 1] * pose_temp;
 
-      //   index_back -=
-      //     boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[i - 1]);
-      //   ;
-      // }
+      JointCompositeGraph * joint_ptr = const_cast<JointCompositeGraph *>(&joint);
 
-      // int nq_curr = boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[0]);
-      // UpdateJointGraphPose u_temp(q_ref.segment(index_back, nq_curr));
+      int index_back =
+        static_cast<int>(joint.joints.size())
+        - boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints.back());
+      for (int i = static_cast<int>(joint.joints.size() - 1); i > 0; i--)
+      {
+        int nq_curr = boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[i]);
+        UpdateJointGraphPose u_temp(q_ref.segment(index_back, nq_curr));
+        pinocchio::SE3 pose_temp = boost::apply_visitor(u_temp, joint.joints[i]);
+        joint_ptr->jointsPlacements[i - 1] = joint_ptr->jointsPlacements[i - 1] * pose_temp;
 
-      // return boost::apply_visitor(u_temp, joint.joints[0]);
+        index_back -=
+          boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[i - 1]);
+        ;
+      }
+
+      int nq_curr = boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[0]);
+      UpdateJointGraphPose u_temp(q_ref.segment(index_back, nq_curr));
+
+      return boost::apply_visitor(u_temp, joint.joints[0]);
     }
   };
 
