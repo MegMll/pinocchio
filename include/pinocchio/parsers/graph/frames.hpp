@@ -42,7 +42,7 @@ namespace pinocchio
     OpFrameGraph() = default;
   };
 
-  using FrameGraphVariant = boost::variant<BodyFrameGraph, SensorFrameGraph, OpFrameGraph>;
+  typedef boost::variant<BodyFrameGraph, SensorFrameGraph, OpFrameGraph> FrameGraphVariant;
 
 } // namespace pinocchio
 #endif
