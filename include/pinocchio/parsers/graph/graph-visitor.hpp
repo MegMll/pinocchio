@@ -472,14 +472,14 @@ namespace pinocchio
           return jdata.M();
         }
 
-        pinocchio::SE3 operator()(const JointFixedGraph & /*joint*/) const
+        pinocchio::SE3 operator()(const JointFixedGraph & joint) const
         {
-          return pinocchio::SE3::Identity();
+          return joint.joint_offset;
         }
 
         pinocchio::SE3 operator()(const JointRevoluteGraph & joint) const
         {
-          if (q_ref.size() != 1)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint Revolute nq is 1. q_ref is the wrong size");
 
@@ -488,7 +488,7 @@ namespace pinocchio
 
         pinocchio::SE3 operator()(const JointPrismaticGraph & joint) const
         {
-          if (q_ref.size() != 1)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint Prismatic nq is 1. q_ref is the wrong size");
 
@@ -497,7 +497,7 @@ namespace pinocchio
 
         pinocchio::SE3 operator()(const JointRevoluteUnboundedGraph & joint) const
         {
-          if (q_ref.size() != 2)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument,
               "Graph - Joint Revolute Unbounded nq is 2. q_ref is the wrong size");
@@ -507,7 +507,7 @@ namespace pinocchio
 
         pinocchio::SE3 operator()(const JointHelicalGraph & joint) const
         {
-          if (q_ref.size() != 1)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint Helical nq is 1. q_ref is the wrong size");
 
@@ -516,52 +516,52 @@ namespace pinocchio
 
         pinocchio::SE3 operator()(const JointUniversalGraph & joint) const
         {
-          if (q_ref.size() != 2)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint Universal nq is 2. q_ref is the wrong size");
 
           return joint_calc(JointModelUniversal(joint.axis1, joint.axis2));
         }
 
-        pinocchio::SE3 operator()(const JointFreeFlyerGraph & /*joint*/) const
+        pinocchio::SE3 operator()(const JointFreeFlyerGraph & joint) const
         {
-          if (q_ref.size() != 7)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint FreeFlyer nq is 7. q_ref is the wrong size");
 
           return joint_calc(JointModelFreeFlyer());
         }
 
-        pinocchio::SE3 operator()(const JointSphericalGraph & /*joint*/) const
+        pinocchio::SE3 operator()(const JointSphericalGraph & joint) const
         {
-          if (q_ref.size() != 4)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint Spherical nq is 4. q_ref is the wrong size");
 
           return joint_calc(JointModelSpherical());
         }
 
-        pinocchio::SE3 operator()(const JointSphericalZYXGraph & /*joint*/) const
+        pinocchio::SE3 operator()(const JointSphericalZYXGraph & joint) const
         {
-          if (q_ref.size() != 3)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint SphericalZYX nq is 3. q_ref is the wrong size");
 
           return joint_calc(JointModelSphericalZYX());
         }
 
-        pinocchio::SE3 operator()(const JointPlanarGraph & /*joint*/) const
+        pinocchio::SE3 operator()(const JointPlanarGraph & joint) const
         {
-          if (q_ref.size() != 4)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint Planar nq is 4. q_ref is the wrong size");
 
           return joint_calc(JointModelPlanar());
         }
 
-        pinocchio::SE3 operator()(const JointTranslationGraph & /*joint*/) const
+        pinocchio::SE3 operator()(const JointTranslationGraph & joint) const
         {
-          if (q_ref.size() != 3)
+          if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Joint Translation nq is 3. q_ref is the wrong size");
 
@@ -572,11 +572,16 @@ namespace pinocchio
         {
           PINOCCHIO_THROW_PRETTY(
             std::invalid_argument,
-            "Graph - Joint Mimic cannot have a q_ref. Please use the joint offset argument.");
+            "Graph - Joint Mimic cannot have a q_ref. Please use the joint offset directly.");
         }
 
         pinocchio::SE3 operator()(const JointCompositeGraph & joint) const
         {
+          if (q_ref.size() != joint.nq)
+            PINOCCHIO_THROW_PRETTY(
+              std::invalid_argument,
+              "Graph - Joint Composite and its configuration vector have different sizes");
+
           JointCompositeGraph * joint_ptr = const_cast<JointCompositeGraph *>(&joint);
 
           int index = 0;
