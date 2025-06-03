@@ -158,6 +158,12 @@ namespace pinocchio
       const boost::optional<JointGraphVariant> & merging_joint = boost::none,
       const std::string & merging_joint_name = "merging_joint",
       const std::string & g2_prefix = "g2/");
+
+    PINOCCHIO_DLLAPI ModelGraph fixJointsGraph(
+      const ModelGraph & g,
+      const std::vector<std::string> & joints_to_lock,
+      const std::vector<Eigen::VectorXd> & reference_configurations);
+
   } // namespace graph
 } // namespace pinocchio
 

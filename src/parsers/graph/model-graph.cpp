@@ -253,5 +253,61 @@ namespace pinocchio
 
       return g_merged;
     }
+
+    ModelGraph fixJointsGraph(
+      const ModelGraph & g,
+      const std::vector<std::string> & joints_to_lock,
+      const std::vector<Eigen::VectorXd> & reference_configurations)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(
+        joints_to_lock.size() == reference_configurations.size(),
+        "Graph - mismatch size between joints_to_lock list and reference configurations");
+
+      ModelGraph g_locked;
+      // Copy all vertices from g
+      for (const auto & pair : g.name_to_vertex)
+      {
+        const auto & name = pair.first;
+        const auto & old_v = pair.second;
+        const auto & vertex_data = g.g[old_v];
+
+        g_locked.addFrame(name, vertex_data.frame);
+      }
+
+      // Copy all edges from g
+      for (auto e_it = boost::edges(g.g); e_it.first != e_it.second; ++e_it.first)
+      {
+
+        const auto & edge = *e_it.first;
+        auto src = boost::source(edge, g.g);
+        auto tgt = boost::target(edge, g.g);
+
+        const auto & edge_data = g.g[edge];
+
+        const auto & src_name = g.g[src].name;
+        const auto & tgt_name = g.g[tgt].name;
+
+        auto it = std::find(joints_to_lock.begin(), joints_to_lock.end(), edge_data.name);
+        if (it != joints_to_lock.end())
+        {
+          int index = std::distance(joints_to_lock.begin(), it);
+          const Eigen::VectorXd & q_ref = reference_configurations[index];
+
+          internal::UpdateJointGraphPoseVisitor ujgpv(q_ref);
+          pinocchio::SE3 pose_offset = boost::apply_visitor(ujgpv, edge_data.joint);
+
+          g_locked.addJoint(
+            edge_data.name, JointFixedGraph(pose_offset), src_name, edge_data.out_to_joint,
+            tgt_name, edge_data.joint_to_in, q_ref);
+        }
+        else
+        {
+          g_locked.addJoint(
+            edge_data.name, edge_data.joint, src_name, edge_data.out_to_joint, tgt_name,
+            edge_data.joint_to_in);
+        }
+      }
+      return g_locked;
+    }
   } // namespace graph
 } // namespace pinocchio

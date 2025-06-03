@@ -801,4 +801,33 @@ BOOST_AUTO_TEST_CASE(test_merge_graphs)
     == pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 4)));
 }
 
+BOOST_AUTO_TEST_CASE(test_lock_joint)
+{
+  using namespace pinocchio::graph;
+
+  ModelGraph g = buildReversableModelGraph(JointRevoluteGraph(Eigen::Vector3d::UnitZ()));
+
+  std::vector<std::string> joints_to_lock;
+  joints_to_lock.push_back("body1_to_body2");
+  std::vector<Eigen::VectorXd> ref_configs;
+  Eigen::VectorXd q_ref(1);
+  q_ref[0] = M_PI / 6;
+  ref_configs.push_back(q_ref);
+  ModelGraph g_locked = fixJointsGraph(g, joints_to_lock, ref_configs);
+
+  pinocchio::Model m = g_locked.buildModel("body1", pinocchio::SE3::Identity());
+
+  BOOST_CHECK(m.njoints == 1);
+
+  pinocchio::SE3 poseBody1 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
+
+  Eigen::AngleAxisd Rz(q_ref[0], Eigen::Vector3d::UnitZ());
+  std::cout << Rz.toRotationMatrix() << std::endl;
+  pinocchio::SE3 pose_fixed_joint = pinocchio::SE3(Rz.toRotationMatrix(), Eigen::Vector3d::Zero());
+
+  BOOST_CHECK(m.frames[m.getFrameId("body1_to_body2", pinocchio::FIXED_JOINT)].placement.isApprox(
+    poseBody1 * pose_fixed_joint));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
