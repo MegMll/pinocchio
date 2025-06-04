@@ -9,8 +9,11 @@
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
+#include <Eigen/Geometry>
+
 #include <boost/variant.hpp>
 
+#include <stdexcept>
 #include <unordered_map>
 
 namespace pinocchio
@@ -127,7 +130,7 @@ namespace pinocchio
             return i;
           }
         }
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "findRootBodyFrame - No BODY frame");
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "findRootBodyFrame - No BODY frame");
       }
     } // namespace internal
 
@@ -234,6 +237,9 @@ namespace pinocchio
         typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
         typedef typename ModelConfigurationConverter::JointMapping JointMapping;
 
+        typedef Eigen::Vector<Scalar, 3> Vector3;
+        typedef Eigen::Quaternion<Scalar> Quaternion;
+
         typedef void ReturnType;
 
         const Eigen::MatrixBase<ConfigVectorType1> & q_source;
@@ -275,18 +281,32 @@ namespace pinocchio
 
         ReturnType operator()(const JointModelFreeFlyerTpl<Scalar, Options> &) const
         {
-          // Copy tx, ty, tz, qx, qy, qz
-          q_target.segment(configuration.idx_qs_target, 6) =
-            joint.direction_sign * q_source.segment(configuration.idx_qs_source, 6);
-          // Copy qw
-          q_target[configuration.idx_qs_target + 6] = q_source[configuration.idx_qs_source + 6];
+          // Copy tx, ty, tz, qx, qy, qz, qw
+          if (joint.same_direction)
+          {
+            q_target.template segment<7>(configuration.idx_qs_target) =
+              q_source.template segment<7>(configuration.idx_qs_source);
+          }
+          else
+          {
+            // Apply inverse rotation on translation
+            Vector3 translation_source(q_source.template segment<3>(configuration.idx_qs_source));
+            Quaternion rotation_source(
+              q_source.template segment<4>(configuration.idx_qs_source + 3));
+            Quaternion rotation_source_inv(rotation_source.inverse());
+
+            Vector3 translation_target(-(rotation_source_inv * translation_source));
+            q_target.template segment<3>(configuration.idx_qs_target) = translation_target;
+            q_target.template segment<4>(configuration.idx_qs_target + 3) =
+              rotation_source_inv.coeffs();
+          }
         }
 
         ReturnType operator()(const JointModelSphericalTpl<Scalar, Options> &) const
         {
           // Copy qx, qy, qz
-          q_target.segment(configuration.idx_qs_target, 3) =
-            joint.direction_sign * q_source.segment(configuration.idx_qs_source, 3);
+          q_target.template segment<3>(configuration.idx_qs_target) =
+            joint.direction_sign * q_source.template segment<3>(configuration.idx_qs_source);
           // Copy qw
           q_target[configuration.idx_qs_target + 3] = q_source[configuration.idx_qs_source + 3];
         }
@@ -308,8 +328,16 @@ namespace pinocchio
 
         ReturnType operator()(const JointModelUniversalTpl<Scalar, Options> &) const
         {
-          q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source + 1];
-          q_target[configuration.idx_qs_target + 1] = q_source[configuration.idx_qs_source];
+          if (joint.same_direction)
+          {
+            q_target.template segment<2>(configuration.idx_qs_target) =
+              q_source.template segment<2>(configuration.idx_qs_source);
+          }
+          else
+          {
+            q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source + 1];
+            q_target[configuration.idx_qs_target + 1] = q_source[configuration.idx_qs_source];
+          }
         }
 
         ReturnType operator()(const JointModelMimicTpl<Scalar, Options, JointCollectionTpl> &) const
@@ -334,12 +362,12 @@ namespace pinocchio
       if (source_configuration_size != q_source.size())
       {
         PINOCCHIO_THROW_PRETTY(
-          std::runtime_error, "convertConfiguration - wrong source configuration size");
+          std::invalid_argument, "convertConfiguration - wrong source configuration size");
       }
       if (target_configuration_size != q_target.size())
       {
         PINOCCHIO_THROW_PRETTY(
-          std::runtime_error, "convertConfiguration - wrong target configuration size");
+          std::invalid_argument, "convertConfiguration - wrong target configuration size");
       }
 
       for (std::size_t i = 0; i < joint_mapping.size(); ++i)
