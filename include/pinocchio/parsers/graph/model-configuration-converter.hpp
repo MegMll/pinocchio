@@ -2,8 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_multibody_model_configuration_converter_hpp__
-#define __pinocchio_multibody_model_configuration_converter_hpp__
+#ifndef __pinocchio_parsers_graph_model_configuration_converter_hpp__
+#define __pinocchio_parsers_graph_model_configuration_converter_hpp__
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
 
@@ -322,4 +322,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_multibody_configuration_model_converter_hpp__
+#endif // ifndef __pinocchio_parsers_graph_model_configuration_converter_hpp__
