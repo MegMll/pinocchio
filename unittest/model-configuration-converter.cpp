@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   //   - b5:    [j4, j2, j1, j3]
   //   - b1_ff: [jff[0..8], j1[0], j1[2], j2, j3, j4]
 
-  pinocchio::ModelGraph g;
+  pinocchio::graph::ModelGraph g;
   pinocchio::Inertia I_I(pinocchio::Inertia::Identity());
   pinocchio::SE3 X_I(pinocchio::SE3::Identity());
 
@@ -64,9 +64,10 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   g.addBody("b4", I_I);
   g.addBody("b5", I_I);
 
-  pinocchio::JointRevoluteGraph joint(Eigen::Vector3d::UnitX());
+  pinocchio::graph::JointRevoluteGraph joint(Eigen::Vector3d::UnitX());
   g.addJoint(
-    "j1", pinocchio::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "b1", X_I, "b2", X_I);
+    "j1", pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "b1", X_I, "b2",
+    X_I);
   g.addJoint("j2", joint, "b2", X_I, "b3", X_I);
   g.addJoint("j3", joint, "b3", X_I, "b4", X_I);
   g.addJoint("j4", joint, "b3", X_I, "b5", X_I);
@@ -74,13 +75,13 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   auto b1_model = g.buildModel("b1", X_I);
   auto b4_model = g.buildModel("b4", X_I);
   auto b5_model = g.buildModel("b5", X_I);
-  auto b1_ff_model =
-    g.buildModel("b1", X_I, pinocchio::JointGraphVariant(pinocchio::JointFreeFlyerGraph()), "ff");
+  auto b1_ff_model = g.buildModel(
+    "b1", X_I, pinocchio::graph::JointGraphVariant(pinocchio::graph::JointFreeFlyerGraph()), "ff");
 
-  auto b1_to_b4_converter = pinocchio::createConverter(b1_model, b4_model, g);
-  auto b1_to_b5_converter = pinocchio::createConverter(b1_model, b5_model, g);
-  auto b4_to_b5_converter = pinocchio::createConverter(b4_model, b5_model, g);
-  auto b1_ff_to_b1_converter = pinocchio::createConverter(b1_ff_model, b1_model, g);
+  auto b1_to_b4_converter = pinocchio::graph::createConverter(b1_model, b4_model, g);
+  auto b1_to_b5_converter = pinocchio::graph::createConverter(b1_model, b5_model, g);
+  auto b4_to_b5_converter = pinocchio::graph::createConverter(b4_model, b5_model, g);
+  auto b1_ff_to_b1_converter = pinocchio::graph::createConverter(b1_ff_model, b1_model, g);
 
   // Test b1 to b4
   BOOST_REQUIRE_EQUAL(b1_to_b4_converter.configuration_mapping.size(), 4);
@@ -281,15 +282,15 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
 
 BOOST_AUTO_TEST_CASE(test_convert_configuration)
 {
-  pinocchio::ModelGraph g;
+  pinocchio::graph::ModelGraph g;
   pinocchio::Inertia I_I(pinocchio::Inertia::Identity());
   pinocchio::SE3 X_I(pinocchio::SE3::Identity());
 
   g.addBody("b1", I_I);
   g.addBody("b2", I_I);
   g.addJoint(
-    "j1", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "b1", pinocchio::SE3::Random(),
-    "b2", pinocchio::SE3::Random());
+    "j1", pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "b1",
+    pinocchio::SE3::Random(), "b2", pinocchio::SE3::Random());
 
   auto model_a = g.buildModel("b1", X_I);
   pinocchio::Data data_a(model_a);
@@ -302,7 +303,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
     auto model_b = g.buildModel("b2", data_a.oMf[model_a.getFrameId("b2", pinocchio::BODY)]);
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
-    auto a_to_b_converter = pinocchio::createConverter(model_a, model_b, g);
+    auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
     a_to_b_converter.convertConfiguration(q_a, q_b);
     pinocchio::framesForwardKinematics(model_b, data_b, q_b);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -320,7 +321,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   {
     pinocchio::Data data_a2(model_a);
     Eigen::VectorXd q_a2 = pinocchio::neutral(model_a);
-    auto a_to_a_converter = pinocchio::createConverter(model_a, model_a, g);
+    auto a_to_a_converter = pinocchio::graph::createConverter(model_a, model_a, g);
     a_to_a_converter.convertConfiguration(q_a, q_a2);
     pinocchio::framesForwardKinematics(model_a, data_a2, q_a2);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -335,14 +336,15 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check forward conversion with custom root joint
   {
-    auto model_a_ff =
-      g.buildModel("b1", X_I, pinocchio::JointGraphVariant(pinocchio::JointFreeFlyerGraph()), "ff");
+    auto model_a_ff = g.buildModel(
+      "b1", X_I, pinocchio::graph::JointGraphVariant(pinocchio::graph::JointFreeFlyerGraph()),
+      "ff");
     pinocchio::Data data_a_ff(model_a_ff);
     const Eigen::VectorXd qmax_ff = Eigen::VectorXd::Ones(model_a_ff.nq);
     Eigen::VectorXd q_a_ff = pinocchio::randomConfiguration(model_a_ff, -qmax_ff, qmax_ff);
     q_a_ff.head<7>() << 0., 0., 0., 0., 0., 0., 1.;
     pinocchio::framesForwardKinematics(model_a_ff, data_a_ff, q_a_ff);
-    auto a_ff_to_a_converter = pinocchio::createConverter(model_a_ff, model_a, g);
+    auto a_ff_to_a_converter = pinocchio::graph::createConverter(model_a_ff, model_a, g);
     a_ff_to_a_converter.convertConfiguration(q_a_ff, q_a);
     pinocchio::framesForwardKinematics(model_a, data_a, q_a);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
