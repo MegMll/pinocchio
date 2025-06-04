@@ -353,7 +353,7 @@ set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph-algo.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/graph-visitor.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/joints.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/frames.hpp)
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/frames.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-configuration-converter.hpp)
 
 set(${PROJECT_NAME}_URDF_SOURCES
