@@ -64,23 +64,35 @@ namespace pinocchio
       ModelConfigurationConverterTpl(
         std::vector<ConfigurationMapping> configuration_mapping,
         std::vector<TangentMapping> tangent_mapping,
-        std::vector<JointMapping> joint_mapping)
+        std::vector<JointMapping> joint_mapping,
+        int source_configuration_size,
+        int source_tangent_size,
+        int target_configuration_size,
+        int target_tangent_size)
       : configuration_mapping(configuration_mapping)
       , tangent_mapping(tangent_mapping)
       , joint_mapping(joint_mapping)
+      , source_configuration_size(source_configuration_size)
+      , source_tangent_size(source_tangent_size)
+      , target_configuration_size(target_configuration_size)
+      , target_tangent_size(target_tangent_size)
       {
       }
 
       /// Convert \p q_source configuration vector from source model to \p q_target configuration
       /// vector from target model.
-      template<typename ConfigVectorType>
+      template<typename ConfigVectorType1, typename ConfigVectorType2>
       void convertConfiguration(
-        const Eigen::MatrixBase<ConfigVectorType> & q_source,
-        const Eigen::MatrixBase<ConfigVectorType> & q_target) const;
+        const Eigen::MatrixBase<ConfigVectorType1> & q_source,
+        const Eigen::MatrixBase<ConfigVectorType2> & q_target) const;
 
       std::vector<ConfigurationMapping> configuration_mapping;
       std::vector<TangentMapping> tangent_mapping;
       std::vector<JointMapping> joint_mapping;
+      int source_configuration_size;
+      int source_tangent_size;
+      int target_configuration_size;
+      int target_tangent_size;
     };
 
     namespace internal
@@ -192,133 +204,151 @@ namespace pinocchio
           joint_direction_source.at(joint_name) == joint_direction_target.at(joint_name));
       }
 
-      return ModelConfigurationConverter(configuration_mapping, tangent_mapping, joint_mapping);
+      return ModelConfigurationConverter(
+        configuration_mapping, tangent_mapping, joint_mapping, model_source.nq, model_source.nv,
+        model_target.nq, model_target.nv);
     }
 
     // TODO: put in a .hxx
-    // TODO: check configuration vector size
     // TODO: missing joints
     // TODO: tangent space
     // TODO: TU
-    template<
-      typename _Scalar,
-      int _Options,
-      template<typename, int> class JointCollectionTpl,
-      typename ConfigVectorType>
-    struct ConfigurationConverterVisitor : public boost::static_visitor<void>
+    namespace internal
     {
-      typedef _Scalar Scalar;
-      enum
+      template<
+        typename _Scalar,
+        int _Options,
+        template<typename, int> class JointCollectionTpl,
+        typename ConfigVectorType1,
+        typename ConfigVectorType2>
+      struct ConfigurationConverterVisitor : public boost::static_visitor<void>
       {
-        Options = _Options
+        typedef _Scalar Scalar;
+        enum
+        {
+          Options = _Options
+        };
+
+        typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
+          ModelConfigurationConverter;
+        typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
+        typedef typename ModelConfigurationConverter::JointMapping JointMapping;
+
+        typedef void ReturnType;
+
+        const Eigen::MatrixBase<ConfigVectorType1> & q_source;
+        ConfigVectorType2 & q_target;
+        const ConfigurationMapping & configuration;
+        const JointMapping & joint;
+
+        ConfigurationConverterVisitor(
+          const Eigen::MatrixBase<ConfigVectorType1> & q_source,
+          const Eigen::MatrixBase<ConfigVectorType2> & q_target,
+          const ConfigurationMapping & configuration,
+          const JointMapping & joint)
+        : q_source(q_source)
+        , q_target(PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorType2, q_target))
+        , configuration(configuration)
+        , joint(joint)
+        {
+        }
+
+        /// Manage Revolute, Prismatic, Translation and Helical joint
+        template<typename JointType>
+        ReturnType operator()(const JointType &) const
+        {
+          q_target.segment(configuration.idx_qs_target, configuration.nq) =
+            joint.direction_sign * q_source.segment(configuration.idx_qs_source, configuration.nq);
+        }
+
+        template<int axis>
+        ReturnType operator()(const JointModelRevoluteUnboundedTpl<Scalar, Options, axis> &) const
+        {
+          // TODO
+        }
+
+        ReturnType
+        operator()(const JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> &) const
+        {
+          // TODO
+        }
+
+        ReturnType operator()(const JointModelFreeFlyerTpl<Scalar, Options> &) const
+        {
+          // Copy tx, ty, tz, qx, qy, qz
+          q_target.segment(configuration.idx_qs_target, 6) =
+            joint.direction_sign * q_source.segment(configuration.idx_qs_source, 6);
+          // Copy qw
+          q_target[configuration.idx_qs_target + 6] = q_source[configuration.idx_qs_source + 6];
+        }
+
+        ReturnType operator()(const JointModelSphericalTpl<Scalar, Options> &) const
+        {
+          // Copy qx, qy, qz
+          q_target.segment(configuration.idx_qs_target, 3) =
+            joint.direction_sign * q_source.segment(configuration.idx_qs_source, 3);
+          // Copy qw
+          q_target[configuration.idx_qs_target + 3] = q_source[configuration.idx_qs_source + 3];
+        }
+
+        ReturnType operator()(const JointModelSphericalZYXTpl<Scalar, Options> &) const
+        {
+          if (joint.same_direction)
+          {
+          }
+          else
+          {
+          }
+        }
+
+        ReturnType operator()(const JointModelPlanarTpl<Scalar, Options> &) const
+        {
+          // TODO
+        }
+
+        ReturnType operator()(const JointModelUniversalTpl<Scalar, Options> &) const
+        {
+          q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source + 1];
+          q_target[configuration.idx_qs_target + 1] = q_source[configuration.idx_qs_source];
+        }
+
+        ReturnType operator()(const JointModelMimicTpl<Scalar, Options, JointCollectionTpl> &) const
+        {
+          // TODO
+        }
+
+        ReturnType
+        operator()(const JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> &) const
+        {
+          // TODO must know what kind of joint and add offset to visitor
+        }
       };
-
-      typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
-        ModelConfigurationConverter;
-      typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
-      typedef typename ModelConfigurationConverter::JointMapping JointMapping;
-
-      typedef void ReturnType;
-
-      const Eigen::MatrixBase<ConfigVectorType> & q_source;
-      ConfigVectorType & q_target;
-      const ConfigurationMapping & configuration;
-      const JointMapping & joint;
-
-      ConfigurationConverterVisitor(
-        const Eigen::MatrixBase<ConfigVectorType> & q_source,
-        const Eigen::MatrixBase<ConfigVectorType> & q_target,
-        const ConfigurationMapping & configuration,
-        const JointMapping & joint)
-      : q_source(q_source)
-      , q_target(PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorType, q_target))
-      , configuration(configuration)
-      , joint(joint)
-      {
-      }
-
-      /// Manage Revolute, Prismatic, Translation and Helical joint
-      template<typename JointType>
-      ReturnType operator()(const JointType &) const
-      {
-        q_target.segment(configuration.idx_qs_target, configuration.nq) =
-          joint.direction_sign * q_source.segment(configuration.idx_qs_source, configuration.nq);
-      }
-
-      template<int axis>
-      ReturnType operator()(const JointModelRevoluteUnboundedTpl<Scalar, Options, axis> &) const
-      {
-        // TODO
-      }
-
-      ReturnType operator()(const JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> &) const
-      {
-        // TODO
-      }
-
-      ReturnType operator()(const JointModelFreeFlyerTpl<Scalar, Options> &) const
-      {
-        // Copy tx, ty, tz, qx, qy, qz
-        q_target.segment(configuration.idx_qs_target, 6) =
-          joint.direction_sign * q_source.segment(configuration.idx_qs_source, 6);
-        // Copy qw
-        q_target[configuration.idx_qs_target + 6] = q_source[configuration.idx_qs_source + 6];
-      }
-
-      ReturnType operator()(const JointModelSphericalTpl<Scalar, Options> &) const
-      {
-        // Copy qx, qy, qz
-        q_target.segment(configuration.idx_qs_target, 3) =
-          joint.direction_sign * q_source.segment(configuration.idx_qs_source, 3);
-        // Copy qw
-        q_target[configuration.idx_qs_target + 3] = q_source[configuration.idx_qs_source + 3];
-      }
-
-      ReturnType operator()(const JointModelSphericalZYXTpl<Scalar, Options> &) const
-      {
-        if (joint.same_direction)
-        {
-        }
-        else
-        {
-        }
-      }
-
-      ReturnType operator()(const JointModelPlanarTpl<Scalar, Options> &) const
-      {
-        // TODO
-      }
-
-      ReturnType operator()(const JointModelUniversalTpl<Scalar, Options> &) const
-      {
-        q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source + 1];
-        q_target[configuration.idx_qs_target + 1] = q_source[configuration.idx_qs_source];
-      }
-
-      ReturnType operator()(const JointModelMimicTpl<Scalar, Options, JointCollectionTpl> &) const
-      {
-        // TODO
-      }
-
-      ReturnType
-      operator()(const JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> &) const
-      {
-        // TODO must know what kind of joint and add offset to visitor
-      }
-    };
+    } // namespace internal
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    template<typename ConfigVectorType>
+    template<typename ConfigVectorType1, typename ConfigVectorType2>
     void ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>::convertConfiguration(
-      const Eigen::MatrixBase<ConfigVectorType> & q_source,
-      const Eigen::MatrixBase<ConfigVectorType> & q_target) const
+      const Eigen::MatrixBase<ConfigVectorType1> & q_source,
+      const Eigen::MatrixBase<ConfigVectorType2> & q_target) const
     {
+      if (source_configuration_size != q_source.size())
+      {
+        PINOCCHIO_THROW_PRETTY(
+          std::runtime_error, "convertConfiguration - wrong source configuration size");
+      }
+      if (target_configuration_size != q_target.size())
+      {
+        PINOCCHIO_THROW_PRETTY(
+          std::runtime_error, "convertConfiguration - wrong target configuration size");
+      }
+
       for (std::size_t i = 0; i < joint_mapping.size(); ++i)
       {
         const auto & configuration = configuration_mapping[i];
         const auto & joint = joint_mapping[i];
         boost::apply_visitor(
-          ConfigurationConverterVisitor<Scalar, Options, JointCollectionTpl, ConfigVectorType>(
+          internal::ConfigurationConverterVisitor<
+            Scalar, Options, JointCollectionTpl, ConfigVectorType1, ConfigVectorType2>(
             q_source, q_target, configuration, joint),
           joint.joint);
       }
