@@ -291,6 +291,10 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   g.addBody("b3", I_I);
   g.addBody("b4", I_I);
   g.addBody("b5", I_I);
+  g.addBody("b6", I_I);
+  g.addBody("b7", I_I);
+  g.addBody("b8", I_I);
+  g.addBody("b9", I_I);
   g.addJoint(
     "j1", pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "b1",
     pinocchio::SE3::Random(), "b2", pinocchio::SE3::Random());
@@ -303,6 +307,18 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   g.addJoint(
     "j4", pinocchio::graph::JointUniversalGraph(Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY()),
     "b4", pinocchio::SE3::Random(), "b5", pinocchio::SE3::Random());
+  g.addJoint(
+    "j5", pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "b5",
+    pinocchio::SE3::Random(), "b6", pinocchio::SE3::Random());
+  g.addJoint(
+    "j6", pinocchio::graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()), "b6",
+    pinocchio::SE3::Random(), "b7", pinocchio::SE3::Random());
+  g.addJoint(
+    "j7", pinocchio::graph::JointHelicalGraph(Eigen::Vector3d::UnitX(), 0.1), "b7",
+    pinocchio::SE3::Random(), "b8", pinocchio::SE3::Random());
+  g.addJoint(
+    "j8", pinocchio::graph::JointTranslationGraph(), "b8", pinocchio::SE3::Random(), "b9",
+    pinocchio::SE3::Random());
 
   const auto model_a = g.buildModel("b1", X_I);
   pinocchio::Data data_a(model_a);
@@ -312,7 +328,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check joint mapping and backward conversion
   {
-    auto model_b = g.buildModel("b5", data_a.oMf[model_a.getFrameId("b5", pinocchio::BODY)]);
+    auto model_b = g.buildModel("b9", data_a.oMf[model_a.getFrameId("b9", pinocchio::BODY)]);
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);

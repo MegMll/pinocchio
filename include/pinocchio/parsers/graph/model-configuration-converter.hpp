@@ -270,13 +270,17 @@ namespace pinocchio
         template<int axis>
         ReturnType operator()(const JointModelRevoluteUnboundedTpl<Scalar, Options, axis> &) const
         {
-          // TODO
+          q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source];
+          q_target[configuration.idx_qs_target + 1] =
+            joint.direction_sign * q_source[configuration.idx_qs_source + 1];
         }
 
         ReturnType
         operator()(const JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> &) const
         {
-          // TODO
+          q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source];
+          q_target[configuration.idx_qs_target + 1] =
+            joint.direction_sign * q_source[configuration.idx_qs_source + 1];
         }
 
         ReturnType operator()(const JointModelFreeFlyerTpl<Scalar, Options> &) const
