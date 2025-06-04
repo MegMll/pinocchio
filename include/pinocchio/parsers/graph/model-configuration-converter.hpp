@@ -8,6 +8,7 @@
 #include "pinocchio/parsers/graph/model-graph.hpp"
 
 #include "pinocchio/multibody/joint/fwd.hpp"
+#include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 
 #include <Eigen/Geometry>
 
@@ -259,10 +260,11 @@ namespace pinocchio
         {
         }
 
-        /// Manage Revolute, Prismatic, Translation and Helical joint
+        // Manage Revolute, Prismatic, Translation and Helical joint.
         template<typename JointType>
         ReturnType operator()(const JointType &) const
         {
+          // Apply direction_sign on each configuration values.
           q_target.segment(configuration.idx_qs_target, configuration.nq) =
             joint.direction_sign * q_source.segment(configuration.idx_qs_source, configuration.nq);
         }
@@ -270,6 +272,7 @@ namespace pinocchio
         template<int axis>
         ReturnType operator()(const JointModelRevoluteUnboundedTpl<Scalar, Options, axis> &) const
         {
+          // Apply direction_sign on sinus to inverse the rotation
           q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source];
           q_target[configuration.idx_qs_target + 1] =
             joint.direction_sign * q_source[configuration.idx_qs_source + 1];
@@ -278,6 +281,7 @@ namespace pinocchio
         ReturnType
         operator()(const JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> &) const
         {
+          // Apply direction_sign on sinus to inverse the rotation
           q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source];
           q_target[configuration.idx_qs_target + 1] =
             joint.direction_sign * q_source[configuration.idx_qs_source + 1];
@@ -285,15 +289,15 @@ namespace pinocchio
 
         ReturnType operator()(const JointModelFreeFlyerTpl<Scalar, Options> &) const
         {
-          // Copy tx, ty, tz, qx, qy, qz, qw
           if (joint.same_direction)
           {
+            // Copy tx, ty, tz, qx, qy, qz, qw
             q_target.template segment<7>(configuration.idx_qs_target) =
               q_source.template segment<7>(configuration.idx_qs_source);
           }
           else
           {
-            // Apply inverse rotation on translation
+            // Apply inverse rotation on translation and copy inverse rotation
             Vector3 translation_source(q_source.template segment<3>(configuration.idx_qs_source));
             Quaternion rotation_source(
               q_source.template segment<4>(configuration.idx_qs_source + 3));
@@ -308,7 +312,7 @@ namespace pinocchio
 
         ReturnType operator()(const JointModelSphericalTpl<Scalar, Options> &) const
         {
-          // Copy qx, qy, qz
+          // Copy qx, qy, qz with direction_sign apply to it
           q_target.template segment<3>(configuration.idx_qs_target) =
             joint.direction_sign * q_source.template segment<3>(configuration.idx_qs_source);
           // Copy qw
@@ -317,11 +321,22 @@ namespace pinocchio
 
         ReturnType operator()(const JointModelSphericalZYXTpl<Scalar, Options> &) const
         {
+
           if (joint.same_direction)
           {
+            // Copy zyx
+            q_target.template segment<3>(configuration.idx_qs_target) =
+              q_source.template segment<3>(configuration.idx_qs_source);
           }
           else
           {
+            // Compute the inverse rotation and exctract the ZYX euler angles
+            JointModelSphericalZYXTpl<Scalar, Options> jmodel;
+            jmodel.setIndexes(0, 0, 0);
+            JointDataSphericalZYXTpl<Scalar, Options> jdata;
+            jmodel.calc(jdata, q_source.template segment<3>(configuration.idx_qs_source));
+            q_target.template segment<3>(configuration.idx_qs_target) =
+              jdata.M.rotation().transpose().eulerAngles(2, 1, 0);
           }
         }
 
@@ -334,11 +349,13 @@ namespace pinocchio
         {
           if (joint.same_direction)
           {
+            // Copy q
             q_target.template segment<2>(configuration.idx_qs_target) =
               q_source.template segment<2>(configuration.idx_qs_source);
           }
           else
           {
+            // Axes are inversed so swap q
             q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source + 1];
             q_target[configuration.idx_qs_target + 1] = q_source[configuration.idx_qs_source];
           }

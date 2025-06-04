@@ -295,6 +295,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   g.addBody("b7", I_I);
   g.addBody("b8", I_I);
   g.addBody("b9", I_I);
+  g.addBody("b10", I_I);
   g.addJoint(
     "j1", pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "b1",
     pinocchio::SE3::Random(), "b2", pinocchio::SE3::Random());
@@ -319,6 +320,9 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   g.addJoint(
     "j8", pinocchio::graph::JointTranslationGraph(), "b8", pinocchio::SE3::Random(), "b9",
     pinocchio::SE3::Random());
+  g.addJoint(
+    "j9", pinocchio::graph::JointSphericalZYXGraph(), "b9", pinocchio::SE3::Random(), "b10",
+    pinocchio::SE3::Random());
 
   const auto model_a = g.buildModel("b1", X_I);
   pinocchio::Data data_a(model_a);
@@ -328,7 +332,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check joint mapping and backward conversion
   {
-    auto model_b = g.buildModel("b9", data_a.oMf[model_a.getFrameId("b9", pinocchio::BODY)]);
+    auto model_b = g.buildModel("b10", data_a.oMf[model_a.getFrameId("b10", pinocchio::BODY)]);
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
