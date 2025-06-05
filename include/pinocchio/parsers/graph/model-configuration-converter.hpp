@@ -90,6 +90,13 @@ namespace pinocchio
         const Eigen::MatrixBase<ConfigVectorType1> & q_source,
         const Eigen::MatrixBase<ConfigVectorType2> & q_target) const;
 
+      /// Convert \p v_source tangent vector from source model to \p v_target tangent
+      /// vector from target model.
+      template<typename TangentVectorType1, typename TangentVectorType2>
+      void convertTangent(
+        const Eigen::MatrixBase<TangentVectorType1> & v_source,
+        const Eigen::MatrixBase<TangentVectorType2> & v_target) const;
+
       /// Contains configuration vector mapping between source and target model.
       /// This vector contains all flattened model joints (with composite joint contents).
       std::vector<ConfigurationMapping> configuration_mapping;
@@ -529,6 +536,190 @@ namespace pinocchio
           internal::ConfigurationConverterVisitor<
             Scalar, Options, JointCollectionTpl, ConfigVectorType1, ConfigVectorType2>(
             q_source, q_target, configuration, joint),
+          joint.joint);
+      }
+    }
+
+    namespace internal
+    {
+      template<
+        typename _Scalar,
+        int _Options,
+        template<typename, int> class JointCollectionTpl,
+        typename TangentVectorType1,
+        typename TangentVectorType2>
+      struct TangentConverterVisitor : public boost::static_visitor<void>
+      {
+        typedef _Scalar Scalar;
+        enum
+        {
+          Options = _Options
+        };
+
+        typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
+          ModelConfigurationConverter;
+        typedef typename ModelConfigurationConverter::TangentMapping TangentMapping;
+        typedef typename ModelConfigurationConverter::JointMapping JointMapping;
+
+        typedef Eigen::Vector<Scalar, 2> Vector2;
+        typedef Eigen::Matrix<Scalar, 2, 2> Matrix2;
+        typedef Eigen::Vector<Scalar, 3> Vector3;
+        typedef Eigen::Quaternion<Scalar> Quaternion;
+
+        typedef void ReturnType;
+
+        const Eigen::MatrixBase<TangentVectorType1> & v_source;
+        TangentVectorType2 & v_target;
+        const TangentMapping & tangent;
+        const JointMapping & joint;
+
+        TangentConverterVisitor(
+          const Eigen::MatrixBase<TangentVectorType1> & v_source,
+          const Eigen::MatrixBase<TangentVectorType2> & v_target,
+          const TangentMapping & tangent,
+          const JointMapping & joint)
+        : v_source(v_source)
+        , v_target(PINOCCHIO_EIGEN_CONST_CAST(TangentVectorType2, v_target))
+        , tangent(tangent)
+        , joint(joint)
+        {
+        }
+
+        // Manage Revolute, RevoluteUnbounded, Prismatic, Translation and Helical joint.
+        template<typename JointType>
+        ReturnType operator()(const JointType &) const
+        {
+          // Apply direction_sign on each configuration values.
+          v_target.segment(tangent.idx_vs_target, tangent.nv) =
+            joint.direction_sign * v_source.segment(tangent.idx_vs_source, tangent.nv);
+        }
+
+        // ReturnType operator()(const JointModelFreeFlyerTpl<Scalar, Options> &) const
+        // {
+        //   if (joint.same_direction)
+        //   {
+        //     // Copy tx, ty, tz, qx, qy, qz, qw
+        //     q_target.template segment<7>(configuration.idx_qs_target) =
+        //       q_source.template segment<7>(configuration.idx_qs_source);
+        //   }
+        //   else
+        //   {
+        //     // Apply inverse rotation on translation and copy inverse rotation
+        //     Vector3 translation_source(q_source.template
+        //     segment<3>(configuration.idx_qs_source)); Quaternion rotation_source(
+        //       q_source.template segment<4>(configuration.idx_qs_source + 3));
+        //     Quaternion rotation_source_inv(rotation_source.inverse());
+        //
+        //     Vector3 translation_target(-(rotation_source_inv * translation_source));
+        //     q_target.template segment<3>(configuration.idx_qs_target) = translation_target;
+        //     q_target.template segment<4>(configuration.idx_qs_target + 3) =
+        //       rotation_source_inv.coeffs();
+        //   }
+        // }
+        //
+        // ReturnType operator()(const JointModelSphericalTpl<Scalar, Options> &) const
+        // {
+        //   // Copy qx, qy, qz with direction_sign apply to it
+        //   q_target.template segment<3>(configuration.idx_qs_target) =
+        //     joint.direction_sign * q_source.template segment<3>(configuration.idx_qs_source);
+        //   // Copy qw
+        //   q_target[configuration.idx_qs_target + 3] = q_source[configuration.idx_qs_source + 3];
+        // }
+        //
+        // ReturnType operator()(const JointModelSphericalZYXTpl<Scalar, Options> &) const
+        // {
+        //
+        //   if (joint.same_direction)
+        //   {
+        //     // Copy zyx
+        //     q_target.template segment<3>(configuration.idx_qs_target) =
+        //       q_source.template segment<3>(configuration.idx_qs_source);
+        //   }
+        //   else
+        //   {
+        //     // Compute the inverse rotation and exctract the ZYX euler angles
+        //     JointModelSphericalZYXTpl<Scalar, Options> jmodel;
+        //     jmodel.setIndexes(0, 0, 0);
+        //     JointDataSphericalZYXTpl<Scalar, Options> jdata;
+        //     jmodel.calc(jdata, q_source.template segment<3>(configuration.idx_qs_source));
+        //     q_target.template segment<3>(configuration.idx_qs_target) =
+        //       jdata.M.rotation().transpose().eulerAngles(2, 1, 0);
+        //   }
+        // }
+        //
+        // ReturnType operator()(const JointModelPlanarTpl<Scalar, Options> &) const
+        // {
+        //   if (joint.same_direction)
+        //   {
+        //     // Copy x, y, cos_theta, sin_theta
+        //     q_target.template segment<4>(configuration.idx_qs_target) =
+        //       q_source.template segment<4>(configuration.idx_qs_source);
+        //   }
+        //   else
+        //   {
+        //     Scalar c_theta_source = q_source[configuration.idx_qs_source + 2];
+        //     Scalar s_theta_source = q_source[configuration.idx_qs_source + 3];
+        //     Matrix2 rotation_source_inv;
+        //     rotation_source_inv << c_theta_source, s_theta_source, -s_theta_source,
+        //     c_theta_source; q_target.template segment<2>(configuration.idx_qs_target) =
+        //       -rotation_source_inv * q_source.template segment<2>(configuration.idx_qs_source);
+        //     q_target[configuration.idx_qs_target + 2] = c_theta_source;
+        //     q_target[configuration.idx_qs_target + 3] = -s_theta_source;
+        //   }
+        // }
+        //
+        // ReturnType operator()(const JointModelUniversalTpl<Scalar, Options> &) const
+        // {
+        //   if (joint.same_direction)
+        //   {
+        //     // Copy q
+        //     q_target.template segment<2>(configuration.idx_qs_target) =
+        //       q_source.template segment<2>(configuration.idx_qs_source);
+        //   }
+        //   else
+        //   {
+        //     // Axes are inversed so swap q
+        //     q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source + 1];
+        //     q_target[configuration.idx_qs_target + 1] = q_source[configuration.idx_qs_source];
+        //   }
+        // }
+
+        ReturnType operator()(const JointModelMimicTpl<Scalar, Options, JointCollectionTpl> &) const
+        {
+          // Nothing to do, q conversion is managed in mimicked joint.
+        }
+
+        ReturnType
+        operator()(const JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> &) const
+        {
+          assert(false && "This must never happened");
+        }
+      };
+    } // namespace internal
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    template<typename TangentVectorType1, typename TangentVectorType2>
+    void ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>::convertTangent(
+      const Eigen::MatrixBase<TangentVectorType1> & v_source,
+      const Eigen::MatrixBase<TangentVectorType2> & v_target) const
+    {
+      if (source_tangent_size != v_source.size())
+      {
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "convertTangent - wrong source tangent size");
+      }
+      if (target_tangent_size != v_target.size())
+      {
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "convertTangent - wrong target tangent size");
+      }
+
+      for (std::size_t i = 0; i < joint_mapping.size(); ++i)
+      {
+        const auto & tangent = tangent_mapping[i];
+        const auto & joint = joint_mapping[i];
+        boost::apply_visitor(
+          internal::TangentConverterVisitor<
+            Scalar, Options, JointCollectionTpl, TangentVectorType1, TangentVectorType2>(
+            v_source, v_target, tangent, joint),
           joint.joint);
       }
     }
