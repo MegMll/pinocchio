@@ -280,6 +280,101 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.joint_mapping[3].same_direction, true);
 }
 
+BOOST_AUTO_TEST_CASE(test_create_converter_composite)
+{
+  // Create the following model:
+  //     j1      j2      j3
+  // b1 ---- b2 ---- b3 ---- b4
+  //
+  // With j2 the following composite joint:
+  //
+  // revolute    unbounded
+  //   j2_1 ------ j2_2
+  //
+  // The model will be created from b1 and b4
+  // - b1: j1, j2, j3
+  // - b4: j3, j2, j1
+  //
+  // We should have the following configuration and tangent vector:
+  // - configuration:
+  //   - b1: [j1, j2_1, j2_2[0], j2_2[1], j3]
+  //   - b4: [j3, j2_2[0], j2_2[1], j2_1, j1]
+  // - tangent:
+  //   - b1: [j1, j2_1, j2_2, j3]
+  //   - b4: [j3, j2_2, j2_1, j1]
+
+  pinocchio::graph::ModelGraph g;
+  pinocchio::Inertia I_I(pinocchio::Inertia::Identity());
+  pinocchio::SE3 X_I(pinocchio::SE3::Identity());
+
+  g.addBody("b1", I_I);
+  g.addBody("b2", I_I);
+  g.addBody("b3", I_I);
+  g.addBody("b4", I_I);
+
+  pinocchio::graph::JointRevoluteGraph joint(Eigen::Vector3d::UnitX());
+  pinocchio::graph::JointCompositeGraph composite;
+  composite.addJoint(joint);
+  composite.addJoint(pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()));
+  g.addJoint("j1", joint, "b1", X_I, "b2", X_I);
+  g.addJoint("j2", composite, "b2", X_I, "b3", X_I);
+  g.addJoint("j3", joint, "b3", X_I, "b4", X_I);
+
+  auto b1_model = g.buildModel("b1", X_I);
+  auto b4_model = g.buildModel("b4", X_I);
+
+  auto b1_to_b4_converter = pinocchio::graph::createConverter(b1_model, b4_model, g);
+
+  // Test b1 to b4
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.configuration_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.tangent_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.joint_mapping.size(), 4);
+
+  //   j1
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].idx_qs_source, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].idx_qs_target, 4);
+
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].idx_vs_source, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].idx_vs_target, 3);
+
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[0].same_direction, false);
+
+  //   j2_1
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].idx_qs_source, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].idx_qs_target, 3);
+
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].idx_vs_source, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].idx_vs_target, 2);
+
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[1].same_direction, false);
+
+  //   j2_2
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].nq, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].idx_qs_source, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].idx_qs_target, 1);
+
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].idx_vs_source, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].idx_vs_target, 1);
+
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[2].same_direction, false);
+
+  //   j3
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].idx_qs_source, 4);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].idx_qs_target, 0);
+
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].idx_vs_source, 3);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].idx_vs_target, 0);
+
+  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[3].same_direction, false);
+}
+
 BOOST_AUTO_TEST_CASE(test_convert_configuration)
 {
   pinocchio::graph::ModelGraph g;
