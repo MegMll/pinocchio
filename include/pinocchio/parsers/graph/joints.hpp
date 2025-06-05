@@ -23,6 +23,11 @@ namespace pinocchio
       : joint_offset(pose)
       {
       }
+
+      bool operator==(const JointFixedGraph & other) const
+      {
+        return joint_offset == other.joint_offset && nq == other.nq;
+      }
     };
 
     struct JointRevoluteGraph
@@ -35,6 +40,11 @@ namespace pinocchio
       : axis(ax)
       {
       }
+
+      bool operator==(const JointRevoluteGraph & other) const
+      {
+        return axis == other.axis && nq == other.nq;
+      }
     };
 
     struct JointRevoluteUnboundedGraph
@@ -45,6 +55,11 @@ namespace pinocchio
       explicit JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax)
       : axis(ax)
       {
+      }
+
+      bool operator==(const JointRevoluteUnboundedGraph & other) const
+      {
+        return axis == other.axis && nq == other.nq;
       }
     };
 
@@ -57,6 +72,11 @@ namespace pinocchio
       : axis(ax)
       {
       }
+
+      bool operator==(const JointPrismaticGraph & other) const
+      {
+        return axis == other.axis && nq == other.nq;
+      }
     };
 
     struct JointFreeFlyerGraph
@@ -64,6 +84,11 @@ namespace pinocchio
       int nq = 7;
 
       JointFreeFlyerGraph() = default;
+
+      bool operator==(const JointFreeFlyerGraph & other) const
+      {
+        return nq == other.nq;
+      }
     };
 
     struct JointSphericalGraph
@@ -71,6 +96,11 @@ namespace pinocchio
       int nq = 4;
 
       JointSphericalGraph() = default;
+
+      bool operator==(const JointSphericalGraph & other) const
+      {
+        return nq == other.nq;
+      }
     };
 
     // Flipped whne model is reversed ?
@@ -79,6 +109,11 @@ namespace pinocchio
       int nq = 3;
 
       JointSphericalZYXGraph() = default;
+
+      bool operator==(const JointSphericalZYXGraph & other) const
+      {
+        return nq == other.nq;
+      }
     };
 
     struct JointTranslationGraph
@@ -86,6 +121,11 @@ namespace pinocchio
       int nq = 3;
 
       JointTranslationGraph() = default;
+
+      bool operator==(const JointTranslationGraph & other) const
+      {
+        return nq == other.nq;
+      }
     };
 
     struct JointPlanarGraph
@@ -93,6 +133,11 @@ namespace pinocchio
       int nq = 4;
 
       JointPlanarGraph() = default;
+
+      bool operator==(const JointPlanarGraph & other) const
+      {
+        return nq == other.nq;
+      }
     };
 
     struct JointHelicalGraph
@@ -106,6 +151,11 @@ namespace pinocchio
       , pitch(p)
       {
       }
+
+      bool operator==(const JointHelicalGraph & other) const
+      {
+        return axis == other.axis && pitch == other.pitch && nq == other.nq;
+      }
     };
 
     struct JointUniversalGraph
@@ -118,6 +168,11 @@ namespace pinocchio
       : axis1(ax1)
       , axis2(ax2)
       {
+      }
+
+      bool operator==(const JointUniversalGraph & other) const
+      {
+        return axis1 == other.axis1 && axis2 == other.axis2 && nq == other.nq;
       }
     };
 
@@ -165,6 +220,13 @@ namespace pinocchio
       , offset(offset_)
       {
       }
+
+      bool operator==(const JointMimicGraph & other) const
+      {
+        return primary_name == other.primary_name && scaling == other.scaling
+               && offset == other.offset && secondary_joint == other.secondary_joint
+               && nq == other.nq;
+      }
     };
 
     struct JointCompositeGraph
@@ -196,6 +258,12 @@ namespace pinocchio
         joints.push_back(jm);
         jointsPlacements.push_back(pose);
         nq += boost::apply_visitor([](const auto & j) { return j.nq; }, jm);
+      }
+
+      bool operator==(const JointCompositeGraph & other) const
+      {
+        return joints == other.joints && jointsPlacements == other.jointsPlacements
+               && nq == other.nq;
       }
     };
   } // namespace graph
