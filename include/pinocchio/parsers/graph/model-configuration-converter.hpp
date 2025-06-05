@@ -238,6 +238,8 @@ namespace pinocchio
         typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
         typedef typename ModelConfigurationConverter::JointMapping JointMapping;
 
+        typedef Eigen::Vector<Scalar, 2> Vector2;
+        typedef Eigen::Matrix<Scalar, 2, 2> Matrix2;
         typedef Eigen::Vector<Scalar, 3> Vector3;
         typedef Eigen::Quaternion<Scalar> Quaternion;
 
@@ -342,7 +344,23 @@ namespace pinocchio
 
         ReturnType operator()(const JointModelPlanarTpl<Scalar, Options> &) const
         {
-          // TODO
+          if (joint.same_direction)
+          {
+            // Copy x, y, cos_theta, sin_theta
+            q_target.template segment<4>(configuration.idx_qs_target) =
+              q_source.template segment<4>(configuration.idx_qs_source);
+          }
+          else
+          {
+            Scalar c_theta_source = q_source[configuration.idx_qs_source + 2];
+            Scalar s_theta_source = q_source[configuration.idx_qs_source + 3];
+            Matrix2 rotation_source_inv;
+            rotation_source_inv << c_theta_source, s_theta_source, -s_theta_source, c_theta_source;
+            q_target.template segment<2>(configuration.idx_qs_target) =
+              -rotation_source_inv * q_source.template segment<2>(configuration.idx_qs_source);
+            q_target[configuration.idx_qs_target + 2] = c_theta_source;
+            q_target[configuration.idx_qs_target + 3] = -s_theta_source;
+          }
         }
 
         ReturnType operator()(const JointModelUniversalTpl<Scalar, Options> &) const
@@ -363,7 +381,7 @@ namespace pinocchio
 
         ReturnType operator()(const JointModelMimicTpl<Scalar, Options, JointCollectionTpl> &) const
         {
-          // TODO
+          // Nothing to do, q conversion is managed in mimicked joint.
         }
 
         ReturnType
