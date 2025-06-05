@@ -90,8 +90,14 @@ namespace pinocchio
         const Eigen::MatrixBase<ConfigVectorType1> & q_source,
         const Eigen::MatrixBase<ConfigVectorType2> & q_target) const;
 
+      /// Contains configuration vector mapping between source and target model.
+      /// This vector contains all flattened model joints (with composite joint contents).
       std::vector<ConfigurationMapping> configuration_mapping;
+      /// Contains tangent vector mapping between source and target model.
+      /// This vector contains all flattened model joints (with composite joint contents).
       std::vector<TangentMapping> tangent_mapping;
+      /// Contains joint mapping between source and target model.
+      /// This vector contains all flattened model joints (with composite joint contents).
       std::vector<JointMapping> joint_mapping;
       int source_configuration_size;
       int source_tangent_size;
@@ -133,6 +139,131 @@ namespace pinocchio
         }
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "findRootBodyFrame - No BODY frame");
       }
+
+      /// Compute the ModelConfigurationConverter mapping vector.
+      /// This structure use recursive methods to handle composite joint flattening.
+      template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+      struct CreateConverterAlgo
+      {
+        typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
+          ModelConfigurationConverter;
+        typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
+        typedef typename ModelConfigurationConverter::TangentMapping TangentMapping;
+        typedef typename ModelConfigurationConverter::JointMapping JointMapping;
+        typedef JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> JointModelComposite;
+        typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
+
+        /// Add all the joints from a Model to the mapping.
+        void addJointFromModel(
+          const ModelTpl<Scalar, Options, JointCollectionTpl> & model_source,
+          const ModelTpl<Scalar, Options, JointCollectionTpl> & model_target,
+          const internal::RecordJointDirectionVisitor::JointNameToDirection &
+            joint_direction_source,
+          const internal::RecordJointDirectionVisitor::JointNameToDirection &
+            joint_direction_target,
+          std::size_t index_source)
+        {
+          for (; index_source < model_source.joints.size(); ++index_source)
+          {
+            const auto & joint_model_source = model_source.joints[index_source];
+            const std::string & joint_name = model_source.names[index_source];
+            auto index_target = model_target.getJointId(joint_name);
+            bool same_direction =
+              joint_direction_source.at(joint_name) == joint_direction_target.at(joint_name);
+            const JointModelComposite * joint_composite_source =
+              boost::get<JointModelComposite>(&joint_model_source);
+            if (joint_composite_source == nullptr)
+            {
+              ConfigurationMapping configuration;
+              TangentMapping tangent;
+
+              configuration.idx_qs_source = model_source.idx_qs[index_source];
+              configuration.idx_qs_target = model_target.idx_qs[index_target];
+              configuration.nq = model_source.nqs[index_source];
+
+              tangent.idx_vs_source = model_source.idx_vs[index_source];
+              tangent.idx_vs_target = model_target.idx_vs[index_target];
+              tangent.nv = model_source.nvs[index_source];
+
+              configuration_mapping.push_back(configuration);
+              tangent_mapping.push_back(tangent);
+              joint_mapping.emplace_back(joint_model_source, same_direction);
+            }
+            else
+            {
+              const auto & joint_model_target = model_target.joints[index_target];
+              const JointModelComposite & joint_composite_target =
+                boost::get<JointModelComposite>(joint_model_target);
+              addJointFromComposite(
+                joint_composite_source->joints, joint_composite_target.joints, same_direction);
+            }
+          }
+        }
+
+        /// Add all the joints from a JointComposite to the mapping.
+        void addJointFromComposite(
+          const typename JointModelComposite::JointModelVector & joints_source,
+          const typename JointModelComposite::JointModelVector & joints_target,
+          bool same_direction)
+        {
+          if (same_direction)
+          {
+            for (std::size_t index_source = 0; index_source < joints_source.size(); ++index_source)
+            {
+              const auto & joint_model_source = joints_source[index_source];
+              const auto & joint_model_target = joints_target[index_source];
+              addJointModel(joint_model_source, joint_model_target, same_direction);
+            }
+          }
+          else
+          {
+            for (std::size_t index_source = 0, index_target = joints_target.size() - 1;
+                 index_source < joints_source.size(); ++index_source, --index_target)
+            {
+              const auto & joint_model_source = joints_source[index_source];
+              const auto & joint_model_target = joints_target[index_target];
+              addJointModel(joint_model_source, joint_model_target, same_direction);
+            }
+          }
+        }
+
+        /// Add a JointModel to the mapping.
+        void addJointModel(
+          const JointModel & joint_model_source,
+          const JointModel & joint_model_target,
+          bool same_direction)
+        {
+          const JointModelComposite * joint_composite_source =
+            boost::get<JointModelComposite>(&joint_model_source);
+          if (joint_composite_source == nullptr)
+          {
+            ConfigurationMapping configuration;
+            TangentMapping tangent;
+            configuration.idx_qs_source = joint_model_source.idx_q();
+            configuration.idx_qs_target = joint_model_target.idx_q();
+            configuration.nq = joint_model_source.nq();
+
+            tangent.idx_vs_source = joint_model_source.idx_v();
+            tangent.idx_vs_target = joint_model_target.idx_v();
+            tangent.nv = joint_model_source.nv();
+
+            configuration_mapping.push_back(configuration);
+            tangent_mapping.push_back(tangent);
+            joint_mapping.emplace_back(joint_model_source, same_direction);
+          }
+          else
+          {
+            const JointModelComposite & joint_composite_target =
+              boost::get<JointModelComposite>(joint_model_target);
+            addJointFromComposite(
+              joint_composite_source->joints, joint_composite_target.joints, same_direction);
+          }
+        }
+
+        std::vector<ConfigurationMapping> configuration_mapping;
+        std::vector<TangentMapping> tangent_mapping;
+        std::vector<JointMapping> joint_mapping;
+      };
     } // namespace internal
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -186,35 +317,16 @@ namespace pinocchio
       {
         index_source = 2;
       }
-      for (; index_source < model_source.joints.size(); ++index_source)
-      {
-        ConfigurationMapping configuration;
-        TangentMapping tangent;
-        const std::string & joint_name = model_source.names[index_source];
-        auto index_target = model_target.getJointId(joint_name);
-
-        configuration.idx_qs_source = model_source.idx_qs[index_source];
-        configuration.idx_qs_target = model_target.idx_qs[index_target];
-        configuration.nq = model_source.nqs[index_source];
-
-        tangent.idx_vs_source = model_source.idx_vs[index_source];
-        tangent.idx_vs_target = model_target.idx_vs[index_target];
-        tangent.nv = model_source.nvs[index_source];
-
-        configuration_mapping.push_back(configuration);
-        tangent_mapping.push_back(tangent);
-        joint_mapping.emplace_back(
-          model_source.joints[index_source],
-          joint_direction_source.at(joint_name) == joint_direction_target.at(joint_name));
-      }
+      internal::CreateConverterAlgo<Scalar, Options, JointCollectionTpl> algo;
+      algo.addJointFromModel(
+        model_source, model_target, joint_direction_source, joint_direction_target, index_source);
 
       return ModelConfigurationConverter(
-        configuration_mapping, tangent_mapping, joint_mapping, model_source.nq, model_source.nv,
-        model_target.nq, model_target.nv);
+        algo.configuration_mapping, algo.tangent_mapping, algo.joint_mapping, model_source.nq,
+        model_source.nv, model_target.nq, model_target.nv);
     }
 
     // TODO: put in a .hxx
-    // TODO: missing joints
     // TODO: tangent space
     // TODO: TU
     namespace internal
@@ -387,7 +499,7 @@ namespace pinocchio
         ReturnType
         operator()(const JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> &) const
         {
-          // TODO must know what kind of joint and add offset to visitor
+          assert(false && "This must never happened");
         }
       };
     } // namespace internal

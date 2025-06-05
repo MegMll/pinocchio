@@ -297,6 +297,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   g.addBody("b9", I_I);
   g.addBody("b10", I_I);
   g.addBody("b11", I_I);
+  g.addBody("b12", I_I);
   // We can't test mimic joint because backward construction is not supported
   g.addJoint(
     "j1", pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "b1",
@@ -329,6 +330,16 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
     "j10", pinocchio::graph::JointPlanarGraph(), "b10", pinocchio::SE3::Random(), "b11",
     pinocchio::SE3::Random());
 
+  pinocchio::graph::JointCompositeGraph joint_composite;
+  joint_composite.addJoint(
+    pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
+  joint_composite.addJoint(pinocchio::graph::JointSphericalGraph(), pinocchio::SE3::Random());
+  joint_composite.addJoint(
+    pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()),
+    pinocchio::SE3::Random());
+  g.addJoint(
+    "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
+
   const auto model_a = g.buildModel("b1", X_I);
   pinocchio::Data data_a(model_a);
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model_a.nq);
@@ -337,7 +348,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check joint mapping and backward conversion
   {
-    auto model_b = g.buildModel("b11", data_a.oMf[model_a.getFrameId("b11", pinocchio::BODY)]);
+    auto model_b = g.buildModel("b12", data_a.oMf[model_a.getFrameId("b12", pinocchio::BODY)]);
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
