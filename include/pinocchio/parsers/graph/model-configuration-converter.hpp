@@ -9,6 +9,9 @@
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
+#include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/spatial/motion-ref.hpp"
+#include "pinocchio/spatial/motion-tpl.hpp"
 
 #include <Eigen/Geometry>
 
@@ -92,8 +95,9 @@ namespace pinocchio
 
       /// Convert \p v_source tangent vector from source model to \p v_target tangent
       /// vector from target model.
-      template<typename TangentVectorType1, typename TangentVectorType2>
+      template<typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
       void convertTangent(
+        const Eigen::MatrixBase<ConfigVectorType> & q_source,
         const Eigen::MatrixBase<TangentVectorType1> & v_source,
         const Eigen::MatrixBase<TangentVectorType2> & v_target) const;
 
@@ -333,9 +337,6 @@ namespace pinocchio
         model_source.nv, model_target.nq, model_target.nv);
     }
 
-    // TODO: put in a .hxx
-    // TODO: tangent space
-    // TODO: TU
     namespace internal
     {
       template<
@@ -451,7 +452,7 @@ namespace pinocchio
           }
           else
           {
-            // Compute the inverse rotation and exctract the ZYX euler angles
+            // Compute the inverse rotation and extract the ZYX euler angles
             JointModelSphericalZYXTpl<Scalar, Options> jmodel;
             jmodel.setIndexes(0, 0, 0);
             JointDataSphericalZYXTpl<Scalar, Options> jdata;
@@ -540,12 +541,20 @@ namespace pinocchio
       }
     }
 
+    // TODO: put in a .hxx
     namespace internal
     {
+      template<typename Vector6ArgType>
+      MotionRef<Vector6ArgType> makeMotionRef(const Vector6ArgType & vector)
+      {
+        return MotionRef<Vector6ArgType>(vector);
+      }
+
       template<
         typename _Scalar,
         int _Options,
         template<typename, int> class JointCollectionTpl,
+        typename ConfigVectorType,
         typename TangentVectorType1,
         typename TangentVectorType2>
       struct TangentConverterVisitor : public boost::static_visitor<void>
@@ -558,28 +567,40 @@ namespace pinocchio
 
         typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
           ModelConfigurationConverter;
+        typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
         typedef typename ModelConfigurationConverter::TangentMapping TangentMapping;
         typedef typename ModelConfigurationConverter::JointMapping JointMapping;
 
         typedef Eigen::Vector<Scalar, 2> Vector2;
         typedef Eigen::Matrix<Scalar, 2, 2> Matrix2;
         typedef Eigen::Vector<Scalar, 3> Vector3;
+        typedef Eigen::Matrix<Scalar, 3, 3> Matrix3;
         typedef Eigen::Quaternion<Scalar> Quaternion;
+
+        typedef SE3Tpl<Scalar, Options> SE3;
+        typedef MotionSphericalTpl<Scalar, Options> MotionSpherical;
+        typedef MotionTpl<Scalar, Options> Motion;
 
         typedef void ReturnType;
 
+        const Eigen::MatrixBase<ConfigVectorType> & q_source;
         const Eigen::MatrixBase<TangentVectorType1> & v_source;
         TangentVectorType2 & v_target;
+        const ConfigurationMapping & configuration;
         const TangentMapping & tangent;
         const JointMapping & joint;
 
         TangentConverterVisitor(
+          const Eigen::MatrixBase<ConfigVectorType> & q_source,
           const Eigen::MatrixBase<TangentVectorType1> & v_source,
           const Eigen::MatrixBase<TangentVectorType2> & v_target,
+          const ConfigurationMapping & configuration,
           const TangentMapping & tangent,
           const JointMapping & joint)
-        : v_source(v_source)
+        : q_source(q_source)
+        , v_source(v_source)
         , v_target(PINOCCHIO_EIGEN_CONST_CAST(TangentVectorType2, v_target))
+        , configuration(configuration)
         , tangent(tangent)
         , joint(joint)
         {
@@ -590,103 +611,144 @@ namespace pinocchio
         ReturnType operator()(const JointType &) const
         {
           // Apply direction_sign on each configuration values.
-          v_target.segment(tangent.idx_vs_target, tangent.nv) =
-            joint.direction_sign * v_source.segment(tangent.idx_vs_source, tangent.nv);
+          v_target.template segment<JointType::NV>(tangent.idx_vs_target) =
+            joint.direction_sign * v_source.template segment<JointType::NV>(tangent.idx_vs_source);
         }
 
-        // ReturnType operator()(const JointModelFreeFlyerTpl<Scalar, Options> &) const
-        // {
-        //   if (joint.same_direction)
-        //   {
-        //     // Copy tx, ty, tz, qx, qy, qz, qw
-        //     q_target.template segment<7>(configuration.idx_qs_target) =
-        //       q_source.template segment<7>(configuration.idx_qs_source);
-        //   }
-        //   else
-        //   {
-        //     // Apply inverse rotation on translation and copy inverse rotation
-        //     Vector3 translation_source(q_source.template
-        //     segment<3>(configuration.idx_qs_source)); Quaternion rotation_source(
-        //       q_source.template segment<4>(configuration.idx_qs_source + 3));
-        //     Quaternion rotation_source_inv(rotation_source.inverse());
-        //
-        //     Vector3 translation_target(-(rotation_source_inv * translation_source));
-        //     q_target.template segment<3>(configuration.idx_qs_target) = translation_target;
-        //     q_target.template segment<4>(configuration.idx_qs_target + 3) =
-        //       rotation_source_inv.coeffs();
-        //   }
-        // }
-        //
-        // ReturnType operator()(const JointModelSphericalTpl<Scalar, Options> &) const
-        // {
-        //   // Copy qx, qy, qz with direction_sign apply to it
-        //   q_target.template segment<3>(configuration.idx_qs_target) =
-        //     joint.direction_sign * q_source.template segment<3>(configuration.idx_qs_source);
-        //   // Copy qw
-        //   q_target[configuration.idx_qs_target + 3] = q_source[configuration.idx_qs_source + 3];
-        // }
-        //
-        // ReturnType operator()(const JointModelSphericalZYXTpl<Scalar, Options> &) const
-        // {
-        //
-        //   if (joint.same_direction)
-        //   {
-        //     // Copy zyx
-        //     q_target.template segment<3>(configuration.idx_qs_target) =
-        //       q_source.template segment<3>(configuration.idx_qs_source);
-        //   }
-        //   else
-        //   {
-        //     // Compute the inverse rotation and exctract the ZYX euler angles
-        //     JointModelSphericalZYXTpl<Scalar, Options> jmodel;
-        //     jmodel.setIndexes(0, 0, 0);
-        //     JointDataSphericalZYXTpl<Scalar, Options> jdata;
-        //     jmodel.calc(jdata, q_source.template segment<3>(configuration.idx_qs_source));
-        //     q_target.template segment<3>(configuration.idx_qs_target) =
-        //       jdata.M.rotation().transpose().eulerAngles(2, 1, 0);
-        //   }
-        // }
-        //
-        // ReturnType operator()(const JointModelPlanarTpl<Scalar, Options> &) const
-        // {
-        //   if (joint.same_direction)
-        //   {
-        //     // Copy x, y, cos_theta, sin_theta
-        //     q_target.template segment<4>(configuration.idx_qs_target) =
-        //       q_source.template segment<4>(configuration.idx_qs_source);
-        //   }
-        //   else
-        //   {
-        //     Scalar c_theta_source = q_source[configuration.idx_qs_source + 2];
-        //     Scalar s_theta_source = q_source[configuration.idx_qs_source + 3];
-        //     Matrix2 rotation_source_inv;
-        //     rotation_source_inv << c_theta_source, s_theta_source, -s_theta_source,
-        //     c_theta_source; q_target.template segment<2>(configuration.idx_qs_target) =
-        //       -rotation_source_inv * q_source.template segment<2>(configuration.idx_qs_source);
-        //     q_target[configuration.idx_qs_target + 2] = c_theta_source;
-        //     q_target[configuration.idx_qs_target + 3] = -s_theta_source;
-        //   }
-        // }
-        //
-        // ReturnType operator()(const JointModelUniversalTpl<Scalar, Options> &) const
-        // {
-        //   if (joint.same_direction)
-        //   {
-        //     // Copy q
-        //     q_target.template segment<2>(configuration.idx_qs_target) =
-        //       q_source.template segment<2>(configuration.idx_qs_source);
-        //   }
-        //   else
-        //   {
-        //     // Axes are inversed so swap q
-        //     q_target[configuration.idx_qs_target] = q_source[configuration.idx_qs_source + 1];
-        //     q_target[configuration.idx_qs_target + 1] = q_source[configuration.idx_qs_source];
-        //   }
-        // }
+        ReturnType operator()(const JointModelFreeFlyerTpl<Scalar, Options> &) const
+        {
+          if (joint.same_direction)
+          {
+            // Copy vx, vy, vz, wx, wy, wz
+            v_target.template segment<6>(tangent.idx_vs_target) =
+              v_source.template segment<6>(tangent.idx_vs_source);
+          }
+          else
+          {
+            // Velocities are expressed in joint successor body frame (after joint transformation).
+            // Here, v_source is in joint predecessor body frame so we
+            // must transform it in successor body frame.
+            Quaternion rotation_source(
+              q_source.template segment<4>(configuration.idx_qs_source + 3));
+            Vector3 translation_source(q_source.template segment<3>(configuration.idx_qs_source));
+            SE3 transform_source(rotation_source, translation_source);
+
+            v_target.template segment<6>(tangent.idx_vs_target) =
+              -transform_source
+                 .act(makeMotionRef(v_source.template segment<6>(tangent.idx_vs_source)))
+                 .toVector();
+          }
+        }
+
+        ReturnType operator()(const JointModelSphericalTpl<Scalar, Options> &) const
+        {
+          if (joint.same_direction)
+          {
+            // vz, wx, wy, wz
+            v_target.template segment<3>(tangent.idx_vs_target) =
+              v_source.template segment<3>(tangent.idx_vs_source);
+          }
+          else
+          {
+            // Velocities are expressed in joint successor body frame (after joint transformation).
+            // Here, v_source is in joint predecessor body frame so we
+            // must transform it in successor body frame.
+            Quaternion rotation_source(q_source.template segment<4>(configuration.idx_qs_source));
+            SE3 transform_source(rotation_source, Vector3::Zero());
+
+            v_target.template segment<3>(tangent.idx_vs_target) =
+              -transform_source
+                 .act(MotionSpherical(v_source.template segment<3>(tangent.idx_vs_source)))
+                 .angular();
+          }
+        }
+
+        ReturnType operator()(const JointModelSphericalZYXTpl<Scalar, Options> &) const
+        {
+          if (joint.same_direction)
+          {
+            // Copy vz, vy, vx
+            v_target.template segment<3>(tangent.idx_vs_target) =
+              v_source.template segment<3>(tangent.idx_vs_source);
+          }
+          else
+          {
+            // This is hacky.
+            // JointModelSphericalZYXTpl velocity is computed with v_j^source = S_source*v_source.
+            // We want the reverse joint to compute v_j^target = - v_j^source in the successor body
+            // frame.
+            // With v_j^target = S_target*v_target we must cancel S_target by multiplying v_target
+            // by S_target^{-1}. Then we can use the same transformation trick than freeflyer
+            // and Spherical joints.
+            JointModelSphericalZYXTpl<Scalar, Options> jmodel;
+            jmodel.setIndexes(0, 0, 0);
+            JointDataSphericalZYXTpl<Scalar, Options> jdata;
+            jmodel.calc(
+              jdata, q_source.template segment<3>(configuration.idx_qs_source),
+              v_source.template segment<3>(tangent.idx_vs_source));
+            Vector3 eulers = jdata.M.rotation().transpose().eulerAngles(2, 1, 0);
+
+            // Compute S_target^{-1}
+            Scalar c1_target, s1_target;
+            SINCOS(eulers[1], &s1_target, &c1_target);
+            Scalar c2_target, s2_target;
+            SINCOS(eulers[2], &s2_target, &c2_target);
+            Matrix3 S_target;
+            S_target << -s1_target, Scalar(0), Scalar(1), c1_target * s2_target, c2_target,
+              Scalar(0), c1_target * c2_target, -s2_target, Scalar(0);
+            Matrix3 S_target_inv = S_target.inverse();
+
+            // Compute v_target in the right frame
+            v_target.template segment<3>(tangent.idx_vs_target).noalias() =
+              -S_target_inv * jdata.M.rotation() * jdata.S.angularSubspace()
+              * v_source.template segment<3>(tangent.idx_vs_source);
+          }
+        }
+
+        ReturnType operator()(const JointModelPlanarTpl<Scalar, Options> &) const
+        {
+          if (joint.same_direction)
+          {
+            // Copy vx, vy, wz
+            v_target.template segment<3>(tangent.idx_vs_target) =
+              v_source.template segment<3>(tangent.idx_vs_source);
+          }
+          else
+          {
+            // Velocities are expressed in joint successor body frame (after joint transformation).
+            // Here, v_source is in joint predecessor body frame so we
+            // must transform it in successor body frame.
+            JointModelPlanarTpl<Scalar, Options> jmodel;
+            jmodel.setIndexes(0, 0, 0);
+            JointDataPlanarTpl<Scalar, Options> jdata;
+            jmodel.calc(
+              jdata, q_source.template segment<4>(configuration.idx_qs_source),
+              v_source.template segment<3>(tangent.idx_vs_source));
+            Motion res = -jdata.M.act(jdata.v);
+            v_target.template segment<3>(tangent.idx_vs_target) << res.linear().x(),
+              res.linear().y(), res.angular().z();
+          }
+        }
+
+        ReturnType operator()(const JointModelUniversalTpl<Scalar, Options> &) const
+        {
+          if (joint.same_direction)
+          {
+            // Copy v
+            v_target.template segment<2>(tangent.idx_vs_target) =
+              v_source.template segment<2>(tangent.idx_vs_source);
+          }
+          else
+          {
+            // Axes are inversed so swap v
+            v_target[tangent.idx_vs_target] = v_source[tangent.idx_vs_source + 1];
+            v_target[tangent.idx_vs_target + 1] = v_source[tangent.idx_vs_source];
+          }
+        }
 
         ReturnType operator()(const JointModelMimicTpl<Scalar, Options, JointCollectionTpl> &) const
         {
-          // Nothing to do, q conversion is managed in mimicked joint.
+          // Nothing to do, v conversion is managed in mimicked joint.
         }
 
         ReturnType
@@ -698,11 +760,17 @@ namespace pinocchio
     } // namespace internal
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    template<typename TangentVectorType1, typename TangentVectorType2>
+    template<typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
     void ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>::convertTangent(
+      const Eigen::MatrixBase<ConfigVectorType> & q_source,
       const Eigen::MatrixBase<TangentVectorType1> & v_source,
       const Eigen::MatrixBase<TangentVectorType2> & v_target) const
     {
+      if (source_configuration_size != q_source.size())
+      {
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "convertTangent - wrong source configuration size");
+      }
       if (source_tangent_size != v_source.size())
       {
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "convertTangent - wrong source tangent size");
@@ -714,12 +782,13 @@ namespace pinocchio
 
       for (std::size_t i = 0; i < joint_mapping.size(); ++i)
       {
+        const auto & configuration = configuration_mapping[i];
         const auto & tangent = tangent_mapping[i];
         const auto & joint = joint_mapping[i];
         boost::apply_visitor(
           internal::TangentConverterVisitor<
-            Scalar, Options, JointCollectionTpl, TangentVectorType1, TangentVectorType2>(
-            v_source, v_target, tangent, joint),
+            Scalar, Options, JointCollectionTpl, ConfigVectorType, TangentVectorType1,
+            TangentVectorType2>(q_source, v_source, v_target, configuration, tangent, joint),
           joint.joint);
       }
     }

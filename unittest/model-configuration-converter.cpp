@@ -538,43 +538,43 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
   g.addJoint(
     "j1", pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "b1",
     pinocchio::SE3::Random(), "b2", pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j2", pinocchio::graph::JointFreeFlyerGraph(), "b2", pinocchio::SE3::Random(), "b3",
-  //   pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j3", pinocchio::graph::JointSphericalGraph(), "b3", pinocchio::SE3::Random(), "b4",
-  //   pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j4", pinocchio::graph::JointUniversalGraph(Eigen::Vector3d::UnitX(),
-  //   Eigen::Vector3d::UnitY()), "b4", pinocchio::SE3::Random(), "b5", pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j5", pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "b5",
-  //   pinocchio::SE3::Random(), "b6", pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j6", pinocchio::graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()), "b6",
-  //   pinocchio::SE3::Random(), "b7", pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j7", pinocchio::graph::JointHelicalGraph(Eigen::Vector3d::UnitX(), 0.1), "b7",
-  //   pinocchio::SE3::Random(), "b8", pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j8", pinocchio::graph::JointTranslationGraph(), "b8", pinocchio::SE3::Random(), "b9",
-  //   pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j9", pinocchio::graph::JointSphericalZYXGraph(), "b9", pinocchio::SE3::Random(), "b10",
-  //   pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j10", pinocchio::graph::JointPlanarGraph(), "b10", pinocchio::SE3::Random(), "b11",
-  //   pinocchio::SE3::Random());
-  //
-  // pinocchio::graph::JointCompositeGraph joint_composite;
-  // joint_composite.addJoint(
-  //   pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
-  // joint_composite.addJoint(pinocchio::graph::JointSphericalGraph(), pinocchio::SE3::Random());
-  // joint_composite.addJoint(
-  //   pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()),
-  //   pinocchio::SE3::Random());
-  // g.addJoint(
-  //   "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
+  g.addJoint(
+    "j2", pinocchio::graph::JointFreeFlyerGraph(), "b2", pinocchio::SE3::Random(), "b3",
+    pinocchio::SE3::Random());
+  g.addJoint(
+    "j3", pinocchio::graph::JointSphericalGraph(), "b3", pinocchio::SE3::Random(), "b4",
+    pinocchio::SE3::Random());
+  g.addJoint(
+    "j4", pinocchio::graph::JointUniversalGraph(Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY()),
+    "b4", pinocchio::SE3::Random(), "b5", pinocchio::SE3::Random());
+  g.addJoint(
+    "j5", pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "b5",
+    pinocchio::SE3::Random(), "b6", pinocchio::SE3::Random());
+  g.addJoint(
+    "j6", pinocchio::graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()), "b6",
+    pinocchio::SE3::Random(), "b7", pinocchio::SE3::Random());
+  g.addJoint(
+    "j7", pinocchio::graph::JointHelicalGraph(Eigen::Vector3d::UnitX(), 0.1), "b7",
+    pinocchio::SE3::Random(), "b8", pinocchio::SE3::Random());
+  g.addJoint(
+    "j8", pinocchio::graph::JointTranslationGraph(), "b8", pinocchio::SE3::Random(), "b9",
+    pinocchio::SE3::Random());
+  g.addJoint(
+    "j9", pinocchio::graph::JointSphericalZYXGraph(), "b9", pinocchio::SE3::Random(), "b10",
+    pinocchio::SE3::Random());
+  g.addJoint(
+    "j10", pinocchio::graph::JointPlanarGraph(), "b10", pinocchio::SE3::Random(), "b11",
+    pinocchio::SE3::Random());
+
+  pinocchio::graph::JointCompositeGraph joint_composite;
+  joint_composite.addJoint(
+    pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
+  joint_composite.addJoint(pinocchio::graph::JointSphericalGraph(), pinocchio::SE3::Random());
+  joint_composite.addJoint(
+    pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()),
+    pinocchio::SE3::Random());
+  g.addJoint(
+    "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
 
   const auto model_a = g.buildModel("b1", X_I);
   pinocchio::Data data_a(model_a);
@@ -589,8 +589,8 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     // To have the same velocity between frame in model_a and model_b
     // We create model_b with a freeflyer base link and set his velocity to
     // model_a end effector velocity.
-    const std::string end_effector = "b2";
-    const auto end_effector_frame_id = model_a.getFrameId("b2", pinocchio::BODY);
+    const std::string end_effector = "b12";
+    const auto end_effector_frame_id = model_a.getFrameId(end_effector, pinocchio::BODY);
     auto model_b = g.buildModel(
       end_effector, data_a.oMf[end_effector_frame_id],
       pinocchio::graph::JointGraphVariant(pinocchio::graph::JointFreeFlyerGraph()));
@@ -602,7 +602,7 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
 
     auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
     a_to_b_converter.convertConfiguration(q_a, q_b);
-    a_to_b_converter.convertTangent(v_a, v_b);
+    a_to_b_converter.convertTangent(q_a, v_a, v_b);
     pinocchio::forwardKinematics(model_b, data_b, q_b, v_b);
     pinocchio::updateFramePlacements(model_b, data_b);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -614,6 +614,7 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
         auto motion_a = pinocchio::getFrameVelocity(model_a, data_a, i);
         auto motion_b = pinocchio::getFrameVelocity(model_b, data_b, i_b);
 
+        BOOST_CHECK(SE3isApprox(data_a.oMf[i], data_b.oMf[i_b]));
         BOOST_CHECK(isApproxOrZero(motion_a.toVector(), motion_b.toVector()));
       }
     }
@@ -626,7 +627,7 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     Eigen::VectorXd v_a2(Eigen::VectorXd::Zero(model_a.nv));
     auto a_to_a_converter = pinocchio::graph::createConverter(model_a, model_a, g);
     a_to_a_converter.convertConfiguration(q_a, q_a2);
-    a_to_a_converter.convertTangent(v_a, v_a2);
+    a_to_a_converter.convertTangent(q_a, v_a, v_a2);
     pinocchio::forwardKinematics(model_a, data_a2, q_a2, v_a2);
     pinocchio::updateFramePlacements(model_a, data_a2);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
