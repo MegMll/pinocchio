@@ -89,14 +89,14 @@ namespace pinocchio
       /// Convert \p q_source configuration vector from source model to \p q_target configuration
       /// vector from target model.
       template<typename ConfigVectorType1, typename ConfigVectorType2>
-      void convertConfiguration(
+      void convertConfigurationVector(
         const Eigen::MatrixBase<ConfigVectorType1> & q_source,
         const Eigen::MatrixBase<ConfigVectorType2> & q_target) const;
 
       /// Convert \p v_source tangent vector from source model to \p v_target tangent
       /// vector from target model.
       template<typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-      void convertTangent(
+      void convertTangentVector(
         const Eigen::MatrixBase<ConfigVectorType> & q_source,
         const Eigen::MatrixBase<TangentVectorType1> & v_source,
         const Eigen::MatrixBase<TangentVectorType2> & v_target) const;
@@ -514,7 +514,8 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     template<typename ConfigVectorType1, typename ConfigVectorType2>
-    void ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>::convertConfiguration(
+    void
+    ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>::convertConfigurationVector(
       const Eigen::MatrixBase<ConfigVectorType1> & q_source,
       const Eigen::MatrixBase<ConfigVectorType2> & q_target) const
     {
@@ -761,7 +762,7 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     template<typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-    void ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>::convertTangent(
+    void ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>::convertTangentVector(
       const Eigen::MatrixBase<ConfigVectorType> & q_source,
       const Eigen::MatrixBase<TangentVectorType1> & v_source,
       const Eigen::MatrixBase<TangentVectorType2> & v_target) const

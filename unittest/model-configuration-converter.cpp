@@ -461,7 +461,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
-    a_to_b_converter.convertConfiguration(q_a, q_b);
+    a_to_b_converter.convertConfigurationVector(q_a, q_b);
     pinocchio::framesForwardKinematics(model_b, data_b, q_b);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
     {
@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
     pinocchio::Data data_a2(model_a);
     Eigen::VectorXd q_a2 = pinocchio::neutral(model_a);
     auto a_to_a_converter = pinocchio::graph::createConverter(model_a, model_a, g);
-    a_to_a_converter.convertConfiguration(q_a, q_a2);
+    a_to_a_converter.convertConfigurationVector(q_a, q_a2);
     pinocchio::framesForwardKinematics(model_a, data_a2, q_a2);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
     {
@@ -502,7 +502,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
     q_a_ff.head<7>() << 0., 0., 0., 0., 0., 0., 1.;
     pinocchio::framesForwardKinematics(model_a_ff, data_a_ff, q_a_ff);
     auto a_ff_to_a_converter = pinocchio::graph::createConverter(model_a_ff, model_a, g);
-    a_ff_to_a_converter.convertConfiguration(q_a_ff, q_a);
+    a_ff_to_a_converter.convertConfigurationVector(q_a_ff, q_a);
     pinocchio::framesForwardKinematics(model_a, data_a, q_a);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
     {
@@ -601,8 +601,8 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
       pinocchio::getFrameVelocity(model_a, data_a, end_effector_frame_id).toVector();
 
     auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
-    a_to_b_converter.convertConfiguration(q_a, q_b);
-    a_to_b_converter.convertTangent(q_a, v_a, v_b);
+    a_to_b_converter.convertConfigurationVector(q_a, q_b);
+    a_to_b_converter.convertTangentVector(q_a, v_a, v_b);
     pinocchio::forwardKinematics(model_b, data_b, q_b, v_b);
     pinocchio::updateFramePlacements(model_b, data_b);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -626,8 +626,8 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     Eigen::VectorXd q_a2 = pinocchio::neutral(model_a);
     Eigen::VectorXd v_a2(Eigen::VectorXd::Zero(model_a.nv));
     auto a_to_a_converter = pinocchio::graph::createConverter(model_a, model_a, g);
-    a_to_a_converter.convertConfiguration(q_a, q_a2);
-    a_to_a_converter.convertTangent(q_a, v_a, v_a2);
+    a_to_a_converter.convertConfigurationVector(q_a, q_a2);
+    a_to_a_converter.convertTangentVector(q_a, v_a, v_a2);
     pinocchio::forwardKinematics(model_a, data_a2, q_a2, v_a2);
     pinocchio::updateFramePlacements(model_a, data_a2);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
