@@ -387,7 +387,7 @@ namespace pinocchio
         ReturnType operator()(const JointType &) const
         {
           // Apply direction_sign on each configuration values.
-          q_target.segment(configuration.idx_qs_target, configuration.nq) =
+          q_target.segment(configuration.idx_qs_target, configuration.nq).noalias() =
             joint.direction_sign * q_source.segment(configuration.idx_qs_source, configuration.nq);
         }
 
@@ -435,7 +435,7 @@ namespace pinocchio
         ReturnType operator()(const JointModelSphericalTpl<Scalar, Options> &) const
         {
           // Copy qx, qy, qz with direction_sign apply to it
-          q_target.template segment<3>(configuration.idx_qs_target) =
+          q_target.template segment<3>(configuration.idx_qs_target).noalias() =
             joint.direction_sign * q_source.template segment<3>(configuration.idx_qs_source);
           // Copy qw
           q_target[configuration.idx_qs_target + 3] = q_source[configuration.idx_qs_source + 3];
@@ -443,7 +443,6 @@ namespace pinocchio
 
         ReturnType operator()(const JointModelSphericalZYXTpl<Scalar, Options> &) const
         {
-
           if (joint.same_direction)
           {
             // Copy zyx
@@ -476,7 +475,7 @@ namespace pinocchio
             Scalar s_theta_source = q_source[configuration.idx_qs_source + 3];
             Matrix2 rotation_source_inv;
             rotation_source_inv << c_theta_source, s_theta_source, -s_theta_source, c_theta_source;
-            q_target.template segment<2>(configuration.idx_qs_target) =
+            q_target.template segment<2>(configuration.idx_qs_target).noalias() =
               -rotation_source_inv * q_source.template segment<2>(configuration.idx_qs_source);
             q_target[configuration.idx_qs_target + 2] = c_theta_source;
             q_target[configuration.idx_qs_target + 3] = -s_theta_source;
@@ -612,7 +611,7 @@ namespace pinocchio
         ReturnType operator()(const JointType &) const
         {
           // Apply direction_sign on each configuration values.
-          v_target.template segment<JointType::NV>(tangent.idx_vs_target) =
+          v_target.template segment<JointType::NV>(tangent.idx_vs_target).noalias() =
             joint.direction_sign * v_source.template segment<JointType::NV>(tangent.idx_vs_source);
         }
 
@@ -634,7 +633,7 @@ namespace pinocchio
             Vector3 translation_source(q_source.template segment<3>(configuration.idx_qs_source));
             SE3 transform_source(rotation_source, translation_source);
 
-            v_target.template segment<6>(tangent.idx_vs_target) =
+            v_target.template segment<6>(tangent.idx_vs_target).noalias() =
               -transform_source
                  .act(makeMotionRef(v_source.template segment<6>(tangent.idx_vs_source)))
                  .toVector();
@@ -657,7 +656,7 @@ namespace pinocchio
             Quaternion rotation_source(q_source.template segment<4>(configuration.idx_qs_source));
             SE3 transform_source(rotation_source, Vector3::Zero());
 
-            v_target.template segment<3>(tangent.idx_vs_target) =
+            v_target.template segment<3>(tangent.idx_vs_target).noalias() =
               -transform_source
                  .act(MotionSpherical(v_source.template segment<3>(tangent.idx_vs_source)))
                  .angular();
