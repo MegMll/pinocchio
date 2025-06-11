@@ -5,7 +5,7 @@
 #ifndef __pinocchio_parsers_model_graph_hpp__
 #define __pinocchio_parsers_model_graph_hpp__
 
-#include "pinocchio/config.hpp"
+#include "pinocchio/parsers/config.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -69,7 +69,7 @@ namespace pinocchio
     ///
     /// This is an intermediate step before creating a model, that
     /// allows more flexibility as to which body will be the root...
-    struct PINOCCHIO_DLLAPI ModelGraph
+    struct PINOCCHIO_PARSERS_DLLAPI ModelGraph
     {
 
       typedef boost::
@@ -149,7 +149,7 @@ namespace pinocchio
     /// @param g2_prefix prefix to add to all of g2 vertex and edges to avoid name collision
     ///
     /// @return a model graph
-    PINOCCHIO_DLLAPI ModelGraph mergeGraphs(
+    PINOCCHIO_PARSERS_DLLAPI ModelGraph mergeGraphs(
       const ModelGraph & g1,
       const ModelGraph & g2,
       const std::string & g1_body,
@@ -159,7 +159,7 @@ namespace pinocchio
       const std::string & merging_joint_name = "merging_joint",
       const std::string & g2_prefix = "g2/");
 
-    PINOCCHIO_DLLAPI ModelGraph fixJointsGraph(
+    PINOCCHIO_PARSERS_DLLAPI ModelGraph fixJointsGraph(
       const ModelGraph & g,
       const std::vector<std::string> & joints_to_lock,
       const std::vector<Eigen::VectorXd> & reference_configurations);
