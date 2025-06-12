@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Add `pinocchio::graph::ModelGraph` class
+  - Simple API to build a model
+  - Manage joint offset
+  - Create a `pinocchio::Model` with any frame as root frame
+  - Create a `pinocchio::Model` with any joint type as root joint
+  - Reliably merge two models with `pinocchio::graph::mergeGraphs` function
+  - Reliably fix joints at any configuration with `pinocchio::graph::fixJointsGraph`
+
 ### Fixed
 - Check row dimensions of input Jacobians when computing kinematics Jacobian ([#2684](https://github.com/stack-of-tasks/pinocchio/pull/2684))
 
