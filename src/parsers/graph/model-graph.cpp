@@ -4,6 +4,7 @@
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/graph/graph-visitor.hpp"
+#include "pinocchio/parsers/graph/joints.hpp"
 
 namespace pinocchio
 {
@@ -177,6 +178,16 @@ namespace pinocchio
       return model;
     }
 
+    Model ModelGraph::buildModel(
+      const std::string & root_body,
+      const pinocchio::SE3 & root_position,
+      const JointGraphVariant & root_joint,
+      const std::string & root_joint_name) const
+    {
+      return buildModel(
+        root_body, root_position, boost::make_optional(root_joint), root_joint_name);
+    }
+
     void ModelGraph::copyGraph(const ModelGraph & g, const std::string & prefix)
     {
       // Copy all vertices from g
@@ -216,6 +227,25 @@ namespace pinocchio
       const std::string & merging_joint_name,
       const std::string & g2_prefix)
     {
+      JointGraphVariant joint(JointFixedGraph{});
+      if (merging_joint)
+      {
+        joint = *merging_joint;
+      }
+      return mergeGraphs(
+        g1, g2, g1_body, g2_body, pose_g2_body_in_g1, joint, merging_joint_name, g2_prefix);
+    }
+
+    ModelGraph mergeGraphs(
+      const ModelGraph & g1,
+      const ModelGraph & g2,
+      const std::string & g1_body,
+      const std::string & g2_body,
+      const SE3 & pose_g2_body_in_g1,
+      const JointGraphVariant & merging_joint,
+      const std::string & merging_joint_name,
+      const std::string & g2_prefix)
+    {
       // Check bodies exists in graphs
       if (g1.name_to_vertex.find(g1_body) == g1.name_to_vertex.end())
         PINOCCHIO_THROW_PRETTY(std::runtime_error, "mergeGraph - g1_body not found");
@@ -242,14 +272,9 @@ namespace pinocchio
 
       const std::string g2_body_merged = g2_prefix + g2_body;
 
-      if (merging_joint)
-        g_merged.addJoint(
-          merging_joint_name, *merging_joint, g1_body, SE3::Identity(), g2_body_merged,
-          pose_g2_body_in_g1);
-      else
-        g_merged.addJoint(
-          merging_joint_name, JointFixedGraph(), g1_body, SE3::Identity(), g2_body_merged,
-          pose_g2_body_in_g1);
+      g_merged.addJoint(
+        merging_joint_name, merging_joint, g1_body, SE3::Identity(), g2_body_merged,
+        pose_g2_body_in_g1);
 
       return g_merged;
     }
