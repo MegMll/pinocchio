@@ -259,7 +259,7 @@ namespace pinocchio
           const pinocchio::SE3 & joint_pose = edge.out_to_joint;
           const pinocchio::SE3 & body_pose = edge.joint_to_in;
 
-          const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+          const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
           JointIndex j_id = model.addJoint(
             previous_body.parentJoint, cjm(joint), previous_body.placement * joint_pose, edge.name);
 
@@ -271,7 +271,7 @@ namespace pinocchio
         template<typename FrameGraph>
         void operator()(const JointFixedGraph & /*joint*/, const FrameGraph & f_)
         {
-          const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+          const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
 
           model.addFrame(Frame(
             target_vertex.name, previous_body.parentJoint,
@@ -292,12 +292,12 @@ namespace pinocchio
               std::invalid_argument,
               "Graph - The parent joint of the mimic node is not in the kinematic tree");
 
-          auto primary_joint = model.joints[model.getJointId(joint.primary_name)];
+          const auto primary_joint = model.joints[model.getJointId(joint.primary_name)];
 
           const pinocchio::SE3 & joint_pose = edge.out_to_joint;
           const pinocchio::SE3 & body_pose = edge.joint_to_in;
 
-          const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+          const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
           JointIndex j_id = model.addJoint(
             previous_body.parentJoint,
             JointModelMimic(cjm(joint), primary_joint, joint.scaling, joint.offset),
@@ -319,16 +319,16 @@ namespace pinocchio
             if (prev_f_id == model.frames.size())
               prev_f_id = model.getFrameId(source_vertex.name, SENSOR);
 
-            const Frame & previous_frame = model.frames[prev_f_id];
+            const Frame previous_frame = model.frames[prev_f_id];
             model.addFrame(Frame(
               target_vertex.name, previous_frame.parentJoint,
               previous_frame.placement * edge.out_to_joint * edge.joint_to_in, BODY, b_f.inertia));
           }
           else
           {
-            const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+            const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
             // Don't add a new joint in the model — create the fixed_joint frame
-            FrameIndex f_id = model.addFrame(Frame(
+            const FrameIndex f_id = model.addFrame(Frame(
               edge.name, previous_body.parentJoint, previous_body.placement * edge.out_to_joint,
               FIXED_JOINT, b_f.inertia));
             model.addBodyFrame(
