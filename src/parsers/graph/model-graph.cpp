@@ -226,20 +226,24 @@ namespace pinocchio
         this->addFrame(prefix + name, vertex_data.frame);
       }
 
-      // Copy all edges from g
+      // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to add
+      // both.
       for (auto e_it = boost::edges(g.g); e_it.first != e_it.second; ++e_it.first)
       {
         const auto & edge = *e_it.first;
-        auto src = boost::source(edge, g.g);
-        auto tgt = boost::target(edge, g.g);
         const auto & edge_data = g.g[edge];
+        if (!edge_data.reverse)
+        {
+          auto src = boost::source(edge, g.g);
+          auto tgt = boost::target(edge, g.g);
 
-        const auto & src_name = g.g[src].name;
-        const auto & tgt_name = g.g[tgt].name;
+          const auto & src_name = g.g[src].name;
+          const auto & tgt_name = g.g[tgt].name;
 
-        this->addJoint(
-          prefix + edge_data.name, edge_data.joint, prefix + src_name, edge_data.out_to_joint,
-          prefix + tgt_name, edge_data.joint_to_in);
+          this->addJoint(
+            prefix + edge_data.name, edge_data.joint, prefix + src_name, edge_data.out_to_joint,
+            prefix + tgt_name, edge_data.joint_to_in);
+        }
       }
     }
 
@@ -327,37 +331,40 @@ namespace pinocchio
         g_locked.addFrame(name, vertex_data.frame);
       }
 
-      // Copy all edges from g
+      // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to add
+      // both.
       for (auto e_it = boost::edges(g.g); e_it.first != e_it.second; ++e_it.first)
       {
-
         const auto & edge = *e_it.first;
-        auto src = boost::source(edge, g.g);
-        auto tgt = boost::target(edge, g.g);
-
         const auto & edge_data = g.g[edge];
-
-        const auto & src_name = g.g[src].name;
-        const auto & tgt_name = g.g[tgt].name;
-
-        auto it = std::find(joints_to_lock.begin(), joints_to_lock.end(), edge_data.name);
-        if (it != joints_to_lock.end())
+        if (!edge_data.reverse)
         {
-          int index = std::distance(joints_to_lock.begin(), it);
-          const Eigen::VectorXd & q_ref = reference_configurations[index];
+          auto src = boost::source(edge, g.g);
+          auto tgt = boost::target(edge, g.g);
 
-          internal::UpdateJointGraphPoseVisitor ujgpv(q_ref);
-          pinocchio::SE3 pose_offset = boost::apply_visitor(ujgpv, edge_data.joint);
+          const auto & src_name = g.g[src].name;
+          const auto & tgt_name = g.g[tgt].name;
 
-          g_locked.addJoint(
-            edge_data.name, JointFixedGraph(pose_offset), src_name, edge_data.out_to_joint,
-            tgt_name, edge_data.joint_to_in, q_ref);
-        }
-        else
-        {
-          g_locked.addJoint(
-            edge_data.name, edge_data.joint, src_name, edge_data.out_to_joint, tgt_name,
-            edge_data.joint_to_in);
+          auto it = std::find(joints_to_lock.begin(), joints_to_lock.end(), edge_data.name);
+          if (it != joints_to_lock.end())
+          {
+            auto index = std::distance(joints_to_lock.begin(), it);
+            const Eigen::VectorXd & q_ref =
+              reference_configurations[static_cast<std::size_t>(index)];
+
+            internal::UpdateJointGraphPoseVisitor ujgpv(q_ref);
+            pinocchio::SE3 pose_offset = boost::apply_visitor(ujgpv, edge_data.joint);
+
+            g_locked.addJoint(
+              edge_data.name, JointFixedGraph(pose_offset), src_name, edge_data.out_to_joint,
+              tgt_name, edge_data.joint_to_in, q_ref);
+          }
+          else
+          {
+            g_locked.addJoint(
+              edge_data.name, edge_data.joint, src_name, edge_data.out_to_joint, tgt_name,
+              edge_data.joint_to_in);
+          }
         }
       }
       return g_locked;
