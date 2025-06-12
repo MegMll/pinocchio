@@ -71,7 +71,6 @@ namespace pinocchio
     /// allows more flexibility as to which body will be the root...
     struct PINOCCHIO_PARSERS_DLLAPI ModelGraph
     {
-
       typedef boost::
         adjacency_list<boost::vecS, boost::vecS, boost::directedS, ModelGraphVertex, ModelGraphEdge>
           Graph;

@@ -9,6 +9,7 @@
 #include "pinocchio/parsers/graph/model-graph.hpp"
 
 #include <boost/test/unit_test.hpp>
+#include <stdexcept>
 
 pinocchio::graph::ModelGraph
 buildReversableModelGraph(const pinocchio::graph::JointGraphVariant & joint)
@@ -76,6 +77,32 @@ BOOST_AUTO_TEST_CASE(test_add_edges)
   auto v_in = g.name_to_vertex["body2"];
   BOOST_CHECK(boost::edge(v_out, v_in, g.g).second);
   BOOST_CHECK(boost::edge(v_in, v_out, g.g).second);
+
+  /////////////////////////////////////// Edge cases
+  BOOST_CHECK_THROW(
+    g.addJoint(
+      "body3_to_body2", JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body3",
+      pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
+      pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 2., 0.))),
+    std::invalid_argument);
+  BOOST_CHECK_THROW(
+    g.addJoint(
+      "body1_to_body3", JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body1",
+      pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body3",
+      pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 2., 0.))),
+    std::invalid_argument);
+  BOOST_CHECK_THROW(
+    g.addJoint(
+      "body1_to_body2", JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body1",
+      pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
+      pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 2., 0.))),
+    std::invalid_argument);
+  BOOST_CHECK_THROW(
+    g.addJoint(
+      "body1_to_body2_p", JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body1",
+      pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
+      pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 2., 0.))),
+    std::invalid_argument);
 }
 
 /// @brief Test of simple 2R robot to try out kinematics and what happens when we use different body

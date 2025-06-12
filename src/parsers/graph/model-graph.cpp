@@ -10,6 +10,22 @@ namespace pinocchio
 {
   namespace graph
   {
+    namespace
+    {
+      /// \return true if \p joint_name is already used in \p graph
+      bool isJointNameExists(const ModelGraph::Graph & graph, const std::string & joint_name)
+      {
+        for (auto e_it = boost::edges(graph); e_it.first != e_it.second; ++e_it.first)
+        {
+          if (graph[*e_it.first].name == joint_name)
+          {
+            return true;
+          }
+        }
+        return false;
+      }
+    } // namespace
+
     struct AddRootFrameVisitor : public boost::static_visitor<>
     {
       const ModelGraphVertex vertex;
@@ -20,8 +36,8 @@ namespace pinocchio
       AddRootFrameVisitor(
         const ModelGraphVertex & v, const JointIndex & j_id, const pinocchio::SE3 & pose, Model & m)
       : vertex(v)
-      , j(j_id)
       , position(pose)
+      , j(j_id)
       , model(m)
       {
       }
@@ -76,6 +92,15 @@ namespace pinocchio
       if (in_vertex == name_to_vertex.end())
       {
         PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - in_vertex does not exist");
+      }
+      if (isJointNameExists(g, joint_name))
+      {
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - joint_name already exists");
+      }
+      if (boost::edge(out_vertex->second, in_vertex->second, g).second)
+      {
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "Graph - Joint already connect in_body to out_body");
       }
       if (boost::get<BodyFrameGraph>(&g[out_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
