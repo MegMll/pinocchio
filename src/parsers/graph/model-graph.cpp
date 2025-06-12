@@ -59,7 +59,7 @@ namespace pinocchio
     void ModelGraph::addFrame(const std::string & vertex_name, const FrameGraphVariant & frame)
     {
       if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - vertex already in graph");
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - vertex already in graph");
 
       auto vertex_desc = boost::add_vertex(g);
       ModelGraphVertex & vertex = g[vertex_desc];
@@ -86,12 +86,12 @@ namespace pinocchio
       auto out_vertex = name_to_vertex.find(out_body);
       if (out_vertex == name_to_vertex.end())
       {
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - out_vertex does not exist");
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - out_vertex does not exists");
       }
       auto in_vertex = name_to_vertex.find(in_body);
       if (in_vertex == name_to_vertex.end())
       {
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - in_vertex does not exist");
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - in_vertex does not exists");
       }
       if (isJointNameExists(g, joint_name))
       {
@@ -104,13 +104,13 @@ namespace pinocchio
       }
       if (boost::get<BodyFrameGraph>(&g[out_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
-          std::runtime_error, "Graph - sensor and op_frame can only be appended to bodies");
+          std::invalid_argument, "Graph - sensor and op_frame can only be appended to bodies");
 
       auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, g);
       if (!edge_desc.second)
       {
         PINOCCHIO_THROW_PRETTY(
-          std::runtime_error, "Graph - Edge cannot be added between these two vertexes");
+          std::invalid_argument, "Graph - Edge cannot be added between these two vertexes");
       }
 
       ModelGraphEdge & edge = g[edge_desc.first];
@@ -129,7 +129,7 @@ namespace pinocchio
       if (!reverse_edge_desc.second)
       {
         PINOCCHIO_THROW_PRETTY(
-          std::runtime_error, "Graph - Reverse edge cannot be added between these two vertexes");
+          std::invalid_argument, "Graph - Reverse edge cannot be added between these two vertexes");
       }
 
       ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
@@ -160,7 +160,8 @@ namespace pinocchio
     {
       auto root_vertex = name_to_vertex.find(root_body);
       if (root_vertex == name_to_vertex.end())
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - root_body does not exist in the graph");
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "Graph - root_body does not exist in the graph");
 
       std::vector<boost::default_color_type> colors(
         boost::num_vertices(g), boost::default_color_type::white_color);
@@ -273,22 +274,24 @@ namespace pinocchio
     {
       // Check bodies exists in graphs
       if (g1.name_to_vertex.find(g1_body) == g1.name_to_vertex.end())
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "mergeGraph - g1_body not found");
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "mergeGraph - g1_body not found");
 
       auto g1_vertex = g1.name_to_vertex.find(g1_body);
       if (boost::get<BodyFrameGraph>(&g1.g[g1_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
-          std::runtime_error, "mergeGraph - Merging graphes needs to be done between two bodies. "
-                              "Vertex in g1 is not a body");
+          std::invalid_argument,
+          "mergeGraph - Merging graphes needs to be done between two bodies. "
+          "Vertex in g1 is not a body");
 
       if (g2.name_to_vertex.find(g2_body) == g2.name_to_vertex.end())
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "mergeGraph - g2_body not found");
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "mergeGraph - g2_body not found");
 
       auto g2_vertex = g2.name_to_vertex.find(g2_body);
       if (boost::get<BodyFrameGraph>(&g2.g[g2_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
-          std::runtime_error, "mergeGraph - Merging graphes needs to be done between two bodies. "
-                              "Vertex in g2 is not a body");
+          std::invalid_argument,
+          "mergeGraph - Merging graphes needs to be done between two bodies. "
+          "Vertex in g2 is not a body");
 
       ModelGraph g_merged;
 

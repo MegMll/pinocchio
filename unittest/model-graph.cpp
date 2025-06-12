@@ -57,8 +57,13 @@ BOOST_AUTO_TEST_CASE(test_add_vertex)
   BOOST_CHECK(g.name_to_vertex.find("body1") != g.name_to_vertex.end());
 }
 
-/// @brief Test if edges and their reverse are added correctly to the graph
-BOOST_AUTO_TEST_CASE(test_add_edges)
+/// @brief Test if edges and their reverse are added correctly to the graph and the following edge
+/// case:
+///  - source body doesn't exists
+///  - target body doesn't exists
+///  - joint name already exists
+///  - only one joint between two body
+BOOST_AUTO_TEST_CASE(test_add_joint)
 {
   using namespace pinocchio::graph;
 
@@ -524,8 +529,6 @@ BOOST_AUTO_TEST_CASE(test_reverse_planar)
   BOOST_CHECK(SE3isApprox(
     d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
     d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
-  ///////////////// Model
-  // BOOST_CHECK_THROW(g.buildModel("body2", pinocchio::SE3::Identity()), std::runtime_error);
 }
 
 /// @brief test if reversing of a composite joint is correct.
@@ -557,7 +560,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_mimic)
     "body2", pose_body2_joint2, "body3", pose_body3_joint2);
 
   ///////////////// Model
-  BOOST_CHECK_THROW(g.buildModel("body3", pinocchio::SE3::Identity()), std::runtime_error);
+  BOOST_CHECK_THROW(g.buildModel("body3", pinocchio::SE3::Identity()), std::invalid_argument);
 }
 
 /// @brief Test out if inertias are well placed on the model
@@ -672,7 +675,7 @@ BOOST_AUTO_TEST_CASE(test_other_frame)
     g.addJoint(
       "sensor2_sensor1", JointFixedGraph(), "sensor1", pinocchio::SE3::Identity(), "sensor2",
       pinocchio::SE3::Identity()),
-    std::runtime_error);
+    std::invalid_argument);
 }
 
 /// @brief Test q_ref positioning

@@ -13,6 +13,7 @@
 #include "pinocchio/parsers/graph/model-graph.hpp"
 
 #include <boost/graph/visitors.hpp>
+#include <stdexcept>
 
 namespace pinocchio
 {
@@ -242,7 +243,7 @@ namespace pinocchio
         void operator()(const JointGraph & /*joint*/, const FrameGraph & /*f_*/)
         {
           PINOCCHIO_THROW_PRETTY(
-            std::runtime_error,
+            std::invalid_argument,
             "Graph - Invalid joint between non body frames. Non body frames can "
             "only be added with Fixed joint");
         }
@@ -253,7 +254,7 @@ namespace pinocchio
           if (boost::get<BodyFrameGraph>(&source_vertex.frame) == nullptr) // body frame is index 0
                                                                            // in variant
             PINOCCHIO_THROW_PRETTY(
-              std::runtime_error, "Graph -Invalid joint between a body and a non body frame.");
+              std::invalid_argument, "Graph -Invalid joint between a body and a non body frame.");
 
           const pinocchio::SE3 & joint_pose = edge.out_to_joint;
           const pinocchio::SE3 & body_pose = edge.joint_to_in;
@@ -280,15 +281,15 @@ namespace pinocchio
         void operator()(const JointMimicGraph & joint, const BodyFrameGraph & b_f)
         {
           if (edge.reverse)
-            PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - JointMimic cannot be reversed.");
+            PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - JointMimic cannot be reversed.");
 
           if (boost::get<BodyFrameGraph>(&source_vertex.frame) == nullptr)
             PINOCCHIO_THROW_PRETTY(
-              std::runtime_error, "Graph - Invalid joint between a body and a non body frame.");
+              std::invalid_argument, "Graph - Invalid joint between a body and a non body frame.");
 
           if (!model.existJointName(joint.primary_name))
             PINOCCHIO_THROW_PRETTY(
-              std::runtime_error,
+              std::invalid_argument,
               "Graph - The parent joint of the mimic node is not in the kinematic tree");
 
           auto primary_joint = model.joints[model.getJointId(joint.primary_name)];
