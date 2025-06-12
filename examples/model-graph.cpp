@@ -16,13 +16,15 @@ int main(int /*argc*/, char ** /*argv*/)
   g.addBody("body1", Inertia::Identity());
   g.addFrame("body2", graph::BodyFrameGraph(Inertia::Identity()));
 
-  //Adding a sensor to the graph
+  // Adding a sensor to the graph
   g.addFrame("sensor1", graph::SensorFrameGraph());
 
-  //Now we add the joints between every body/sensor we have in the graph
+  // Now we add the joints between every body/sensor we have in the graph
   SE3 pose_b1 = SE3::Random(); // pose of joint b1_b2 wrt body2
   SE3 pose_b2 = SE3::Random(); // pose of body2 wrt joint b1_b2
-  g.addJoint("b1_b2", graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "body1", pose_b1, "body2", pose_b2);
+  g.addJoint(
+    "b1_b2", graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "body1", pose_b1, "body2",
+    pose_b2);
 
   // sensor1 is a sensor frame so it can only be linked to the others body via a fixed joint
   SE3 pose_b1_s1 = SE3::Random();
