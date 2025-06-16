@@ -121,7 +121,7 @@ namespace pinocchio
       void appendGraph(const ModelGraph & g);
 
       /// @brief Boost graph structure that holds the graph structure
-      Graph g;
+      Graph graph;
       /// @brief Name of the vertexes in the graph. Useful for graph parcours.
       std::unordered_map<std::string, VertexDesc> name_to_vertex;
     };

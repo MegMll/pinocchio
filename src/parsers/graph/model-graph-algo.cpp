@@ -60,14 +60,14 @@ namespace pinocchio
           std::invalid_argument, "Graph - root_body does not exist in the graph");
 
       std::vector<boost::default_color_type> colors(
-        boost::num_vertices(g.g), boost::default_color_type::white_color);
+        boost::num_vertices(g.graph), boost::default_color_type::white_color);
       std::vector<EdgeDesc> edges;
-      edges.reserve(boost::num_vertices(g.g));
+      edges.reserve(boost::num_vertices(g.graph));
       internal::RecordTreeEdgeVisitor<Graph> tree_edge_visitor(&edges);
-      boost::depth_first_search(g.g, tree_edge_visitor, colors.data(), root_vertex->second);
+      boost::depth_first_search(g.graph, tree_edge_visitor, colors.data(), root_vertex->second);
 
       Model model;
-      const ModelGraphVertex & root_vertex_data = g.g[root_vertex->second];
+      const ModelGraphVertex & root_vertex_data = g.graph[root_vertex->second];
 
       if (!boost::get<JointFixedGraph>(&root_joint)) // Root joint provided
       {
@@ -88,11 +88,11 @@ namespace pinocchio
       // Go through rest of the graph
       for (const auto & edge_desc : edges)
       {
-        const auto & source_vertex_desc = boost::source(edge_desc, g.g);
-        const auto & target_vertex_desc = boost::target(edge_desc, g.g);
-        const ModelGraphEdge & edge = g.g[edge_desc];
-        const ModelGraphVertex & source_vertex = g.g[source_vertex_desc];
-        const ModelGraphVertex & target_vertex = g.g[target_vertex_desc];
+        const auto & source_vertex_desc = boost::source(edge_desc, g.graph);
+        const auto & target_vertex_desc = boost::target(edge_desc, g.graph);
+        const ModelGraphEdge & edge = g.graph[edge_desc];
+        const ModelGraphVertex & source_vertex = g.graph[source_vertex_desc];
+        const ModelGraphVertex & target_vertex = g.graph[target_vertex_desc];
 
         internal::AddJointModelVisitor visitor(source_vertex, target_vertex, edge, model);
         boost::apply_visitor(visitor, edge.joint, target_vertex.frame);
@@ -108,24 +108,24 @@ namespace pinocchio
       {
         const auto & name = pair.first;
         const auto & old_v = pair.second;
-        const auto & vertex_data = g.g[old_v];
+        const auto & vertex_data = g.graph[old_v];
 
         g_return.addFrame(prefix + name, vertex_data.frame);
       }
 
       // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to add
       // both.
-      for (auto e_it = boost::edges(g.g); e_it.first != e_it.second; ++e_it.first)
+      for (auto e_it = boost::edges(g.graph); e_it.first != e_it.second; ++e_it.first)
       {
         const auto & edge = *e_it.first;
-        const auto & edge_data = g.g[edge];
+        const auto & edge_data = g.graph[edge];
         if (edge_data.forward)
         {
-          auto src = boost::source(edge, g.g);
-          auto tgt = boost::target(edge, g.g);
+          auto src = boost::source(edge, g.graph);
+          auto tgt = boost::target(edge, g.graph);
 
-          const auto & src_name = g.g[src].name;
-          const auto & tgt_name = g.g[tgt].name;
+          const auto & src_name = g.graph[src].name;
+          const auto & tgt_name = g.graph[tgt].name;
 
           g_return.addJoint(
             edge_data.name, edge_data.joint, prefix + src_name, edge_data.out_to_joint,
@@ -149,7 +149,7 @@ namespace pinocchio
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "mergeGraph - g1_body not found");
 
       auto g1_vertex = g1.name_to_vertex.find(g1_body);
-      if (boost::get<BodyFrameGraph>(&g1.g[g1_vertex->second].frame) == nullptr)
+      if (boost::get<BodyFrameGraph>(&g1.graph[g1_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "mergeGraph - Merging graphes needs to be done between two bodies. "
@@ -159,7 +159,7 @@ namespace pinocchio
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "mergeGraph - g2_body not found");
 
       auto g2_vertex = g2.name_to_vertex.find(g2_body);
-      if (boost::get<BodyFrameGraph>(&g2.g[g2_vertex->second].frame) == nullptr)
+      if (boost::get<BodyFrameGraph>(&g2.graph[g2_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "mergeGraph - Merging graphes needs to be done between two bodies. "
@@ -194,24 +194,24 @@ namespace pinocchio
       {
         const auto & name = pair.first;
         const auto & old_v = pair.second;
-        const auto & vertex_data = g.g[old_v];
+        const auto & vertex_data = g.graph[old_v];
 
         g_locked.addFrame(name, vertex_data.frame);
       }
 
       // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to add
       // both.
-      for (auto e_it = boost::edges(g.g); e_it.first != e_it.second; ++e_it.first)
+      for (auto e_it = boost::edges(g.graph); e_it.first != e_it.second; ++e_it.first)
       {
         const auto & edge = *e_it.first;
-        const auto & edge_data = g.g[edge];
+        const auto & edge_data = g.graph[edge];
         if (edge_data.forward)
         {
-          auto src = boost::source(edge, g.g);
-          auto tgt = boost::target(edge, g.g);
+          auto src = boost::source(edge, g.graph);
+          auto tgt = boost::target(edge, g.graph);
 
-          const auto & src_name = g.g[src].name;
-          const auto & tgt_name = g.g[tgt].name;
+          const auto & src_name = g.graph[src].name;
+          const auto & tgt_name = g.graph[tgt].name;
 
           auto it = std::find(joints_to_lock.begin(), joints_to_lock.end(), edge_data.name);
           if (it != joints_to_lock.end())

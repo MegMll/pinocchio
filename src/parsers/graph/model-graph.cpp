@@ -32,8 +32,8 @@ namespace pinocchio
       if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - vertex already in graph");
 
-      auto vertex_desc = boost::add_vertex(g);
-      ModelGraphVertex & vertex = g[vertex_desc];
+      auto vertex_desc = boost::add_vertex(graph);
+      ModelGraphVertex & vertex = graph[vertex_desc];
       vertex.name = vertex_name;
 
       vertex.frame = frame;
@@ -64,27 +64,27 @@ namespace pinocchio
       {
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - in_vertex does not exists");
       }
-      if (isJointNameExists(g, joint_name))
+      if (isJointNameExists(graph, joint_name))
       {
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - joint_name already exists");
       }
-      if (boost::edge(out_vertex->second, in_vertex->second, g).second)
+      if (boost::edge(out_vertex->second, in_vertex->second, graph).second)
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Graph - Joint already connect in_body to out_body");
       }
-      if (boost::get<BodyFrameGraph>(&g[out_vertex->second].frame) == nullptr)
+      if (boost::get<BodyFrameGraph>(&graph[out_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Graph - sensor and op_frame can only be appended to bodies");
 
-      auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, g);
+      auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, graph);
       if (!edge_desc.second)
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Graph - Edge cannot be added between these two vertexes");
       }
 
-      ModelGraphEdge & edge = g[edge_desc.first];
+      ModelGraphEdge & edge = graph[edge_desc.first];
       edge.name = joint_name;
       edge.joint = joint;
       if (q_ref)
@@ -96,14 +96,14 @@ namespace pinocchio
 
       edge.joint_to_in = joint_to_in;
 
-      auto reverse_edge_desc = boost::add_edge(in_vertex->second, out_vertex->second, g);
+      auto reverse_edge_desc = boost::add_edge(in_vertex->second, out_vertex->second, graph);
       if (!reverse_edge_desc.second)
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Graph - Reverse edge cannot be added between these two vertexes");
       }
 
-      ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
+      ModelGraphEdge & reverse_edge = graph[reverse_edge_desc.first];
       reverse_edge.name = joint_name;
       auto reversed_joint = boost::apply_visitor(internal::ReverseJointGraphVisitor(), joint);
       reverse_edge.joint = reversed_joint.first;
@@ -130,24 +130,24 @@ namespace pinocchio
       {
         const auto & name = pair.first;
         const auto & old_v = pair.second;
-        const auto & vertex_data = g.g[old_v];
+        const auto & vertex_data = g.graph[old_v];
 
         this->addFrame(name, vertex_data.frame);
       }
 
       // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to add
       // both.
-      for (auto e_it = boost::edges(g.g); e_it.first != e_it.second; ++e_it.first)
+      for (auto e_it = boost::edges(g.graph); e_it.first != e_it.second; ++e_it.first)
       {
         const auto & edge = *e_it.first;
-        const auto & edge_data = g.g[edge];
+        const auto & edge_data = g.graph[edge];
         if (edge_data.forward)
         {
-          auto src = boost::source(edge, g.g);
-          auto tgt = boost::target(edge, g.g);
+          auto src = boost::source(edge, g.graph);
+          auto tgt = boost::target(edge, g.graph);
 
-          const auto & src_name = g.g[src].name;
-          const auto & tgt_name = g.g[tgt].name;
+          const auto & src_name = g.graph[src].name;
+          const auto & tgt_name = g.graph[tgt].name;
 
           this->addJoint(
             edge_data.name, edge_data.joint, src_name, edge_data.out_to_joint, tgt_name,

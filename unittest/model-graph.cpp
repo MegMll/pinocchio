@@ -80,8 +80,8 @@ BOOST_AUTO_TEST_CASE(test_add_joint)
 
   auto v_out = g.name_to_vertex["body1"];
   auto v_in = g.name_to_vertex["body2"];
-  BOOST_CHECK(boost::edge(v_out, v_in, g.g).second);
-  BOOST_CHECK(boost::edge(v_in, v_out, g.g).second);
+  BOOST_CHECK(boost::edge(v_out, v_in, g.graph).second);
+  BOOST_CHECK(boost::edge(v_in, v_out, g.graph).second);
 
   /////////////////////////////////////// Edge cases
   BOOST_CHECK_THROW(
