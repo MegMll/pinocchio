@@ -335,7 +335,8 @@ set(${PROJECT_NAME}_PARSERS_SOURCES
     ${PROJECT_SOURCE_DIR}/src/utils/file-explorer.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph-geom.cpp
-    ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph.cpp)
+    ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph-algo.cpp)
 
 set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/meshloader-fwd.hpp
@@ -349,6 +350,7 @@ set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/mjcf-graph.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sample-models.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph-algo.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/graph-visitor.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/joints.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/frames.hpp)
