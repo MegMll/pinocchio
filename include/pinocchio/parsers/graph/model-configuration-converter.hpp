@@ -87,6 +87,8 @@ namespace pinocchio
 
       /// Convert \p v_source tangent vector from source model to \p v_target tangent
       /// vector from target model.
+      /// \warning Converting acceleration vector from JointModelSphericalZYXTpl doesn't work
+      /// because of the velocity-dependent spatial acceleration term (c_j).
       template<typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
       void convertTangentVector(
         const Eigen::MatrixBase<ConfigVectorType> & q_source,

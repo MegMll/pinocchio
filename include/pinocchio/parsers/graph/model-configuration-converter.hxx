@@ -535,9 +535,12 @@ namespace pinocchio
           }
           else
           {
-            // Velocities are expressed in joint successor frame (after joint transformation).
-            // Here, v_source is in joint predecessor frame so we must transform it in successor
-            // frame.
+            // Velocities must be expressed in target model joint successor frame (F_s)
+            // (after joint transformation).
+            // Here, \alpha_{source} is in source model F_s, but in target model joint
+            // predecessor frame (F_p).
+            // With X_{p_to_s}^{target} the transformation from the predecessor to the successor
+            // frame in target model, then \alpha_{target} = -X_{p_to_s}^{target} \alpha_{source}
             Quaternion rotation_source(
               q_source.template segment<4>(configuration.idx_qs_source + 3));
             Vector3 translation_source(q_source.template segment<3>(configuration.idx_qs_source));
@@ -560,9 +563,12 @@ namespace pinocchio
           }
           else
           {
-            // Velocities are expressed in joint successor frame (after joint transformation).
-            // Here, v_source is in joint predecessor frame so we must transform it in successor
-            // frame.
+            // Velocities must be expressed in target model joint successor frame (F_s)
+            // (after joint transformation).
+            // Here, \alpha_{source} is in source model F_s, but in target model joint
+            // predecessor frame (F_p).
+            // With X_{p_to_s}^{target} the transformation from the predecessor to the successor
+            // frame in target model, then \alpha_{target} = -X_{p_to_s}^{target} \alpha_{source}
             Quaternion rotation_source(q_source.template segment<4>(configuration.idx_qs_source));
             SE3 transform_source(rotation_source, Vector3::Zero());
 
@@ -584,10 +590,11 @@ namespace pinocchio
           else
           {
             // JointModelSphericalZYXTpl velocity is computed with
-            // v_j^source = S_source \alpha_source.
-            // We want the reverse joint to compute v_j^target = -X_source_to_target v_j^source.
-            // Since v_j^target = S_target \alpha_target, then
-            // \alpha_target = -S_target^{-1} X_source_to_target v_j^source.
+            // v_j^{source} = S_{source} \alpha_{source}.
+            // We want the reverse joint to compute
+            // v_j^{target} = -X_{source-to-target} v_j^{source}.
+            // Since v_j^{target} = S_{target} \alpha_{target}, then
+            // \alpha_{target} = -S_{target}^{-1} X_{source-to-target} v_j^{source}.
             JointModelSphericalZYXTpl<Scalar, Options> jmodel;
             jmodel.setIndexes(0, 0, 0);
             JointDataSphericalZYXTpl<Scalar, Options> jdata;
@@ -622,9 +629,12 @@ namespace pinocchio
           }
           else
           {
-            // Velocities are expressed in joint successor frame (after joint transformation).
-            // Here, v_source is in joint predecessor frame so we must transform it in successor
-            // frame.
+            // Velocities must be expressed in target model joint successor frame (F_s)
+            // (after joint transformation).
+            // Here, \alpha_{source} is in source model F_s, but in target model joint
+            // predecessor frame (F_p).
+            // With X_{p_to_s}^{target} the transformation from the predecessor to the successor
+            // frame in target model, then \alpha_{target} = -X_{p_to_s}^{target} \alpha_{source}
             JointModelPlanarTpl<Scalar, Options> jmodel;
             jmodel.setIndexes(0, 0, 0);
             JointDataPlanarTpl<Scalar, Options> jdata;
