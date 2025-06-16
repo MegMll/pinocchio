@@ -95,8 +95,7 @@ namespace pinocchio
         .def_readwrite(
           "nq", &JointRevoluteUnboundedGraph::nq,
           "Number of configuration variables (2 for unbounded revolute - typically pos/vel or "
-          "sin/cos)."); // nq is 1 in C++ struct, but often 2 (sin/cos) in Pinocchio model. Python
-                        // binding reflects struct.
+          "sin/cos).");
 
       bp::class_<JointPrismaticGraph>(
         "JointPrismaticGraph", "Represents a prismatic joint.",
@@ -139,7 +138,7 @@ namespace pinocchio
         .def_readwrite(
           "nq", &JointPlanarGraph::nq,
           "Number of configuration variables (4 for planar - typically x, y, cos_theta, sin_theta "
-          "or 3 if x,y,theta)."); // nq is 3 in C++ struct. Python binding reflects struct.
+          "or 3 if x,y,theta).");
 
       bp::class_<JointHelicalGraph>(
         "JointHelicalGraph", "Represents a helical joint.",
@@ -158,12 +157,6 @@ namespace pinocchio
         .def_readwrite("axis2", &JointUniversalGraph::axis2, "Second axis of the universal joint.")
         .def_readwrite(
           "nq", &JointUniversalGraph::nq, "Number of configuration variables (2 for universal).");
-
-      // if (!bp::objects::registered_class_object(bp::type_id<JointGraphVariantVector>()).get()){
-      //      bp::class_<JointGraphVariantVector>("JointGraphVariantVector", "Vector of
-      //      JointGraphVariant objects.")
-      //         .def(bp::vector_indexing_suite<JointGraphVariantVector, true>());
-      // }
 
       bp::class_<JointCompositeGraph>(
         "JointCompositeGraph", "Represents a composite joint.",
@@ -198,7 +191,7 @@ namespace pinocchio
           "Name of the primary joint being mimicked.")
         .def_readwrite(
           "secondary_joint", &JointMimicGraph::secondary_joint,
-          "The underlying model of the secondary (mimicking) joint.")
+          "The model of the secondary (mimicking) joint.")
         .def_readwrite("scaling", &JointMimicGraph::scaling, "Scaling factor for the mimicry.")
         .def_readwrite("offset", &JointMimicGraph::offset, "Offset for the mimicry.")
         .def_readwrite(
