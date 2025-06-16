@@ -62,7 +62,7 @@ namespace pinocchio
       SE3 joint_to_in;
 
       /// @brief boolean to know if we are in a forward or backward edge
-      bool reverse = false;
+      bool forward = true;
     };
 
     /// @brief Represents multibody model as a bidirectional graph.
@@ -112,37 +112,13 @@ namespace pinocchio
         const SE3 & joint_to_in,
         const boost::optional<Eigen::VectorXd> & q_ref = boost::none);
 
-      /// @brief  Build a pinocchio model based on the graph that was built previously, that allows
-      /// to have a root_joint.
+      /// @brief  add all the vertex and edges from a graph to this one.
+      /// Attention : it does not add an edge between the two, so it will be like having two graph
+      /// coexisting in this structure.
       ///
-      /// @param root_body First body to add to the model
-      /// @param root_position position of said body wrt to the universe
-      /// @param root_joint joint that will append to the root_body
-      /// @param root_joint_name name of the first joint in the model
+      /// @param g graph that will be added
       ///
-      /// @return a pinocchio model
-      Model buildModel(
-        const std::string & root_body,
-        const pinocchio::SE3 & root_position,
-        const boost::optional<JointGraphVariant> & root_joint = boost::none,
-        const std::string & root_joint_name = "root_joint") const;
-
-      /// @brief  Build a pinocchio model based on the graph that was built previously, that allows
-      /// to have a root_joint.
-      ///
-      /// @param root_body First body to add to the model
-      /// @param root_position position of said body wrt to the universe
-      /// @param root_joint joint that will append to the root_body
-      /// @param root_joint_name name of the first joint in the model
-      ///
-      /// @return a pinocchio model
-      Model buildModel(
-        const std::string & root_body,
-        const pinocchio::SE3 & root_position,
-        const JointGraphVariant & root_joint,
-        const std::string & root_joint_name = "root_joint") const;
-
-      void copyGraph(const ModelGraph & g, const std::string & prefix = "");
+      void appendGraph(const ModelGraph & g);
 
       /// @brief Boost graph structure that holds the graph structure
       Graph g;
