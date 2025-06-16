@@ -100,7 +100,7 @@ namespace pinocchio
       return model;
     }
 
-    ModelGraph prefixingNameGraph(const ModelGraph & g, const std::string prefix)
+    ModelGraph prefixNames(const ModelGraph & g, const std::string prefix)
     {
       ModelGraph g_return;
       // Copy all vertices from g
@@ -135,7 +135,7 @@ namespace pinocchio
       return g_return;
     }
 
-    ModelGraph mergeGraphs(
+    ModelGraph merge(
       const ModelGraph & g1,
       const ModelGraph & g2,
       const std::string & g1_body,

@@ -1,4 +1,5 @@
 #include "pinocchio/parsers/graph/model-graph.hpp"
+#include "pinocchio/parsers/graph/model-graph-algo.hpp"
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -32,7 +33,7 @@ int main(int /*argc*/, char ** /*argv*/)
   g.addJoint("b1_s1", graph::JointFixedGraph(), "body1", pose_b1_s1, "sensor1", pose_s1);
 
   // Now we can choose which body will be our root its position, and build the model
-  Model m = g.buildModel("body1", SE3::Identity());
+  Model m = buildModel(g, "body1", SE3::Identity());
 
   std::cout << m << std::endl;
 

@@ -803,7 +803,7 @@ BOOST_AUTO_TEST_CASE(test_merge_graphs)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 1., 0.)), "hand",
     pinocchio::SE3::Identity());
 
-  ModelGraph g_full = mergeGraphs(
+  ModelGraph g_full = merge(
     g, g1, "torso", "upper_arm",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 4)),
     JointRevoluteGraph(Eigen::Vector3d::UnitY()));

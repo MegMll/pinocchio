@@ -34,7 +34,7 @@ namespace pinocchio
     /// @param prefix prefix to add to all names
     ///
     /// @return a model graph
-    ModelGraph prefixingNameGraph(const ModelGraph & g, const std::string prefix);
+    PINOCCHIO_PARSERS_DLLAPI ModelGraph prefixNames(const ModelGraph & g, const std::string prefix);
 
     /// @brief  Merge 2 graphs together, by adding an edge between the two bodies in arguments.
     ///
@@ -48,7 +48,7 @@ namespace pinocchio
     /// @param merging_joint_name name of the joint that will connect the two graphs
     ///
     /// @return a model graph
-    PINOCCHIO_PARSERS_DLLAPI ModelGraph mergeGraphs(
+    PINOCCHIO_PARSERS_DLLAPI ModelGraph merge(
       const ModelGraph & g1,
       const ModelGraph & g2,
       const std::string & g1_body,
