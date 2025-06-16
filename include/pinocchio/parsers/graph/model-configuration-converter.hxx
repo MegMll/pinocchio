@@ -535,9 +535,9 @@ namespace pinocchio
           }
           else
           {
-            // Velocities are expressed in joint successor body frame (after joint transformation).
-            // Here, v_source is in joint predecessor body frame so we
-            // must transform it in successor body frame.
+            // Velocities are expressed in joint successor frame (after joint transformation).
+            // Here, v_source is in joint predecessor frame so we must transform it in successor
+            // frame.
             Quaternion rotation_source(
               q_source.template segment<4>(configuration.idx_qs_source + 3));
             Vector3 translation_source(q_source.template segment<3>(configuration.idx_qs_source));
@@ -560,9 +560,9 @@ namespace pinocchio
           }
           else
           {
-            // Velocities are expressed in joint successor body frame (after joint transformation).
-            // Here, v_source is in joint predecessor body frame so we
-            // must transform it in successor body frame.
+            // Velocities are expressed in joint successor frame (after joint transformation).
+            // Here, v_source is in joint predecessor frame so we must transform it in successor
+            // frame.
             Quaternion rotation_source(q_source.template segment<4>(configuration.idx_qs_source));
             SE3 transform_source(rotation_source, Vector3::Zero());
 
@@ -583,13 +583,11 @@ namespace pinocchio
           }
           else
           {
-            // This is hacky.
-            // JointModelSphericalZYXTpl velocity is computed with v_j^source = S_source*v_source.
-            // We want the reverse joint to compute v_j^target = - v_j^source in the successor body
-            // frame.
-            // With v_j^target = S_target*v_target we must cancel S_target by multiplying v_target
-            // by S_target^{-1}. Then we can use the same transformation trick than freeflyer
-            // and Spherical joints.
+            // JointModelSphericalZYXTpl velocity is computed with
+            // v_j^source = S_source \alpha_source.
+            // We want the reverse joint to compute v_j^target = -X_source_to_target v_j^source.
+            // Since v_j^target = S_target \alpha_target, then
+            // \alpha_target = -S_target^{-1} X_source_to_target v_j^source.
             JointModelSphericalZYXTpl<Scalar, Options> jmodel;
             jmodel.setIndexes(0, 0, 0);
             JointDataSphericalZYXTpl<Scalar, Options> jdata;
@@ -625,9 +623,9 @@ namespace pinocchio
           }
           else
           {
-            // Velocities are expressed in joint successor body frame (after joint transformation).
-            // Here, v_source is in joint predecessor body frame so we
-            // must transform it in successor body frame.
+            // Velocities are expressed in joint successor frame (after joint transformation).
+            // Here, v_source is in joint predecessor frame so we must transform it in successor
+            // frame.
             JointModelPlanarTpl<Scalar, Options> jmodel;
             jmodel.setIndexes(0, 0, 0);
             JointDataPlanarTpl<Scalar, Options> jdata;
