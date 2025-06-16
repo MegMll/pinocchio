@@ -19,7 +19,9 @@ class TestModelGraphBindings(unittest.TestCase):
             pin.SE3.Random(),
         )
 
-        g.buildModel("body1", pin.SE3.Identity())
+        m = pin.buildModel(g, "body1", pin.SE3.Identity())
+        self.assertTrue(m.njoints == 2)
+        self.assertTrue(m.names[1] == "b1_b2")
 
 
 if __name__ == "__main__":
