@@ -42,7 +42,7 @@ namespace pinocchio
         void tree_edge(ModelGraph::EdgeDesc edge_desc, const ModelGraph::Graph & g) const
         {
           const ModelGraphEdge & edge = g[edge_desc];
-          (*joint_forward)[edge.name] = !edge.reverse;
+          (*joint_forward)[edge.name] = edge.forward;
         }
 
         /// Joint name to a bool that hold true if the joint is in forward direction
@@ -220,15 +220,15 @@ namespace pinocchio
 
       // Store joint direction for each root vertex
       std::vector<boost::default_color_type> colors(
-        boost::num_vertices(graph.g), boost::default_color_type::white_color);
+        boost::num_vertices(graph.graph), boost::default_color_type::white_color);
       internal::RecordJointDirectionVisitor::JointNameToDirection joint_direction_source;
       internal::RecordJointDirectionVisitor::JointNameToDirection joint_direction_target;
       boost::depth_first_search(
-        graph.g, internal::RecordJointDirectionVisitor(&joint_direction_source), colors.data(),
+        graph.graph, internal::RecordJointDirectionVisitor(&joint_direction_source), colors.data(),
         root_vertex_source->second);
       colors.assign(colors.size(), boost::default_color_type::white_color);
       boost::depth_first_search(
-        graph.g, internal::RecordJointDirectionVisitor(&joint_direction_target), colors.data(),
+        graph.graph, internal::RecordJointDirectionVisitor(&joint_direction_target), colors.data(),
         root_vertex_target->second);
 
       // Construct the mapping between source and target configuration and tangent vector.

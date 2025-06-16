@@ -12,6 +12,7 @@
 #include "pinocchio/parsers/graph/model-configuration-converter.hpp"
 #include "pinocchio/parsers/graph/joints.hpp"
 #include "pinocchio/parsers/graph/model-graph.hpp"
+#include "pinocchio/parsers/graph/model-graph-algo.hpp"
 
 BOOST_AUTO_TEST_SUITE(ModelConfigurationConverter)
 
@@ -86,10 +87,11 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   g.addJoint("j3", joint, "b3", X_I, "b4", X_I);
   g.addJoint("j4", joint, "b3", X_I, "b5", X_I);
 
-  auto b1_model = g.buildModel("b1", X_I);
-  auto b4_model = g.buildModel("b4", X_I);
-  auto b5_model = g.buildModel("b5", X_I);
-  auto b1_ff_model = g.buildModel("b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
+  auto b1_model = pinocchio::graph::buildModel(g, "b1", X_I);
+  auto b4_model = pinocchio::graph::buildModel(g, "b4", X_I);
+  auto b5_model = pinocchio::graph::buildModel(g, "b5", X_I);
+  auto b1_ff_model =
+    pinocchio::graph::buildModel(g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
 
   auto b1_to_b4_converter = pinocchio::graph::createConverter(b1_model, b4_model, g);
   auto b1_to_b5_converter = pinocchio::graph::createConverter(b1_model, b5_model, g);
@@ -333,8 +335,8 @@ BOOST_AUTO_TEST_CASE(test_create_converter_composite)
   g.addJoint("j2", composite, "b2", X_I, "b3", X_I);
   g.addJoint("j3", joint, "b3", X_I, "b4", X_I);
 
-  auto b1_model = g.buildModel("b1", X_I);
-  auto b4_model = g.buildModel("b4", X_I);
+  auto b1_model = pinocchio::graph::buildModel(g, "b1", X_I);
+  auto b4_model = pinocchio::graph::buildModel(g, "b4", X_I);
 
   auto b1_to_b4_converter = pinocchio::graph::createConverter(b1_model, b4_model, g);
 
@@ -448,7 +450,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   g.addJoint(
     "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
 
-  const auto model_a = g.buildModel("b1", X_I);
+  const auto model_a = pinocchio::graph::buildModel(g, "b1", X_I);
   pinocchio::Data data_a(model_a);
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model_a.nq);
   const Eigen::VectorXd q_a = pinocchio::randomConfiguration(model_a, -qmax, qmax);
@@ -456,7 +458,8 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check joint mapping and backward conversion
   {
-    auto model_b = g.buildModel("b12", data_a.oMf[model_a.getFrameId("b12", pinocchio::BODY)]);
+    auto model_b = pinocchio::graph::buildModel(
+      g, "b12", data_a.oMf[model_a.getFrameId("b12", pinocchio::BODY)]);
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
@@ -492,7 +495,8 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check forward conversion with custom root joint
   {
-    auto model_a_ff = g.buildModel("b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
+    auto model_a_ff =
+      pinocchio::graph::buildModel(g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
     pinocchio::Data data_a_ff(model_a_ff);
     const Eigen::VectorXd qmax_ff = Eigen::VectorXd::Ones(model_a_ff.nq);
     Eigen::VectorXd q_a_ff = pinocchio::randomConfiguration(model_a_ff, -qmax_ff, qmax_ff);
@@ -573,7 +577,7 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
   g.addJoint(
     "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
 
-  const auto model_a = g.buildModel("b1", X_I);
+  const auto model_a = pinocchio::graph::buildModel(g, "b1", X_I);
   pinocchio::Data data_a(model_a);
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model_a.nq);
   const Eigen::VectorXd q_a = pinocchio::randomConfiguration(model_a, -qmax, qmax);
@@ -588,8 +592,8 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     // model_a end effector velocity.
     const std::string end_effector = "b12";
     const auto end_effector_frame_id = model_a.getFrameId(end_effector, pinocchio::BODY);
-    auto model_b = g.buildModel(
-      end_effector, data_a.oMf[end_effector_frame_id], pinocchio::graph::JointFreeFlyerGraph());
+    auto model_b = pinocchio::graph::buildModel(
+      g, end_effector, data_a.oMf[end_effector_frame_id], pinocchio::graph::JointFreeFlyerGraph());
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     Eigen::VectorXd v_b(Eigen::VectorXd::Zero(model_b.nv));
