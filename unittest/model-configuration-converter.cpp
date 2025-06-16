@@ -89,8 +89,7 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   auto b1_model = g.buildModel("b1", X_I);
   auto b4_model = g.buildModel("b4", X_I);
   auto b5_model = g.buildModel("b5", X_I);
-  auto b1_ff_model = g.buildModel(
-    "b1", X_I, pinocchio::graph::JointGraphVariant(pinocchio::graph::JointFreeFlyerGraph()), "ff");
+  auto b1_ff_model = g.buildModel("b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
 
   auto b1_to_b4_converter = pinocchio::graph::createConverter(b1_model, b4_model, g);
   auto b1_to_b5_converter = pinocchio::graph::createConverter(b1_model, b5_model, g);
@@ -493,9 +492,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check forward conversion with custom root joint
   {
-    auto model_a_ff = g.buildModel(
-      "b1", X_I, pinocchio::graph::JointGraphVariant(pinocchio::graph::JointFreeFlyerGraph()),
-      "ff");
+    auto model_a_ff = g.buildModel("b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
     pinocchio::Data data_a_ff(model_a_ff);
     const Eigen::VectorXd qmax_ff = Eigen::VectorXd::Ones(model_a_ff.nq);
     Eigen::VectorXd q_a_ff = pinocchio::randomConfiguration(model_a_ff, -qmax_ff, qmax_ff);
@@ -592,8 +589,7 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     const std::string end_effector = "b12";
     const auto end_effector_frame_id = model_a.getFrameId(end_effector, pinocchio::BODY);
     auto model_b = g.buildModel(
-      end_effector, data_a.oMf[end_effector_frame_id],
-      pinocchio::graph::JointGraphVariant(pinocchio::graph::JointFreeFlyerGraph()));
+      end_effector, data_a.oMf[end_effector_frame_id], pinocchio::graph::JointFreeFlyerGraph());
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     Eigen::VectorXd v_b(Eigen::VectorXd::Zero(model_b.nv));
