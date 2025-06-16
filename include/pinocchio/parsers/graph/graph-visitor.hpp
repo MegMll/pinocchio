@@ -280,7 +280,7 @@ namespace pinocchio
 
         void operator()(const JointMimicGraph & joint, const BodyFrameGraph & b_f)
         {
-          if (edge.reverse)
+          if (!edge.forward)
             PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - JointMimic cannot be reversed.");
 
           if (boost::get<BodyFrameGraph>(&source_vertex.frame) == nullptr)
@@ -371,22 +371,24 @@ namespace pinocchio
 
         Eigen::VectorXd operator()(const JointFreeFlyerGraph &) const
         {
+          // Compute the inverse rotation and extract the ZYX euler angles
+          JointModelFreeFlyer jmodel;
+          jmodel.setIndexes(0, 0, 0);
+          JointDataFreeFlyer jdata;
+          jmodel.calc(jdata, q);
 
           Eigen::VectorXd q_rev = Eigen::VectorXd::Zero(7);
           Eigen::Quaterniond q_temp(q[6], q[3], q[4], q[5]);
-          q_rev << -q[0], -q[1], -q[2], q_temp.inverse().x(), q_temp.inverse().y(),
-            q_temp.inverse().z(), q_temp.inverse().w();
+          q_rev.segment<3>(0) = -jdata.M.rotation().transpose() * q.segment(0, 3);
+          q_rev.segment<4>(3) = q_temp.inverse().coeffs();
 
           return q_rev;
         }
         Eigen::VectorXd operator()(const JointSphericalGraph &) const
         {
-          Eigen::VectorXd q_rev = Eigen::VectorXd::Zero(4);
           Eigen::Quaterniond q_temp(q[3], q[0], q[1], q[2]);
-          q_rev << q_temp.inverse().x(), q_temp.inverse().y(), q_temp.inverse().z(),
-            q_temp.inverse().w();
 
-          return q_rev;
+          return q_temp.inverse().coeffs();
         }
         Eigen::VectorXd operator()(const JointSphericalZYXGraph &) const
         {
