@@ -7,6 +7,7 @@
 #include "pinocchio/algorithm/frames.hpp"
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
+#include "pinocchio/parsers/graph/model-graph-algo.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <stdexcept>
@@ -118,7 +119,7 @@ BOOST_AUTO_TEST_CASE(test_linear_2D_robot)
   ModelGraph g = buildReversableModelGraph(JointRevoluteGraph(Eigen::Vector3d::UnitY()));
 
   ///////////////// Model
-  pinocchio::Model m = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m = buildModel(g, "body1", pinocchio::SE3::Identity());
   BOOST_CHECK(m.jointPlacements[m.getJointId("body1_to_body2")].isApprox(
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2, 0, 0))));
 
@@ -130,7 +131,7 @@ BOOST_AUTO_TEST_CASE(test_linear_2D_robot)
   pinocchio::Data d(m);
   pinocchio::framesForwardKinematics(m, d, q);
 
-  pinocchio::Model m1 = g.buildModel("body2", pinocchio::SE3::Identity());
+  pinocchio::Model m1 = buildModel(g, "body2", pinocchio::SE3::Identity());
   // Compute forward kinematics
   pinocchio::Data d1(m1);
   pinocchio::framesForwardKinematics(m1, d1, -q);
@@ -184,7 +185,7 @@ BOOST_AUTO_TEST_CASE(test_fixed_joint)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(4., -5., 0.)));
 
   ///////////////// Model
-  pinocchio::Model m = g.buildModel("body1", pinocchio::SE3::Identity(), JointFreeFlyerGraph());
+  pinocchio::Model m = buildModel(g, "body1", pinocchio::SE3::Identity(), JointFreeFlyerGraph());
 
   BOOST_CHECK(m.njoints == 3);
   BOOST_CHECK(m.frames[m.getFrameId("body2_to_body3", pinocchio::FIXED_JOINT)].placement.isApprox(
@@ -220,7 +221,7 @@ BOOST_AUTO_TEST_CASE(test_mimic_joint)
 
   ///////////////// Model
   pinocchio::SE3 pose_body1_universe = pinocchio::SE3::Identity();
-  pinocchio::Model m = g.buildModel("body1", pose_body1_universe);
+  pinocchio::Model m = buildModel(g, "body1", pose_body1_universe);
 
   Eigen::VectorXd q(m.nq);
   q << M_PI / 2;
@@ -247,7 +248,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_revolute)
   ModelGraph g = buildReversableModelGraph(JointRevoluteGraph(Eigen::Vector3d::UnitY()));
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
   q[0] = M_PI / 2;
@@ -255,7 +256,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_revolute)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
   pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
 
@@ -273,7 +274,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_revolute_unbounded)
   ModelGraph g = buildReversableModelGraph(JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitY()));
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
   double ca, sa;
@@ -284,7 +285,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_revolute_unbounded)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
   Eigen::VectorXd q_reverse = Eigen::VectorXd::Zero(m_reverse.nq);
   q_reverse[0] = q[0];  // cos(-a) = cos(a)
@@ -305,7 +306,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_prismatic)
   ModelGraph g = buildReversableModelGraph(JointPrismaticGraph(Eigen::Vector3d::UnitY()));
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
   q[0] = 0.2;
@@ -313,7 +314,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_prismatic)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
   pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
 
@@ -331,7 +332,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_helical)
   ModelGraph g = buildReversableModelGraph(JointHelicalGraph(Eigen::Vector3d::UnitY(), 2.3));
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
   q[0] = M_PI / 3;
@@ -339,7 +340,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_helical)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
   pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
 
@@ -359,7 +360,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_universal)
     JointUniversalGraph(Eigen::Vector3d::UnitY(), Eigen::Vector3d::UnitX()));
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
   q[0] = M_PI / 2;
@@ -368,7 +369,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_universal)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
   Eigen::VectorXd q_reverse = Eigen::VectorXd::Zero(m_forward.nq);
   q_reverse[0] = q[1];
@@ -390,7 +391,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_spherical)
   ModelGraph g = buildReversableModelGraph(JointSphericalGraph());
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
   Eigen::AngleAxisd rollAngle(1, Eigen::Vector3d::UnitZ());
   Eigen::AngleAxisd yawAngle(0.4, Eigen::Vector3d::UnitY());
@@ -404,7 +405,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_spherical)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
   Eigen::VectorXd q_reverse(m_reverse.nq);
   q_reverse << q_sph.inverse().x(), q_sph.inverse().y(), q_sph.inverse().z(), q_sph.inverse().w();
@@ -425,7 +426,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_spherical_zyx)
   ModelGraph g = buildReversableModelGraph(JointSphericalZYXGraph());
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
   // config vector forward model ZYX
   Eigen::Vector3d q(m_forward.nq);
@@ -434,7 +435,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_spherical_zyx)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
   // rotation matrix for spherique xyz for inverting spherical zyx
   Eigen::AngleAxisd Rx(-q[2], Eigen::Vector3d::UnitX());
@@ -471,7 +472,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_composite)
   ModelGraph g = buildReversableModelGraph(jmodel);
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
 
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
@@ -481,7 +482,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_composite)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
 
   Eigen::VectorXd q_reverse(m_reverse.nq);
@@ -502,7 +503,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_planar)
   ModelGraph g = buildReversableModelGraph(JointPlanarGraph());
 
   //////////////////////////////////// Forward model
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
   double ca, sa;
@@ -511,7 +512,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_planar)
   pinocchio::framesForwardKinematics(m_forward, d_f, q);
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
 
   // Compute reverse coordinate
@@ -559,7 +560,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_mimic)
     "body2", pose_body2_joint2, "body3", pose_body3_joint2);
 
   ///////////////// Model
-  BOOST_CHECK_THROW(g.buildModel("body3", pinocchio::SE3::Identity()), std::invalid_argument);
+  BOOST_CHECK_THROW(buildModel(g, "body3", pinocchio::SE3::Identity()), std::invalid_argument);
 }
 
 /// @brief Test out if inertias are well placed on the model
@@ -587,8 +588,8 @@ BOOST_AUTO_TEST_CASE(test_inertia)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., -2., 0.)), "body3",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(-2., 0., 0.)));
 
-  pinocchio::Model m = g.buildModel("body1", pinocchio::SE3::Identity());
-  pinocchio::Model m1 = g.buildModel("body3", pinocchio::SE3::Identity());
+  pinocchio::Model m = buildModel(g, "body1", pinocchio::SE3::Identity());
+  pinocchio::Model m1 = buildModel(g, "body3", pinocchio::SE3::Identity());
 
   Eigen::VectorXd q = Eigen::VectorXd::Random(m.nq);
 
@@ -622,12 +623,13 @@ BOOST_AUTO_TEST_CASE(test_tree_robot)
     "torso_to_right_leg", JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
     pinocchio::SE3::Identity(), "right_leg", pinocchio::SE3::Identity());
 
-  pinocchio::Model m = g.buildModel("torso", pinocchio::SE3::Identity(), JointFreeFlyerGraph());
+  pinocchio::Model m = buildModel(g, "torso", pinocchio::SE3::Identity(), JointFreeFlyerGraph());
 
   BOOST_CHECK(m.parents[m.getJointId("torso_to_left_leg")] == m.getJointId("root_joint"));
   BOOST_CHECK(m.parents[m.getJointId("torso_to_right_leg")] == m.getJointId("root_joint"));
 
-  pinocchio::Model m1 = g.buildModel("left_leg", pinocchio::SE3::Identity(), JointFreeFlyerGraph());
+  pinocchio::Model m1 =
+    buildModel(g, "left_leg", pinocchio::SE3::Identity(), JointFreeFlyerGraph());
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_left_leg")] == m1.getJointId("root_joint"));
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_right_leg")] == m1.getJointId("torso_to_left_leg"));
 }
@@ -649,7 +651,7 @@ BOOST_AUTO_TEST_CASE(test_other_frame)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "sensor1",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
 
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
 
   pinocchio::Data d_f(m_forward);
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
@@ -658,7 +660,7 @@ BOOST_AUTO_TEST_CASE(test_other_frame)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("sensor1", d_f.oMf[m_forward.getFrameId("sensor1", pinocchio::SENSOR)]);
+    buildModel(g, "sensor1", d_f.oMf[m_forward.getFrameId("sensor1", pinocchio::SENSOR)]);
   pinocchio::Data d_reverse(m_reverse);
   pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
 
@@ -699,7 +701,7 @@ BOOST_AUTO_TEST_CASE(test_q_ref_revolute)
     poseBody2, q_ref);
 
   /////////////////////////////////////// Joints
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
 
   pinocchio::Data d_f(m_forward);
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
@@ -708,7 +710,7 @@ BOOST_AUTO_TEST_CASE(test_q_ref_revolute)
 
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
   pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
 
@@ -751,7 +753,7 @@ BOOST_AUTO_TEST_CASE(test_q_ref_composite)
 
   g.addJoint("body1_to_body2", jmodel, "body1", poseBody1, "body2", poseBody2, q_ref);
 
-  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
   pinocchio::Data d_f(m_forward);
 
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
@@ -760,7 +762,7 @@ BOOST_AUTO_TEST_CASE(test_q_ref_composite)
   pinocchio::framesForwardKinematics(m_forward, d_f, q);
   //////////////////////////////////// Reverse model
   pinocchio::Model m_reverse =
-    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
   pinocchio::Data d_reverse(m_reverse);
 
   Eigen::VectorXd q_reverse(m_reverse.nq);
@@ -807,16 +809,16 @@ BOOST_AUTO_TEST_CASE(test_merge_graphs)
     JointRevoluteGraph(Eigen::Vector3d::UnitY()));
 
   pinocchio::Model m =
-    g_full.buildModel("torso", pinocchio::SE3::Identity(), JointFreeFlyerGraph());
+    buildModel(g_full, "torso", pinocchio::SE3::Identity(), JointFreeFlyerGraph());
 
   BOOST_CHECK(m.parents[m.getJointId("torso2left_leg")] == m.getJointId("root_joint"));
   BOOST_CHECK(m.parents[m.getJointId("torso2right_leg")] == m.getJointId("root_joint"));
   BOOST_CHECK(m.parents[m.getJointId("merging_joint")] == m.getJointId("root_joint"));
-  BOOST_CHECK(m.parents[m.getJointId("g2/upper2lower")] == m.getJointId("merging_joint"));
-  BOOST_CHECK(m.parents[m.getJointId("g2/lower2hand")] == m.getJointId("g2/upper2lower"));
+  BOOST_CHECK(m.parents[m.getJointId("upper2lower")] == m.getJointId("merging_joint"));
+  BOOST_CHECK(m.parents[m.getJointId("lower2hand")] == m.getJointId("upper2lower"));
 
   BOOST_CHECK(
-    m.frames[m.getFrameId("g2/upper_arm", pinocchio::BODY)].placement
+    m.frames[m.getFrameId("upper_arm", pinocchio::BODY)].placement
     == pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 4)));
 }
 
@@ -832,9 +834,9 @@ BOOST_AUTO_TEST_CASE(test_lock_joint)
   Eigen::VectorXd q_ref(1);
   q_ref[0] = M_PI / 6;
   ref_configs.push_back(q_ref);
-  ModelGraph g_locked = fixJointsGraph(g, joints_to_lock, ref_configs);
+  ModelGraph g_locked = lockJoints(g, joints_to_lock, ref_configs);
 
-  pinocchio::Model m = g_locked.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m = buildModel(g_locked, "body1", pinocchio::SE3::Identity());
 
   BOOST_CHECK(m.njoints == 1);
 
@@ -842,7 +844,6 @@ BOOST_AUTO_TEST_CASE(test_lock_joint)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
 
   Eigen::AngleAxisd Rz(q_ref[0], Eigen::Vector3d::UnitZ());
-  std::cout << Rz.toRotationMatrix() << std::endl;
   pinocchio::SE3 pose_fixed_joint = pinocchio::SE3(Rz.toRotationMatrix(), Eigen::Vector3d::Zero());
 
   BOOST_CHECK(m.frames[m.getFrameId("body1_to_body2", pinocchio::FIXED_JOINT)].placement.isApprox(
