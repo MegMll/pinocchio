@@ -21,14 +21,14 @@ namespace pinocchio
     ///
     /// @return a pinocchio model
     PINOCCHIO_PARSERS_DLLAPI Model buildModel(
-    const ModelGraph & g,
-    const std::string & root_body,
-    const pinocchio::SE3 & root_position,
-    const JointGraphVariant & root_joint = JointFixedGraph(),
-        const std::string & root_joint_name = "root_joint");
+      const ModelGraph & g,
+      const std::string & root_body,
+      const pinocchio::SE3 & root_position,
+      const JointGraphVariant & root_joint = JointFixedGraph(),
+      const std::string & root_joint_name = "root_joint");
 
-
-    /// @brief  Add a prefix to all bodies and joints in graph g. Mandatory step before using mergeGraphs.
+    /// @brief  Add a prefix to all bodies and joints in graph g. Mandatory step before using
+    /// mergeGraphs.
     ///
     /// @param g graph
     /// @param prefix prefix to add to all names
@@ -57,7 +57,8 @@ namespace pinocchio
       const JointGraphVariant & merging_joint = JointFixedGraph(),
       const std::string & merging_joint_name = "merging_joint");
 
-    /// @brief  Transform a list of joints into its fixed version, locked into a reference configuratioh.
+    /// @brief  Transform a list of joints into its fixed version, locked into a reference
+    /// configuratioh.
     ///
     /// @param g graph
     /// @param joints_to_lock List of joints to transform by name

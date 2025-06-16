@@ -48,12 +48,11 @@ namespace pinocchio
       const JointGraphVariant & root_joint,
       const std::string & root_joint_name)
     {
-      typedef boost::
-        adjacency_list<boost::vecS, boost::vecS, boost::directedS, ModelGraphVertex, ModelGraphEdge>
-          Graph;
+      typedef boost::adjacency_list<
+        boost::vecS, boost::vecS, boost::directedS, ModelGraphVertex, ModelGraphEdge>
+        Graph;
       typedef typename boost::graph_traits<Graph>::vertex_descriptor VertexDesc;
       typedef typename boost::graph_traits<Graph>::edge_descriptor EdgeDesc;
-
 
       auto root_vertex = g.name_to_vertex.find(root_body);
       if (root_vertex == g.name_to_vertex.end())
