@@ -608,8 +608,7 @@ namespace pinocchio
 
             // Compute v_target in the right frame
             v_target.template segment<3>(tangent.idx_vs_target).noalias() =
-              -S_target_inv * jdata.M.rotation() * jdata.S.angularSubspace()
-              * v_source.template segment<3>(tangent.idx_vs_source);
+              -S_target_inv * jdata.M.rotation() * jdata.v.angular();
           }
         }
 
