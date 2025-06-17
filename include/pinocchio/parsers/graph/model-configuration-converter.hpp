@@ -34,9 +34,12 @@ namespace pinocchio
         int nv;
       };
 
-      template<typename Scalar>
+      template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
       struct JointMapping
       {
+        typedef JointCollectionTpl<Scalar, Options> JointCollection;
+        typedef typename JointCollection::JointModelVariant JointModelVariant;
+
         JointMapping() = default;
         JointMapping(JointModelVariant joint, bool same_direction)
         : joint(joint)
@@ -66,7 +69,7 @@ namespace pinocchio
 
       typedef internal::ConfigurationMapping ConfigurationMapping;
       typedef internal::TangentMapping TangentMapping;
-      typedef internal::JointMapping<Scalar> JointMapping;
+      typedef internal::JointMapping<Scalar, Options, JointCollectionTpl> JointMapping;
 
       ModelConfigurationConverterTpl() = default;
       ModelConfigurationConverterTpl(
