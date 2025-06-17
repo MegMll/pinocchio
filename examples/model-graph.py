@@ -1,11 +1,10 @@
 import numpy as np
-
 import pinocchio as pin
 
 # Create an empty model graph
 g = pin.ModelGraph()
 
-###### Add bodies, sensors... 
+###### Add bodies, sensors...
 g.addBody("body1", pin.Inertia.Identity())
 g.addBody("body2", pin.Inertia.Identity())
 
@@ -19,7 +18,7 @@ g.addJoint(
     pin.SE3.Random(),
 )
 
-# Create model based on graph 
+# Create model based on graph
 m = pin.buildModel(g, "body1", pin.SE3.Identity())
 
 print(m)
