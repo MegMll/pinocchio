@@ -606,14 +606,18 @@ namespace pinocchio
       struct RecordTreeEdgeVisitor : public boost::default_dfs_visitor
       {
         typedef typename boost::graph_traits<Graph>::edge_descriptor EdgeDesc;
+        typedef std::unordered_map<std::string, bool> JointNameToDirection;
 
-        RecordTreeEdgeVisitor(std::vector<EdgeDesc> * edges)
+        RecordTreeEdgeVisitor(std::vector<EdgeDesc> * edges, JointNameToDirection * joint_forward)
         : edges(edges)
+        , joint_forward(joint_forward)
         {
         }
 
-        void tree_edge(EdgeDesc edge_desc, const Graph &) const
+        void tree_edge(EdgeDesc edge_desc, const Graph & g) const
         {
+          const ModelGraphEdge & edge = g[edge_desc];
+          (*joint_forward)[edge.name] = edge.forward;
           edges->push_back(edge_desc);
         }
 
@@ -625,6 +629,8 @@ namespace pinocchio
         }
 
         std::vector<EdgeDesc> * edges;
+        /// Joint name to a bool that hold true if the joint is in forward direction
+        JointNameToDirection * joint_forward;
       };
     } // namespace internal
   } // namespace graph

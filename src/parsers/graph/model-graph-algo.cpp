@@ -41,17 +41,17 @@ namespace pinocchio
       }
     };
 
-    Model buildModel(
+    BuildModelWithBuildInfoReturn buildModelWithBuildInfo(
       const ModelGraph & g,
       const std::string & root_body,
       const pinocchio::SE3 & root_position,
       const JointGraphVariant & root_joint,
       const std::string & root_joint_name)
     {
+      BuildModelWithBuildInfoReturn ret;
       typedef boost::adjacency_list<
         boost::vecS, boost::vecS, boost::directedS, ModelGraphVertex, ModelGraphEdge>
         Graph;
-      typedef typename boost::graph_traits<Graph>::vertex_descriptor VertexDesc;
       typedef typename boost::graph_traits<Graph>::edge_descriptor EdgeDesc;
 
       auto root_vertex = g.name_to_vertex.find(root_body);
@@ -63,14 +63,16 @@ namespace pinocchio
         boost::num_vertices(g.graph), boost::default_color_type::white_color);
       std::vector<EdgeDesc> edges;
       edges.reserve(boost::num_vertices(g.graph));
-      internal::RecordTreeEdgeVisitor<Graph> tree_edge_visitor(&edges);
+      internal::RecordTreeEdgeVisitor<Graph> tree_edge_visitor(
+        &edges, &ret.build_info._joint_forward);
       boost::depth_first_search(g.graph, tree_edge_visitor, colors.data(), root_vertex->second);
 
-      Model model;
+      Model & model = ret.model;
       const ModelGraphVertex & root_vertex_data = g.graph[root_vertex->second];
 
       if (!boost::get<JointFixedGraph>(&root_joint)) // Root joint provided
       {
+        ret.build_info.is_fixed = false;
         JointIndex j_id = model.addJoint(
           0, boost::apply_visitor(internal::CreateJointModelVisitor(), root_joint), root_position,
           root_joint_name);
@@ -81,6 +83,7 @@ namespace pinocchio
       }
       else // Fixed to world
       {
+        ret.build_info.is_fixed = true;
         AddRootFrameVisitor afv(root_vertex_data, (JointIndex)0, root_position, model);
         boost::apply_visitor(afv, root_vertex_data.frame);
       }
@@ -97,7 +100,18 @@ namespace pinocchio
         internal::AddJointModelVisitor visitor(source_vertex, target_vertex, edge, model);
         boost::apply_visitor(visitor, edge.joint, target_vertex.frame);
       }
-      return model;
+      return ret;
+    }
+
+    Model buildModel(
+      const ModelGraph & g,
+      const std::string & root_body,
+      const pinocchio::SE3 & root_position,
+      const JointGraphVariant & root_joint,
+      const std::string & root_joint_name)
+    {
+      return buildModelWithBuildInfo(g, root_body, root_position, root_joint, root_joint_name)
+        .model;
     }
 
     ModelGraph prefixNames(const ModelGraph & g, const std::string prefix)
