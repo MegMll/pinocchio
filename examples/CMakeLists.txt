@@ -54,6 +54,7 @@ add_pinocchio_cpp_example(overview-lie)
 add_pinocchio_cpp_example(overview-SE3)
 add_pinocchio_cpp_example(interpolation-SE3)
 add_pinocchio_cpp_example(model-graph PARSERS)
+add_pinocchio_cpp_example(model-configuration-converter PARSERS)
 
 if(BUILD_WITH_URDF_SUPPORT)
   add_pinocchio_cpp_example(overview-urdf PARSERS)
