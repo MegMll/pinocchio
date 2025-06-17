@@ -94,13 +94,13 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
     g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
 
   auto b1_to_b4_converter = pinocchio::graph::createConverter(
-    b1_ret.model, b1_ret.build_info, b4_ret.model, b4_ret.build_info);
+    b1_ret.model, b4_ret.model, b1_ret.build_info, b4_ret.build_info);
   auto b1_to_b5_converter = pinocchio::graph::createConverter(
-    b1_ret.model, b1_ret.build_info, b5_ret.model, b5_ret.build_info);
+    b1_ret.model, b5_ret.model, b1_ret.build_info, b5_ret.build_info);
   auto b4_to_b5_converter = pinocchio::graph::createConverter(
-    b4_ret.model, b4_ret.build_info, b5_ret.model, b5_ret.build_info);
+    b4_ret.model, b5_ret.model, b4_ret.build_info, b5_ret.build_info);
   auto b1_ff_to_b1_converter = pinocchio::graph::createConverter(
-    b1_ff_ret.model, b1_ff_ret.build_info, b1_ret.model, b1_ret.build_info);
+    b1_ff_ret.model, b1_ret.model, b1_ff_ret.build_info, b1_ret.build_info);
 
   // Test b1 to b4
   BOOST_REQUIRE_EQUAL(b1_to_b4_converter.configuration_mapping.size(), 4);
@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE(test_create_converter_composite)
   auto b4_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b4", X_I);
 
   auto b1_to_b4_converter = pinocchio::graph::createConverter(
-    b1_ret.model, b1_ret.build_info, b4_ret.model, b4_ret.build_info);
+    b1_ret.model, b4_ret.model, b1_ret.build_info, b4_ret.build_info);
 
   // Test b1 to b4
   BOOST_REQUIRE_EQUAL(b1_to_b4_converter.configuration_mapping.size(), 4);
@@ -470,7 +470,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     auto a_to_b_converter = pinocchio::graph::createConverter(
-      model_a, model_a_ret.build_info, model_b, model_b_ret.build_info);
+      model_a, model_b, model_a_ret.build_info, model_b_ret.build_info);
     a_to_b_converter.convertConfigurationVector(q_a, q_b);
     pinocchio::framesForwardKinematics(model_b, data_b, q_b);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -489,7 +489,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
     pinocchio::Data data_a2(model_a);
     Eigen::VectorXd q_a2 = pinocchio::neutral(model_a);
     auto a_to_a_converter = pinocchio::graph::createConverter(
-      model_a, model_a_ret.build_info, model_a, model_a_ret.build_info);
+      model_a, model_a, model_a_ret.build_info, model_a_ret.build_info);
     a_to_a_converter.convertConfigurationVector(q_a, q_a2);
     pinocchio::framesForwardKinematics(model_a, data_a2, q_a2);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -513,7 +513,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
     q_a_ff.head<7>() << 0., 0., 0., 0., 0., 0., 1.;
     pinocchio::framesForwardKinematics(model_a_ff, data_a_ff, q_a_ff);
     auto a_ff_to_a_converter = pinocchio::graph::createConverter(
-      model_a_ff, model_a_ff_ret.build_info, model_a, model_a_ret.build_info);
+      model_a_ff, model_a, model_a_ff_ret.build_info, model_a_ret.build_info);
     a_ff_to_a_converter.convertConfigurationVector(q_a_ff, q_a);
     pinocchio::framesForwardKinematics(model_a, data_a, q_a);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -614,7 +614,7 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
       pinocchio::getFrameVelocity(model_a, data_a, end_effector_frame_id).toVector();
 
     auto a_to_b_converter = pinocchio::graph::createConverter(
-      model_a, model_a_ret.build_info, model_b, model_b_ret.build_info);
+      model_a, model_b, model_a_ret.build_info, model_b_ret.build_info);
     a_to_b_converter.convertConfigurationVector(q_a, q_b);
     a_to_b_converter.convertTangentVector(q_a, v_a, v_b);
     pinocchio::forwardKinematics(model_b, data_b, q_b, v_b);
@@ -640,7 +640,7 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     Eigen::VectorXd q_a2 = pinocchio::neutral(model_a);
     Eigen::VectorXd v_a2(Eigen::VectorXd::Zero(model_a.nv));
     auto a_to_a_converter = pinocchio::graph::createConverter(
-      model_a, model_a_ret.build_info, model_a, model_a_ret.build_info);
+      model_a, model_a, model_a_ret.build_info, model_a_ret.build_info);
     a_to_a_converter.convertConfigurationVector(q_a, q_a2);
     a_to_a_converter.convertTangentVector(q_a, v_a, v_a2);
     pinocchio::forwardKinematics(model_a, data_a2, q_a2, v_a2);

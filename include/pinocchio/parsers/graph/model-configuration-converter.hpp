@@ -115,8 +115,8 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl> createConverter(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model_source,
-      const ModelGraphBuildInfo & build_info_source,
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model_target,
+      const ModelGraphBuildInfo & build_info_source,
       const ModelGraphBuildInfo & build_info_target);
 
   } // namespace graph
