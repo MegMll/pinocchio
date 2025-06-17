@@ -103,200 +103,200 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
     b1_ff_ret.model, b1_ret.model, b1_ff_ret.build_info, b1_ret.build_info);
 
   // Test b1 to b4
-  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.configuration_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.tangent_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.joint_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter._configuration_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter._tangent_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter._joint_mapping.size(), 4);
 
   //   j1
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].nq, 2);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].idx_qs_source, 0);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].idx_qs_target, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[0].nq, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[0].idx_qs_source, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[0].idx_qs_target, 2);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].idx_vs_source, 0);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].idx_vs_target, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[0].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[0].idx_vs_source, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[0].idx_vs_target, 2);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[0].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._joint_mapping[0].same_direction, false);
 
   //   j2
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].idx_qs_source, 2);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].idx_qs_target, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[1].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[1].idx_qs_source, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[1].idx_qs_target, 1);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].idx_vs_source, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].idx_vs_target, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[1].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[1].idx_vs_source, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[1].idx_vs_target, 1);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[1].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._joint_mapping[1].same_direction, false);
 
   //   j3
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].idx_qs_source, 3);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].idx_qs_target, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[2].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[2].idx_qs_source, 3);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[2].idx_qs_target, 0);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].idx_vs_source, 2);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].idx_vs_target, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[2].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[2].idx_vs_source, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[2].idx_vs_target, 0);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[2].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._joint_mapping[2].same_direction, false);
 
   //   j4
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].idx_qs_source, 4);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].idx_qs_target, 4);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[3].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[3].idx_qs_source, 4);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[3].idx_qs_target, 4);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].idx_vs_source, 3);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].idx_vs_target, 3);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[3].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[3].idx_vs_source, 3);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[3].idx_vs_target, 3);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[3].same_direction, true);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._joint_mapping[3].same_direction, true);
 
   // Test b1 to b5
-  BOOST_REQUIRE_EQUAL(b1_to_b5_converter.configuration_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b1_to_b5_converter.tangent_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b1_to_b5_converter.joint_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b5_converter._configuration_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b5_converter._tangent_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b5_converter._joint_mapping.size(), 4);
 
   //   j1
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[0].nq, 2);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[0].idx_qs_source, 0);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[0].idx_qs_target, 2);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[0].nq, 2);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[0].idx_qs_source, 0);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[0].idx_qs_target, 2);
 
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[0].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[0].idx_vs_source, 0);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[0].idx_vs_target, 2);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[0].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[0].idx_vs_source, 0);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[0].idx_vs_target, 2);
 
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.joint_mapping[0].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._joint_mapping[0].same_direction, false);
 
   //   j2
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[1].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[1].idx_qs_source, 2);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[1].idx_qs_target, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[1].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[1].idx_qs_source, 2);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[1].idx_qs_target, 1);
 
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[1].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[1].idx_vs_source, 1);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[1].idx_vs_target, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[1].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[1].idx_vs_source, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[1].idx_vs_target, 1);
 
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.joint_mapping[1].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._joint_mapping[1].same_direction, false);
 
   //   j3
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[2].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[2].idx_qs_source, 3);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[2].idx_qs_target, 4);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[2].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[2].idx_qs_source, 3);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[2].idx_qs_target, 4);
 
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[2].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[2].idx_vs_source, 2);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[2].idx_vs_target, 3);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[2].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[2].idx_vs_source, 2);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[2].idx_vs_target, 3);
 
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.joint_mapping[2].same_direction, true);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._joint_mapping[2].same_direction, true);
 
   //   j4
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[3].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[3].idx_qs_source, 4);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.configuration_mapping[3].idx_qs_target, 0);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[3].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[3].idx_qs_source, 4);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._configuration_mapping[3].idx_qs_target, 0);
 
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[3].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[3].idx_vs_source, 3);
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.tangent_mapping[3].idx_vs_target, 0);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[3].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[3].idx_vs_source, 3);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._tangent_mapping[3].idx_vs_target, 0);
 
-  BOOST_CHECK_EQUAL(b1_to_b5_converter.joint_mapping[3].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b5_converter._joint_mapping[3].same_direction, false);
 
   // Test b4 to b5
-  BOOST_REQUIRE_EQUAL(b4_to_b5_converter.configuration_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b4_to_b5_converter.tangent_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b4_to_b5_converter.joint_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b4_to_b5_converter._configuration_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b4_to_b5_converter._tangent_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b4_to_b5_converter._joint_mapping.size(), 4);
 
   //   j3
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[0].nq, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[0].idx_qs_source, 0);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[0].idx_qs_target, 4);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[0].nq, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[0].idx_qs_source, 0);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[0].idx_qs_target, 4);
 
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[0].nv, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[0].idx_vs_source, 0);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[0].idx_vs_target, 3);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[0].nv, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[0].idx_vs_source, 0);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[0].idx_vs_target, 3);
 
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.joint_mapping[0].same_direction, false);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._joint_mapping[0].same_direction, false);
 
   //   j2
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[1].nq, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[1].idx_qs_source, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[1].idx_qs_target, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[1].nq, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[1].idx_qs_source, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[1].idx_qs_target, 1);
 
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[1].nv, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[1].idx_vs_source, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[1].idx_vs_target, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[1].nv, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[1].idx_vs_source, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[1].idx_vs_target, 1);
 
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.joint_mapping[1].same_direction, true);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._joint_mapping[1].same_direction, true);
 
   //   j1
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[2].nq, 2);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[2].idx_qs_source, 2);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[2].idx_qs_target, 2);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[2].nq, 2);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[2].idx_qs_source, 2);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[2].idx_qs_target, 2);
 
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[2].nv, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[2].idx_vs_source, 2);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[2].idx_vs_target, 2);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[2].nv, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[2].idx_vs_source, 2);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[2].idx_vs_target, 2);
 
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.joint_mapping[2].same_direction, true);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._joint_mapping[2].same_direction, true);
 
   //   j4
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[3].nq, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[3].idx_qs_source, 4);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.configuration_mapping[3].idx_qs_target, 0);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[3].nq, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[3].idx_qs_source, 4);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._configuration_mapping[3].idx_qs_target, 0);
 
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[3].nv, 1);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[3].idx_vs_source, 3);
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.tangent_mapping[3].idx_vs_target, 0);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[3].nv, 1);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[3].idx_vs_source, 3);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._tangent_mapping[3].idx_vs_target, 0);
 
-  BOOST_CHECK_EQUAL(b4_to_b5_converter.joint_mapping[3].same_direction, false);
+  BOOST_CHECK_EQUAL(b4_to_b5_converter._joint_mapping[3].same_direction, false);
 
   // Test b1_ff to b1
-  BOOST_REQUIRE_EQUAL(b1_ff_to_b1_converter.configuration_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b1_ff_to_b1_converter.tangent_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b1_ff_to_b1_converter.joint_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_ff_to_b1_converter._configuration_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_ff_to_b1_converter._tangent_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_ff_to_b1_converter._joint_mapping.size(), 4);
 
   //   j1
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[0].nq, 2);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[0].idx_qs_source, 7);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[0].idx_qs_target, 0);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[0].nq, 2);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[0].idx_qs_source, 7);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[0].idx_qs_target, 0);
 
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[0].nv, 1);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[0].idx_vs_source, 6);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[0].idx_vs_target, 0);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[0].nv, 1);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[0].idx_vs_source, 6);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[0].idx_vs_target, 0);
 
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.joint_mapping[0].same_direction, true);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._joint_mapping[0].same_direction, true);
 
   //   j2
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[1].nq, 1);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[1].idx_qs_source, 9);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[1].idx_qs_target, 2);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[1].nq, 1);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[1].idx_qs_source, 9);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[1].idx_qs_target, 2);
 
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[1].nv, 1);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[1].idx_vs_source, 7);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[1].idx_vs_target, 1);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[1].nv, 1);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[1].idx_vs_source, 7);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[1].idx_vs_target, 1);
 
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.joint_mapping[1].same_direction, true);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._joint_mapping[1].same_direction, true);
 
   //   j3
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[2].nq, 1);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[2].idx_qs_source, 10);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[2].idx_qs_target, 3);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[2].nq, 1);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[2].idx_qs_source, 10);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[2].idx_qs_target, 3);
 
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[2].nv, 1);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[2].idx_vs_source, 8);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[2].idx_vs_target, 2);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[2].nv, 1);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[2].idx_vs_source, 8);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[2].idx_vs_target, 2);
 
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.joint_mapping[2].same_direction, true);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._joint_mapping[2].same_direction, true);
 
   //   j4
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[3].nq, 1);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[3].idx_qs_source, 11);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.configuration_mapping[3].idx_qs_target, 4);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[3].nq, 1);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[3].idx_qs_source, 11);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._configuration_mapping[3].idx_qs_target, 4);
 
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[3].nv, 1);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[3].idx_vs_source, 9);
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.tangent_mapping[3].idx_vs_target, 3);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[3].nv, 1);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[3].idx_vs_source, 9);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._tangent_mapping[3].idx_vs_target, 3);
 
-  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter.joint_mapping[3].same_direction, true);
+  BOOST_CHECK_EQUAL(b1_ff_to_b1_converter._joint_mapping[3].same_direction, true);
 }
 
 BOOST_AUTO_TEST_CASE(test_create_converter_composite)
@@ -346,53 +346,53 @@ BOOST_AUTO_TEST_CASE(test_create_converter_composite)
     b1_ret.model, b4_ret.model, b1_ret.build_info, b4_ret.build_info);
 
   // Test b1 to b4
-  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.configuration_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.tangent_mapping.size(), 4);
-  BOOST_REQUIRE_EQUAL(b1_to_b4_converter.joint_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter._configuration_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter._tangent_mapping.size(), 4);
+  BOOST_REQUIRE_EQUAL(b1_to_b4_converter._joint_mapping.size(), 4);
 
   //   j1
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].idx_qs_source, 0);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[0].idx_qs_target, 4);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[0].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[0].idx_qs_source, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[0].idx_qs_target, 4);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].idx_vs_source, 0);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[0].idx_vs_target, 3);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[0].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[0].idx_vs_source, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[0].idx_vs_target, 3);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[0].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._joint_mapping[0].same_direction, false);
 
   //   j2_1
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].idx_qs_source, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[1].idx_qs_target, 3);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[1].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[1].idx_qs_source, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[1].idx_qs_target, 3);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].idx_vs_source, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[1].idx_vs_target, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[1].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[1].idx_vs_source, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[1].idx_vs_target, 2);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[1].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._joint_mapping[1].same_direction, false);
 
   //   j2_2
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].nq, 2);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].idx_qs_source, 2);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[2].idx_qs_target, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[2].nq, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[2].idx_qs_source, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[2].idx_qs_target, 1);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].idx_vs_source, 2);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[2].idx_vs_target, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[2].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[2].idx_vs_source, 2);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[2].idx_vs_target, 1);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[2].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._joint_mapping[2].same_direction, false);
 
   //   j3
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].nq, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].idx_qs_source, 4);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.configuration_mapping[3].idx_qs_target, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[3].nq, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[3].idx_qs_source, 4);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._configuration_mapping[3].idx_qs_target, 0);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].nv, 1);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].idx_vs_source, 3);
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.tangent_mapping[3].idx_vs_target, 0);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[3].nv, 1);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[3].idx_vs_source, 3);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._tangent_mapping[3].idx_vs_target, 0);
 
-  BOOST_CHECK_EQUAL(b1_to_b4_converter.joint_mapping[3].same_direction, false);
+  BOOST_CHECK_EQUAL(b1_to_b4_converter._joint_mapping[3].same_direction, false);
 }
 
 BOOST_AUTO_TEST_CASE(test_convert_configuration)

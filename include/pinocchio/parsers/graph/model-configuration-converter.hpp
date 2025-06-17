@@ -18,18 +18,8 @@ namespace pinocchio
   namespace graph
   {
 
-    /// Convert configuration or tangent vector from two model with different root.
-    template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
-    struct ModelConfigurationConverterTpl
+    namespace internal
     {
-      typedef _Scalar Scalar;
-      enum
-      {
-        Options = _Options
-      };
-      typedef JointCollectionTpl<Scalar, Options> JointCollection;
-      typedef typename JointCollection::JointModelVariant JointModelVariant;
-
       struct ConfigurationMapping
       {
         int idx_qs_source;
@@ -44,6 +34,7 @@ namespace pinocchio
         int nv;
       };
 
+      template<typename Scalar>
       struct JointMapping
       {
         JointMapping() = default;
@@ -58,6 +49,24 @@ namespace pinocchio
         Scalar direction_sign;
         bool same_direction;
       };
+    } // namespace internal
+
+    /// Convert configuration or tangent vector from two model with different root.
+    /// All members are considered internal.
+    template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
+    struct ModelConfigurationConverterTpl
+    {
+      typedef _Scalar Scalar;
+      enum
+      {
+        Options = _Options
+      };
+      typedef JointCollectionTpl<Scalar, Options> JointCollection;
+      typedef typename JointCollection::JointModelVariant JointModelVariant;
+
+      typedef internal::ConfigurationMapping ConfigurationMapping;
+      typedef internal::TangentMapping TangentMapping;
+      typedef internal::JointMapping<Scalar> JointMapping;
 
       ModelConfigurationConverterTpl() = default;
       ModelConfigurationConverterTpl(
@@ -68,13 +77,13 @@ namespace pinocchio
         int source_tangent_size,
         int target_configuration_size,
         int target_tangent_size)
-      : configuration_mapping(configuration_mapping)
-      , tangent_mapping(tangent_mapping)
-      , joint_mapping(joint_mapping)
-      , source_configuration_size(source_configuration_size)
-      , source_tangent_size(source_tangent_size)
-      , target_configuration_size(target_configuration_size)
-      , target_tangent_size(target_tangent_size)
+      : _configuration_mapping(configuration_mapping)
+      , _tangent_mapping(tangent_mapping)
+      , _joint_mapping(joint_mapping)
+      , _source_configuration_size(source_configuration_size)
+      , _source_tangent_size(source_tangent_size)
+      , _target_configuration_size(target_configuration_size)
+      , _target_tangent_size(target_tangent_size)
       {
       }
 
@@ -97,17 +106,17 @@ namespace pinocchio
 
       /// Contains configuration vector mapping between source and target model.
       /// This vector contains all flattened model joints (with composite joint contents).
-      std::vector<ConfigurationMapping> configuration_mapping;
+      std::vector<ConfigurationMapping> _configuration_mapping;
       /// Contains tangent vector mapping between source and target model.
       /// This vector contains all flattened model joints (with composite joint contents).
-      std::vector<TangentMapping> tangent_mapping;
+      std::vector<TangentMapping> _tangent_mapping;
       /// Contains joint mapping between source and target model.
       /// This vector contains all flattened model joints (with composite joint contents).
-      std::vector<JointMapping> joint_mapping;
-      int source_configuration_size;
-      int source_tangent_size;
-      int target_configuration_size;
-      int target_tangent_size;
+      std::vector<JointMapping> _joint_mapping;
+      int _source_configuration_size;
+      int _source_tangent_size;
+      int _target_configuration_size;
+      int _target_tangent_size;
     };
 
     /// Create a ModelConfigurationConverterTpl from \p model_source to \p model_target that

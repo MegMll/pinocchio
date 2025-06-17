@@ -6,17 +6,16 @@
 #define __pinocchio_parsers_graph_model_configuration_converter_hxx__
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
+#include "pinocchio/parsers/graph/model-configuration-converter.hpp"
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/motion-ref.hpp"
 #include "pinocchio/spatial/motion-tpl.hpp"
-#include "pinocchio/spatial/motion-tpl.hpp"
 
 #include <Eigen/Geometry>
 
 #include <boost/variant.hpp>
-#include <boost/graph/depth_first_search.hpp>
 
 #include <stdexcept>
 #include <unordered_map>
@@ -36,8 +35,6 @@ namespace pinocchio
       {
         typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
           ModelConfigurationConverter;
-        typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
-        typedef typename ModelConfigurationConverter::TangentMapping TangentMapping;
         typedef typename ModelConfigurationConverter::JointMapping JointMapping;
         typedef JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> JointModelComposite;
         typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
@@ -162,12 +159,10 @@ namespace pinocchio
     {
       typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
         ModelConfigurationConverter;
-      typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
-      typedef typename ModelConfigurationConverter::TangentMapping TangentMapping;
       typedef typename ModelConfigurationConverter::JointMapping JointMapping;
 
-      std::vector<ConfigurationMapping> configuration_mapping;
-      std::vector<TangentMapping> tangent_mapping;
+      std::vector<internal::ConfigurationMapping> configuration_mapping;
+      std::vector<internal::TangentMapping> tangent_mapping;
       std::vector<JointMapping> joint_mapping;
 
       // Construct the mapping between source and target configuration and tangent vector.
@@ -206,7 +201,6 @@ namespace pinocchio
 
         typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
           ModelConfigurationConverter;
-        typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
         typedef typename ModelConfigurationConverter::JointMapping JointMapping;
 
         typedef Eigen::Vector<Scalar, 2> Vector2;
@@ -369,21 +363,21 @@ namespace pinocchio
       const Eigen::MatrixBase<ConfigVectorType1> & q_source,
       const Eigen::MatrixBase<ConfigVectorType2> & q_target) const
     {
-      if (source_configuration_size != q_source.size())
+      if (_source_configuration_size != q_source.size())
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "convertConfiguration - wrong source configuration size");
       }
-      if (target_configuration_size != q_target.size())
+      if (_target_configuration_size != q_target.size())
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "convertConfiguration - wrong target configuration size");
       }
 
-      for (std::size_t i = 0; i < joint_mapping.size(); ++i)
+      for (std::size_t i = 0; i < _joint_mapping.size(); ++i)
       {
-        const auto & configuration = configuration_mapping[i];
-        const auto & joint = joint_mapping[i];
+        const auto & configuration = _configuration_mapping[i];
+        const auto & joint = _joint_mapping[i];
         boost::apply_visitor(
           internal::ConfigurationConverterVisitor<
             Scalar, Options, JointCollectionTpl, ConfigVectorType1, ConfigVectorType2>(
@@ -417,8 +411,6 @@ namespace pinocchio
 
         typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
           ModelConfigurationConverter;
-        typedef typename ModelConfigurationConverter::ConfigurationMapping ConfigurationMapping;
-        typedef typename ModelConfigurationConverter::TangentMapping TangentMapping;
         typedef typename ModelConfigurationConverter::JointMapping JointMapping;
 
         typedef Eigen::Vector<Scalar, 2> Vector2;
@@ -623,25 +615,25 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType1> & v_source,
       const Eigen::MatrixBase<TangentVectorType2> & v_target) const
     {
-      if (source_configuration_size != q_source.size())
+      if (_source_configuration_size != q_source.size())
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "convertTangent - wrong source configuration size");
       }
-      if (source_tangent_size != v_source.size())
+      if (_source_tangent_size != v_source.size())
       {
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "convertTangent - wrong source tangent size");
       }
-      if (target_tangent_size != v_target.size())
+      if (_target_tangent_size != v_target.size())
       {
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "convertTangent - wrong target tangent size");
       }
 
-      for (std::size_t i = 0; i < joint_mapping.size(); ++i)
+      for (std::size_t i = 0; i < _joint_mapping.size(); ++i)
       {
-        const auto & configuration = configuration_mapping[i];
-        const auto & tangent = tangent_mapping[i];
-        const auto & joint = joint_mapping[i];
+        const auto & configuration = _configuration_mapping[i];
+        const auto & tangent = _tangent_mapping[i];
+        const auto & joint = _joint_mapping[i];
         boost::apply_visitor(
           internal::TangentConverterVisitor<
             Scalar, Options, JointCollectionTpl, ConfigVectorType, TangentVectorType1,
