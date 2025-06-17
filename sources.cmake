@@ -540,6 +540,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/mjcf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/srdf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/model-graph.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/graph/model-configuration-converter.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/visualizers/visualizer-visitor.hpp)
 

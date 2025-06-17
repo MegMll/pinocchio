@@ -6,6 +6,7 @@
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/bindings/python/parsers/model-graph.hpp"
+#include "pinocchio/bindings/python/parsers/graph/model-configuration-converter.hpp"
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/graph/model-graph-algo.hpp"
 
@@ -152,6 +153,9 @@ namespace pinocchio
         "lockJoints", &prefixNames, (bp::arg("g"), bp::arg("prefix")),
         "Add a prefix to all names (body and joints) in the graph g. Useful to use before merging "
         "two model graphs.");
+
+      graph::python::ModelConfigurationConverterVisitor<
+        context::Scalar, context::Options, JointCollectionDefaultTpl>::expose();
     }
   } // namespace python
 } // namespace pinocchio
