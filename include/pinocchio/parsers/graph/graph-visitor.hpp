@@ -617,6 +617,13 @@ namespace pinocchio
           edges->push_back(edge_desc);
         }
 
+        void forward_or_cross_edge(EdgeDesc edge_desc, const Graph & g) const
+        {
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "Graph - there is a cycle in the graph. It is not yet "
+                                   "supported, please change graph construction.");
+        }
+
         std::vector<EdgeDesc> * edges;
       };
     } // namespace internal

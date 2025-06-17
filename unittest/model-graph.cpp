@@ -163,6 +163,71 @@ BOOST_AUTO_TEST_CASE(test_linear_2D_robot)
   BOOST_CHECK(d1.oMf[m1.getFrameId("body1", pinocchio::BODY)].isApprox(bodyPose1));
 }
 
+/// @brief Test of simple loop inside the model graph
+///      b1
+///     |  |
+///    b2 - b3
+BOOST_AUTO_TEST_CASE(test_loop)
+{
+  using namespace pinocchio::graph;
+
+  ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addFrame("body1", pinocchio::Inertia::Identity());
+  g.addFrame("body2", pinocchio::Inertia::Identity());
+  g.addFrame("body3", pinocchio::Inertia::Identity());
+
+  /////////////////////////////////////// Joints
+  g.addJoint(
+    "body1_to_body2", JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body1",
+    pinocchio::SE3::Random(), "body2", pinocchio::SE3::Random());
+  g.addJoint(
+    "body2_to_body3", JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body2",
+    pinocchio::SE3::Random(), "body3", pinocchio::SE3::Random());
+
+  g.addJoint(
+    "body1_to_body3", JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body1",
+    pinocchio::SE3::Random(), "body3", pinocchio::SE3::Random());
+
+  ///////////////// Model
+  BOOST_CHECK_THROW(buildModel(g, "body1", pinocchio::SE3::Identity()), std::invalid_argument);
+  BOOST_CHECK_THROW(buildModel(g, "body3", pinocchio::SE3::Identity()), std::invalid_argument);
+}
+
+/// @brief Test of multi-body loop inside the model graph
+///      b1
+///     |  |
+///    b2 - b4
+//      |   |
+//        b3
+BOOST_AUTO_TEST_CASE(test_giant_loop)
+{
+  using namespace pinocchio::graph;
+
+  ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addFrame("body1", pinocchio::Inertia::Identity());
+  g.addFrame("body2", pinocchio::Inertia::Identity());
+  g.addFrame("body3", pinocchio::Inertia::Identity());
+  g.addFrame("body4", pinocchio::Inertia::Identity());
+
+  /////////////////////////////////////// Joints
+  auto j = JointRevoluteGraph(Eigen::Vector3d::UnitZ());
+  g.addJoint(
+    "body1_to_body2", j, "body1", pinocchio::SE3::Random(), "body2", pinocchio::SE3::Random());
+  g.addJoint(
+    "body2_to_body3", j, "body2", pinocchio::SE3::Random(), "body3", pinocchio::SE3::Random());
+
+  g.addJoint(
+    "body1_to_body4", j, "body1", pinocchio::SE3::Random(), "body4", pinocchio::SE3::Random());
+
+  g.addJoint(
+    "body4_to_body3", j, "body4", pinocchio::SE3::Random(), "body3", pinocchio::SE3::Random());
+
+  ///////////////// Model
+  BOOST_CHECK_THROW(buildModel(g, "body1", pinocchio::SE3::Identity()), std::invalid_argument);
+}
+
 /// @brief Test out the fixed joint.
 BOOST_AUTO_TEST_CASE(test_fixed_joint)
 {
