@@ -87,16 +87,20 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   g.addJoint("j3", joint, "b3", X_I, "b4", X_I);
   g.addJoint("j4", joint, "b3", X_I, "b5", X_I);
 
-  auto b1_model = pinocchio::graph::buildModel(g, "b1", X_I);
-  auto b4_model = pinocchio::graph::buildModel(g, "b4", X_I);
-  auto b5_model = pinocchio::graph::buildModel(g, "b5", X_I);
-  auto b1_ff_model =
-    pinocchio::graph::buildModel(g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
+  auto b1_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b1", X_I);
+  auto b4_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b4", X_I);
+  auto b5_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b5", X_I);
+  auto b1_ff_ret = pinocchio::graph::buildModelWithBuildInfo(
+    g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
 
-  auto b1_to_b4_converter = pinocchio::graph::createConverter(b1_model, b4_model, g);
-  auto b1_to_b5_converter = pinocchio::graph::createConverter(b1_model, b5_model, g);
-  auto b4_to_b5_converter = pinocchio::graph::createConverter(b4_model, b5_model, g);
-  auto b1_ff_to_b1_converter = pinocchio::graph::createConverter(b1_ff_model, b1_model, g);
+  auto b1_to_b4_converter = pinocchio::graph::createConverter(
+    b1_ret.model, b1_ret.build_info, b4_ret.model, b4_ret.build_info);
+  auto b1_to_b5_converter = pinocchio::graph::createConverter(
+    b1_ret.model, b1_ret.build_info, b5_ret.model, b5_ret.build_info);
+  auto b4_to_b5_converter = pinocchio::graph::createConverter(
+    b4_ret.model, b4_ret.build_info, b5_ret.model, b5_ret.build_info);
+  auto b1_ff_to_b1_converter = pinocchio::graph::createConverter(
+    b1_ff_ret.model, b1_ff_ret.build_info, b1_ret.model, b1_ret.build_info);
 
   // Test b1 to b4
   BOOST_REQUIRE_EQUAL(b1_to_b4_converter.configuration_mapping.size(), 4);
@@ -335,10 +339,11 @@ BOOST_AUTO_TEST_CASE(test_create_converter_composite)
   g.addJoint("j2", composite, "b2", X_I, "b3", X_I);
   g.addJoint("j3", joint, "b3", X_I, "b4", X_I);
 
-  auto b1_model = pinocchio::graph::buildModel(g, "b1", X_I);
-  auto b4_model = pinocchio::graph::buildModel(g, "b4", X_I);
+  auto b1_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b1", X_I);
+  auto b4_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b4", X_I);
 
-  auto b1_to_b4_converter = pinocchio::graph::createConverter(b1_model, b4_model, g);
+  auto b1_to_b4_converter = pinocchio::graph::createConverter(
+    b1_ret.model, b1_ret.build_info, b4_ret.model, b4_ret.build_info);
 
   // Test b1 to b4
   BOOST_REQUIRE_EQUAL(b1_to_b4_converter.configuration_mapping.size(), 4);
@@ -450,7 +455,8 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   g.addJoint(
     "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
 
-  const auto model_a = pinocchio::graph::buildModel(g, "b1", X_I);
+  const auto model_a_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b1", X_I);
+  const auto model_a = model_a_ret.model;
   pinocchio::Data data_a(model_a);
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model_a.nq);
   const Eigen::VectorXd q_a = pinocchio::randomConfiguration(model_a, -qmax, qmax);
@@ -458,11 +464,13 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check joint mapping and backward conversion
   {
-    auto model_b = pinocchio::graph::buildModel(
+    const auto model_b_ret = pinocchio::graph::buildModelWithBuildInfo(
       g, "b12", data_a.oMf[model_a.getFrameId("b12", pinocchio::BODY)]);
+    const auto model_b = model_b_ret.model;
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
-    auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
+    auto a_to_b_converter = pinocchio::graph::createConverter(
+      model_a, model_a_ret.build_info, model_b, model_b_ret.build_info);
     a_to_b_converter.convertConfigurationVector(q_a, q_b);
     pinocchio::framesForwardKinematics(model_b, data_b, q_b);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -480,7 +488,8 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   {
     pinocchio::Data data_a2(model_a);
     Eigen::VectorXd q_a2 = pinocchio::neutral(model_a);
-    auto a_to_a_converter = pinocchio::graph::createConverter(model_a, model_a, g);
+    auto a_to_a_converter = pinocchio::graph::createConverter(
+      model_a, model_a_ret.build_info, model_a, model_a_ret.build_info);
     a_to_a_converter.convertConfigurationVector(q_a, q_a2);
     pinocchio::framesForwardKinematics(model_a, data_a2, q_a2);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -495,14 +504,16 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
 
   // Check forward conversion with custom root joint
   {
-    auto model_a_ff =
-      pinocchio::graph::buildModel(g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
+    const auto model_a_ff_ret = pinocchio::graph::buildModelWithBuildInfo(
+      g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
+    const auto model_a_ff = model_a_ff_ret.model;
     pinocchio::Data data_a_ff(model_a_ff);
     const Eigen::VectorXd qmax_ff = Eigen::VectorXd::Ones(model_a_ff.nq);
     Eigen::VectorXd q_a_ff = pinocchio::randomConfiguration(model_a_ff, -qmax_ff, qmax_ff);
     q_a_ff.head<7>() << 0., 0., 0., 0., 0., 0., 1.;
     pinocchio::framesForwardKinematics(model_a_ff, data_a_ff, q_a_ff);
-    auto a_ff_to_a_converter = pinocchio::graph::createConverter(model_a_ff, model_a, g);
+    auto a_ff_to_a_converter = pinocchio::graph::createConverter(
+      model_a_ff, model_a_ff_ret.build_info, model_a, model_a_ret.build_info);
     a_ff_to_a_converter.convertConfigurationVector(q_a_ff, q_a);
     pinocchio::framesForwardKinematics(model_a, data_a, q_a);
     for (std::size_t i = 0; i < model_a.frames.size(); ++i)
@@ -577,7 +588,8 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
   g.addJoint(
     "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
 
-  const auto model_a = pinocchio::graph::buildModel(g, "b1", X_I);
+  const auto model_a_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b1", X_I);
+  const auto model_a = model_a_ret.model;
   pinocchio::Data data_a(model_a);
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model_a.nq);
   const Eigen::VectorXd q_a = pinocchio::randomConfiguration(model_a, -qmax, qmax);
@@ -592,15 +604,17 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     // model_a end effector velocity.
     const std::string end_effector = "b12";
     const auto end_effector_frame_id = model_a.getFrameId(end_effector, pinocchio::BODY);
-    auto model_b = pinocchio::graph::buildModel(
+    const auto model_b_ret = pinocchio::graph::buildModelWithBuildInfo(
       g, end_effector, data_a.oMf[end_effector_frame_id], pinocchio::graph::JointFreeFlyerGraph());
+    const auto model_b = model_b_ret.model;
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);
     Eigen::VectorXd v_b(Eigen::VectorXd::Zero(model_b.nv));
     v_b.segment<6>(0) =
       pinocchio::getFrameVelocity(model_a, data_a, end_effector_frame_id).toVector();
 
-    auto a_to_b_converter = pinocchio::graph::createConverter(model_a, model_b, g);
+    auto a_to_b_converter = pinocchio::graph::createConverter(
+      model_a, model_a_ret.build_info, model_b, model_b_ret.build_info);
     a_to_b_converter.convertConfigurationVector(q_a, q_b);
     a_to_b_converter.convertTangentVector(q_a, v_a, v_b);
     pinocchio::forwardKinematics(model_b, data_b, q_b, v_b);
@@ -625,7 +639,8 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     pinocchio::Data data_a2(model_a);
     Eigen::VectorXd q_a2 = pinocchio::neutral(model_a);
     Eigen::VectorXd v_a2(Eigen::VectorXd::Zero(model_a.nv));
-    auto a_to_a_converter = pinocchio::graph::createConverter(model_a, model_a, g);
+    auto a_to_a_converter = pinocchio::graph::createConverter(
+      model_a, model_a_ret.build_info, model_a, model_a_ret.build_info);
     a_to_a_converter.convertConfigurationVector(q_a, q_a2);
     a_to_a_converter.convertTangentVector(q_a, v_a, v_a2);
     pinocchio::forwardKinematics(model_a, data_a2, q_a2, v_a2);

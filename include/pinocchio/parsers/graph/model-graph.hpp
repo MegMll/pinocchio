@@ -73,7 +73,7 @@ namespace pinocchio
       /// Map joint name to joint direction.
       std::unordered_map<std::string, bool> _joint_forward;
       /// True if the root joint is fixed.
-      bool is_fixed;
+      bool _is_fixed;
     };
 
     /// @brief Represents multibody model as a bidirectional graph.

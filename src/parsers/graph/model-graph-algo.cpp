@@ -72,7 +72,7 @@ namespace pinocchio
 
       if (!boost::get<JointFixedGraph>(&root_joint)) // Root joint provided
       {
-        ret.build_info.is_fixed = false;
+        ret.build_info._is_fixed = false;
         JointIndex j_id = model.addJoint(
           0, boost::apply_visitor(internal::CreateJointModelVisitor(), root_joint), root_position,
           root_joint_name);
@@ -83,7 +83,7 @@ namespace pinocchio
       }
       else // Fixed to world
       {
-        ret.build_info.is_fixed = true;
+        ret.build_info._is_fixed = true;
         AddRootFrameVisitor afv(root_vertex_data, (JointIndex)0, root_position, model);
         boost::apply_visitor(afv, root_vertex_data.frame);
       }

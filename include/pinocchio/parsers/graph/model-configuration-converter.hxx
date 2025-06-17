@@ -29,39 +29,6 @@ namespace pinocchio
 
     namespace internal
     {
-      /// Record joint direction when walking in a graph
-      struct RecordJointDirectionVisitor : public boost::default_dfs_visitor
-      {
-        typedef std::unordered_map<std::string, bool> JointNameToDirection;
-
-        RecordJointDirectionVisitor(JointNameToDirection * joint_forward)
-        : joint_forward(joint_forward)
-        {
-        }
-
-        void tree_edge(ModelGraph::EdgeDesc edge_desc, const ModelGraph::Graph & g) const
-        {
-          const ModelGraphEdge & edge = g[edge_desc];
-          (*joint_forward)[edge.name] = edge.forward;
-        }
-
-        /// Joint name to a bool that hold true if the joint is in forward direction
-        JointNameToDirection * joint_forward;
-      };
-
-      template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-      FrameIndex findRootBodyFrame(const ModelTpl<Scalar, Options, JointCollectionTpl> & model)
-      {
-        for (std::size_t i = 0; i < model.frames.size(); ++i)
-        {
-          if (model.frames[i].type == FrameType::BODY)
-          {
-            return i;
-          }
-        }
-        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "findRootBodyFrame - No BODY frame");
-      }
-
       /// Compute the ModelConfigurationConverter mapping vector.
       /// This structure use recursive methods to handle composite joint flattening.
       template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -79,10 +46,8 @@ namespace pinocchio
         void addJointFromModel(
           const ModelTpl<Scalar, Options, JointCollectionTpl> & model_source,
           const ModelTpl<Scalar, Options, JointCollectionTpl> & model_target,
-          const internal::RecordJointDirectionVisitor::JointNameToDirection &
-            joint_direction_source,
-          const internal::RecordJointDirectionVisitor::JointNameToDirection &
-            joint_direction_target,
+          const std::unordered_map<std::string, bool> & joint_direction_source,
+          const std::unordered_map<std::string, bool> & joint_direction_target,
           std::size_t index_source)
         {
           for (; index_source < model_source.joints.size(); ++index_source)
@@ -191,8 +156,9 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl> createConverter(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model_source,
+      const ModelGraphBuildInfo & build_info_source,
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model_target,
-      const ModelGraph & graph)
+      const ModelGraphBuildInfo & build_info_target)
     {
       typedef ModelConfigurationConverterTpl<Scalar, Options, JointCollectionTpl>
         ModelConfigurationConverter;
@@ -204,44 +170,18 @@ namespace pinocchio
       std::vector<TangentMapping> tangent_mapping;
       std::vector<JointMapping> joint_mapping;
 
-      auto root_frame_index_source = internal::findRootBodyFrame(model_source);
-      auto root_frame_index_target = internal::findRootBodyFrame(model_target);
-
-      // Retrieve root frame
-      const auto & root_frame_source = model_source.frames[root_frame_index_source];
-      const auto & root_frame_target = model_target.frames[root_frame_index_target];
-
-      // Is root joint fixed ?
-      bool is_fixed_base_source = root_frame_source.parentJoint == 0;
-
-      // Retrieve Model graph root vertex
-      const auto & root_vertex_source = graph.name_to_vertex.find(root_frame_source.name);
-      const auto & root_vertex_target = graph.name_to_vertex.find(root_frame_target.name);
-
-      // Store joint direction for each root vertex
-      std::vector<boost::default_color_type> colors(
-        boost::num_vertices(graph.graph), boost::default_color_type::white_color);
-      internal::RecordJointDirectionVisitor::JointNameToDirection joint_direction_source;
-      internal::RecordJointDirectionVisitor::JointNameToDirection joint_direction_target;
-      boost::depth_first_search(
-        graph.graph, internal::RecordJointDirectionVisitor(&joint_direction_source), colors.data(),
-        root_vertex_source->second);
-      colors.assign(colors.size(), boost::default_color_type::white_color);
-      boost::depth_first_search(
-        graph.graph, internal::RecordJointDirectionVisitor(&joint_direction_target), colors.data(),
-        root_vertex_target->second);
-
       // Construct the mapping between source and target configuration and tangent vector.
       // If source model doesn't have a fixed base, we skip the first joint (usually a FF joint)
       // that can not be in the target model.
       std::size_t index_source = 1;
-      if (!is_fixed_base_source)
+      if (!build_info_source._is_fixed)
       {
         index_source = 2;
       }
       internal::CreateConverterAlgo<Scalar, Options, JointCollectionTpl> algo;
       algo.addJointFromModel(
-        model_source, model_target, joint_direction_source, joint_direction_target, index_source);
+        model_source, model_target, build_info_source._joint_forward,
+        build_info_target._joint_forward, index_source);
 
       return ModelConfigurationConverter(
         algo.configuration_mapping, algo.tangent_mapping, algo.joint_mapping, model_source.nq,
