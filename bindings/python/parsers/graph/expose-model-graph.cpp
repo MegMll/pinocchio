@@ -150,7 +150,7 @@ namespace pinocchio
         "Lock specified joints in a ModelGraph at given reference configurations.");
 
       bp::def(
-        "lockJoints", &prefixNames, (bp::arg("g"), bp::arg("prefix")),
+        "prefixNames", &prefixNames, (bp::arg("g"), bp::arg("prefix")),
         "Add a prefix to all names (body and joints) in the graph g. Useful to use before merging "
         "two model graphs.");
 
