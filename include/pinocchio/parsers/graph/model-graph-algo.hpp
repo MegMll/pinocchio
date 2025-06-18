@@ -7,10 +7,21 @@
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
 
+#include <string>
+#include <unordered_map>
+
 namespace pinocchio
 {
   namespace graph
   {
+    /// @brief \ref buildModelWithBuildInfo return value.
+    struct BuildModelWithBuildInfoReturn
+    {
+      /// Generated model.
+      Model model;
+      ModelGraphBuildInfo build_info;
+    };
+
     /// @brief  Build a pinocchio model based on the graph that was built previously, that allows
     /// to have a root_joint.
     ///
@@ -19,8 +30,25 @@ namespace pinocchio
     /// @param root_joint joint that will append to the root_body. by default, it will be fixed
     /// @param root_joint_name name of the first joint in the model
     ///
-    /// @return a pinocchio model
+    /// @return A pinocchio model
     PINOCCHIO_PARSERS_DLLAPI Model buildModel(
+      const ModelGraph & g,
+      const std::string & root_body,
+      const pinocchio::SE3 & root_position,
+      const JointGraphVariant & root_joint = JointFixedGraph(),
+      const std::string & root_joint_name = "root_joint");
+
+    /// @brief  Build a pinocchio model based on the graph that was built previously, that allows
+    /// to have a root_joint.
+    ///
+    /// @param root_body First body to add to the model
+    /// @param root_position position of said body wrt to the universe
+    /// @param root_joint joint that will append to the root_body. by default, it will be fixed
+    /// @param root_joint_name name of the first joint in the model
+    ///
+    /// @return A structure with a pinocchio \ref Model and information about how it has been
+    /// built.
+    PINOCCHIO_PARSERS_DLLAPI BuildModelWithBuildInfoReturn buildModelWithBuildInfo(
       const ModelGraph & g,
       const std::string & root_body,
       const pinocchio::SE3 & root_position,

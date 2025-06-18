@@ -3,8 +3,10 @@
 //
 
 #include <boost/python.hpp>
+#include <boost/python/tuple.hpp>
 
 #include "pinocchio/bindings/python/parsers/model-graph.hpp"
+#include "pinocchio/bindings/python/parsers/graph/model-configuration-converter.hpp"
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/graph/model-graph-algo.hpp"
 
@@ -31,6 +33,27 @@ namespace pinocchio
       const pinocchio::SE3 & root_position)
     {
       return pinocchio::graph::buildModel(graph, root_body, root_position);
+    }
+
+    static bp::tuple build_model_with_build_info_with_root_wrapper(
+      const pinocchio::graph::ModelGraph & graph,
+      const std::string & root_body,
+      const pinocchio::SE3 & root_position,
+      const pinocchio::graph::JointGraphVariant & root_joint,
+      const std::string & root_joint_name)
+    {
+      auto ret = pinocchio::graph::buildModelWithBuildInfo(
+        graph, root_body, root_position, root_joint, root_joint_name);
+      return bp::make_tuple(ret.model, ret.build_info);
+    }
+
+    static bp::tuple build_model_with_build_info_wrapper(
+      const pinocchio::graph::ModelGraph & graph,
+      const std::string & root_body,
+      const pinocchio::SE3 & root_position)
+    {
+      auto ret = pinocchio::graph::buildModelWithBuildInfo(graph, root_body, root_position);
+      return bp::make_tuple(ret.model, ret.build_info);
     }
 
     static pinocchio::graph::ModelGraph merge_with_joint_wrapper(
@@ -60,6 +83,9 @@ namespace pinocchio
     {
       using namespace pinocchio::graph;
 
+      bp::class_<ModelGraphBuildInfo> model_grap_build_info(
+        "ModelGraphBuildInfo",
+        "Contains information about how buildModel walked the ModelGraph to construct a Model");
       bp::class_<ModelGraph>(
         "ModelGraph", "Represents multibody model as a bidirectional graph.", bp::init<>())
         .def(
@@ -94,7 +120,17 @@ namespace pinocchio
          bp::arg("root_joint_name") = "root_joint"),
         "Build a pinocchio model based on the graph.");
 
-      // Expose the global functions
+      bp::def(
+        "buildModelWithBuildInfo", &build_model_with_build_info_wrapper,
+        (bp::arg("g"), bp::arg("root_body"), bp::arg("root_position")),
+        "Build a pinocchio model based on the graph.");
+
+      bp::def(
+        "buildModelWithBuildInfo", &build_model_with_build_info_with_root_wrapper,
+        (bp::arg("self"), bp::arg("root_body"), bp::arg("root_position"), bp::arg("root_joint"),
+         bp::arg("root_joint_name") = "root_joint"),
+        "Build a pinocchio model based on the graph.");
+
       bp::def(
         "merge", &merge_with_joint_wrapper,
         (bp::arg("g1"), bp::arg("g2"), bp::arg("g1_body"), bp::arg("g2_body"),
@@ -117,6 +153,9 @@ namespace pinocchio
         "lockJoints", &prefixNames, (bp::arg("g"), bp::arg("prefix")),
         "Add a prefix to all names (body and joints) in the graph g. Useful to use before merging "
         "two model graphs.");
+
+      graph::python::ModelConfigurationConverterVisitor<
+        context::Scalar, context::Options, JointCollectionDefaultTpl>::expose();
     }
   } // namespace python
 } // namespace pinocchio

@@ -65,6 +65,17 @@ namespace pinocchio
       bool forward = true;
     };
 
+    /// @brief Contains information about how \ref buildModel walked the \ref ModelGraph to
+    /// construct a \ref Model.
+    /// All members are considered internal.
+    struct ModelGraphBuildInfo
+    {
+      /// Map joint name to joint direction.
+      std::unordered_map<std::string, bool> _joint_forward;
+      /// True if the root joint is fixed.
+      bool _is_fixed;
+    };
+
     /// @brief Represents multibody model as a bidirectional graph.
     ///
     /// This is an intermediate step before creating a model, that
