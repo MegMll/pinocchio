@@ -6,35 +6,35 @@ import pinocchio as pin
 
 class TestModelGraphBindings(unittest.TestCase):
     def test_build_model(self):
-        g = pin.ModelGraph()
+        g = pin.graph.ModelGraph()
         g.addBody("body1", pin.Inertia.Identity())
         g.addBody("body2", pin.Inertia.Identity())
 
         g.addJoint(
             "b1_b2",
-            pin.JointPrismaticGraph(np.array([1, 0, 0])),
+            pin.graph.JointPrismaticGraph(np.array([1, 0, 0])),
             "body1",
             pin.SE3.Random(),
             "body2",
             pin.SE3.Random(),
         )
 
-        m = pin.buildModel(g, "body1", pin.SE3.Identity())
+        m = pin.graph.buildModel(g, "body1", pin.SE3.Identity())
         self.assertTrue(m.njoints == 2)
         self.assertTrue(m.names[1] == "b1_b2")
 
-        m, bi = pin.buildModelWithBuildInfo(g, "body1", pin.SE3.Identity())
+        m, bi = pin.graph.buildModelWithBuildInfo(g, "body1", pin.SE3.Identity())
         self.assertTrue(m.njoints == 2)
         self.assertTrue(m.names[1] == "b1_b2")
 
     def test_converter(self):
-        g = pin.ModelGraph()
+        g = pin.graph.ModelGraph()
         g.addBody("body1", pin.Inertia.Identity())
         g.addBody("body2", pin.Inertia.Identity())
         g.addBody("body3", pin.Inertia.Identity())
         g.addJoint(
             "b1_b2",
-            pin.JointPrismaticGraph(np.array([1, 0, 0])),
+            pin.graph.JointPrismaticGraph(np.array([1, 0, 0])),
             "body1",
             pin.SE3.Random(),
             "body2",
@@ -42,14 +42,14 @@ class TestModelGraphBindings(unittest.TestCase):
         )
         g.addJoint(
             "b2_b3",
-            pin.JointPrismaticGraph(np.array([0, 1, 0])),
+            pin.graph.JointPrismaticGraph(np.array([0, 1, 0])),
             "body2",
             pin.SE3.Random(),
             "body3",
             pin.SE3.Random(),
         )
 
-        m_body1, build_info_body1 = pin.buildModelWithBuildInfo(
+        m_body1, build_info_body1 = pin.graph.buildModelWithBuildInfo(
             g, "body1", pin.SE3.Identity()
         )
         q_body1 = pin.randomConfiguration(
@@ -57,10 +57,10 @@ class TestModelGraphBindings(unittest.TestCase):
         )
         v_body1 = np.random.random(m_body1.nv)
 
-        m_body3, build_info_body3 = pin.buildModelWithBuildInfo(
+        m_body3, build_info_body3 = pin.graph.buildModelWithBuildInfo(
             g, "body3", pin.SE3.Identity()
         )
-        converter = pin.createConverter(
+        converter = pin.graph.createConverter(
             m_body1, m_body3, build_info_body1, build_info_body3
         )
         q_body3 = converter.convertConfigurationVector(q_body1)

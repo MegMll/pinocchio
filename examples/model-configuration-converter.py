@@ -9,7 +9,7 @@ import pinocchio as pin
 #    vector from the first model to the second
 
 # Construct kinematics chain with ModelGraph API.
-g = pin.ModelGraph()
+g = pin.graph.ModelGraph()
 
 I_I = pin.Inertia.Identity()
 X_I = pin.SE3.Identity()
@@ -19,7 +19,7 @@ g.addBody("b2", I_I)
 g.addBody("b3", I_I)
 g.addJoint(
     "j1",
-    pin.JointRevoluteGraph(np.array([0.0, 0.0, 1.0])),
+    pin.graph.JointRevoluteGraph(np.array([0.0, 0.0, 1.0])),
     "b1",
     pin.SE3.Random(),
     "b2",
@@ -27,7 +27,7 @@ g.addJoint(
 )
 g.addJoint(
     "j2",
-    pin.JointPrismaticGraph(np.array([1.0, 0.0, 0.0])),
+    pin.graph.JointPrismaticGraph(np.array([1.0, 0.0, 0.0])),
     "b2",
     pin.SE3.Random(),
     "b3",
@@ -35,7 +35,7 @@ g.addJoint(
 )
 
 # Create a Model with b1 as root body and a fixed base.
-forward_model, forward_build_info = pin.buildModelWithBuildInfo(g, "b1", X_I)
+forward_model, forward_build_info = pin.graph.buildModelWithBuildInfo(g, "b1", X_I)
 forward_data = forward_model.createData()
 
 # Compute b3 placement and velocity with forward model.
@@ -51,13 +51,13 @@ V_b3 = pin.getFrameVelocity(forward_model, forward_data, b3_index)
 
 # Create the backward model with b3 as root body and a free flyer as root joint.
 # b3 is placed at the same position and same velocity than b3 in the forward model.
-backward_model, backward_build_info = pin.buildModelWithBuildInfo(
-    g, "b3", X_b3, pin.JointFreeFlyerGraph()
+backward_model, backward_build_info = pin.graph.buildModelWithBuildInfo(
+    g, "b3", X_b3, pin.graph.JointFreeFlyerGraph()
 )
 backward_data = backward_model.createData()
 
 # Create the converter and convert the configuration and velocity vector.
-f_to_b_converter = pin.createConverter(
+f_to_b_converter = pin.graph.createConverter(
     forward_model, backward_model, forward_build_info, backward_build_info
 )
 backward_q = f_to_b_converter.convertConfigurationVector(forward_q)
