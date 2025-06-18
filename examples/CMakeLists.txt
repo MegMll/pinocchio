@@ -76,8 +76,14 @@ endif()
 
 if(BUILD_PYTHON_INTERFACE)
   set(${PROJECT_NAME}_PYTHON_EXAMPLES
-      inverse-kinematics inverse-kinematics-3d overview-simple kinematics-derivatives
-      forward-dynamics-derivatives inverse-dynamics-derivatives)
+      inverse-kinematics
+      inverse-kinematics-3d
+      overview-simple
+      kinematics-derivatives
+      forward-dynamics-derivatives
+      inverse-dynamics-derivatives
+      model-graph
+      model-configuration-converter)
 
   if(BUILD_WITH_URDF_SUPPORT)
     list(
