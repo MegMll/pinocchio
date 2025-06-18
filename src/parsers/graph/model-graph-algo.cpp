@@ -142,7 +142,7 @@ namespace pinocchio
           const auto & tgt_name = g.graph[tgt].name;
 
           g_return.addJoint(
-            edge_data.name, edge_data.joint, prefix + src_name, edge_data.out_to_joint,
+            prefix + edge_data.name, edge_data.joint, prefix + src_name, edge_data.out_to_joint,
             prefix + tgt_name, edge_data.joint_to_in);
         }
       }

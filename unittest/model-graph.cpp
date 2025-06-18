@@ -21,8 +21,9 @@ buildReversableModelGraph(const pinocchio::graph::JointGraphVariant & joint)
   //////////////////////////////////////// Bodies
   g.addFrame("body1", BodyFrameGraph(pinocchio::Inertia::Identity()));
   g.addFrame(
-    "body2", BodyFrameGraph(pinocchio::Inertia(
-               4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero())));
+    "body2", BodyFrameGraph(
+               pinocchio::Inertia(
+                 4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero())));
 
   /////////////////////////////////////// Joints
   pinocchio::SE3 poseBody1 =
@@ -837,6 +838,31 @@ BOOST_AUTO_TEST_CASE(test_q_ref_composite)
   BOOST_CHECK(SE3isApprox(
     d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
     d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
+}
+
+/// @brief  Test the algorithm to prefix frames and joints name
+BOOST_AUTO_TEST_CASE(test_prefix_names)
+{
+  using namespace pinocchio::graph;
+
+  ModelGraph g;
+  g.addFrame("torso", pinocchio::Inertia::Identity());
+  g.addFrame("left_leg", pinocchio::Inertia::Identity());
+  g.addJoint(
+    "torso2left_leg", JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
+    pinocchio::SE3::Identity(), "left_leg", pinocchio::SE3::Identity());
+
+  ModelGraph g_prefixed = prefixNames(g, "prefix/");
+  pinocchio::Model model = buildModel(g_prefixed, "prefix/torso", pinocchio::SE3::Identity());
+  // Skip universe frame and joint
+  for (std::size_t i = 1; i < model.frames.size(); ++i)
+  {
+    BOOST_CHECK(model.frames[i].name.find("prefix/") != std::string::npos);
+  }
+  for (std::size_t i = 1; i < model.names.size(); ++i)
+  {
+    BOOST_CHECK(model.names[i].find("prefix/") != std::string::npos);
+  }
 }
 
 /// @brief  Test the algorithm to merge 2 graphs
