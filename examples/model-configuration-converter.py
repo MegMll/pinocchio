@@ -1,5 +1,4 @@
 import numpy as np
-
 import pinocchio as pin
 
 # This example show how to:
