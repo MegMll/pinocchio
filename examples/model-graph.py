@@ -43,7 +43,8 @@ g.addJoint(
     np.array([0.5]),
 )
 
-# sensor1 is a sensor frame so it can only be linked to the others body via a fixed joint
+# sensor1 is a sensor frame so it can only be linked to the others body
+# via a fixed joint
 pose_b1_s1 = pin.SE3.Random()
 pose_s1 = pin.SE3.Random()
 g.addJoint(
@@ -57,8 +58,8 @@ print(kinematics_chain_from_body1)
 
 # To merge two model, we can create a new ModelGraph and merge it to the first one.
 # To simplify the process, we will append g to g.
-# Since all joints and frames should have an unique name, we will use pin.graph.prefixNames
-# function.
+# Since all joints and frames should have an unique name,
+# we will use pin.graph.prefixNames function.
 g1 = pin.graph.prefixNames(g, "g1/")
 g2 = pin.graph.prefixNames(g, "g2/")
 
