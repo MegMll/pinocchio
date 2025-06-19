@@ -11,9 +11,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Simple API to build a model
   - Manage joint offset
   - Create a `pinocchio::Model` with any frame as root frame
-  - Create a `pinocchio::Model` with any joint type as root joint
+  - Create a `pinocchio::Model` with any joint as root joint
   - Reliably merge two models with `pinocchio::graph::mergeGraphs` function
   - Reliably fix joints at any configuration with `pinocchio::graph::fixJointsGraph`
+  - [C++ example](./examples/model-graph.cpp)
+  - [Python example](./examples/model-graph.py)
+- Add `pinocchio::graph::ModelConfigurationConverter` class
+  - Convert configuration or tangent vector from two model with different root
+  - [C++ example](./examples/model-configuration-converter.cpp)
+  - [Python example](./examples/model-configuration-converter.py)
 
 ### Fixed
 - Check row dimensions of input Jacobians when computing kinematics Jacobian ([#2684](https://github.com/stack-of-tasks/pinocchio/pull/2684))
