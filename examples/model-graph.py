@@ -1,24 +1,87 @@
 import numpy as np
 import pinocchio as pin
 
-# Create an empty model graph
+# This example show how to:
+#  - Construct a kinematics chain with ModelGraph API
+#  - Bias a joint
+#  - Merge two kinematics chain into a kinematics tree
+#  - Lock a joint in a particular configuration
+#  - Create a Model with a custom root joint
+
 g = pin.graph.ModelGraph()
 
-###### Add bodies, sensors...
+# Adding bodies to the pin.graph.
 g.addBody("body1", pin.Inertia.Identity())
-g.addBody("body2", pin.Inertia.Identity())
+g.addFrame("body2", pin.graph.BodyFrameGraph(pin.Inertia.Identity()))
+g.addFrame("body3", pin.graph.BodyFrameGraph(pin.Inertia.Identity()))
 
-###### Add joints
+# Adding a sensor to the pin.graph.
+g.addFrame("sensor1", pin.graph.SensorFrameGraph())
+
+# Now we add the joints between every body/sensor we have in the pin.graph.
+pose_b1_to_j1 = pin.SE3.Random()  # pose of joint j1 wrt body1
+pose_j1_to_b2 = pin.SE3.Random()  # pose of body2 wrt joint j1
 g.addJoint(
-    "b1_b2",
-    pin.graph.JointPrismaticGraph(np.array([1, 0, 0])),
+    "j1",
+    pin.graph.JointRevoluteGraph(np.array([0.0, 0.0, 1.0])),
     "body1",
-    pin.SE3.Random(),
+    pose_b1_to_j1,
     "body2",
-    pin.SE3.Random(),
+    pose_j1_to_b2,
 )
 
-# Create model based on graph
-m = pin.graph.buildModel(g, "body1", pin.SE3.Identity())
+# j2 will be biased by 50cm.
+pose_b2_to_j2 = pin.SE3.Random()  # pose of joint j2 wrt body2
+pose_j2_to_b3 = pin.SE3.Random()  # pose of body3 wrt joint j2
+g.addJoint(
+    "j2",
+    pin.graph.JointPrismaticGraph(np.array([1.0, 0.0, 0.0])),
+    "body2",
+    pose_b2_to_j2,
+    "body3",
+    pose_j2_to_b3,
+    np.array([0.5]),
+)
 
-print(m)
+# sensor1 is a sensor frame so it can only be linked to the others body via a fixed joint
+pose_b1_s1 = pin.SE3.Random()
+pose_s1 = pin.SE3.Random()
+g.addJoint(
+    "b1_s1", pin.graph.JointFixedGraph(), "body1", pose_b1_s1, "sensor1", pose_s1
+)
+
+# Now we can choose which body will be our root its position, and build the model
+kinematics_chain_from_body1 = pin.graph.buildModel(g, "body1", pin.SE3.Identity())
+print("Kinematics chain from body1:")
+print(kinematics_chain_from_body1)
+
+# To merge two model, we can create a new ModelGraph and merge it to the first one.
+# To simplify the process, we will append g to g.
+# Since all joints and frames should have an unique name, we will use pin.graph.prefixNames
+# function.
+g1 = pin.graph.prefixNames(g, "g1/")
+g2 = pin.graph.prefixNames(g, "g2/")
+
+# Then we will attach g2/body3 to g1/body2 with a spherical joint.
+g1_g2_merged = pin.graph.merge(
+    g1, g2, "g1/body2", "g2/body3", pin.SE3.Random(), pin.graph.JointSphericalGraph()
+)
+
+# We can then create our model with any body as a root.
+kinematics_tree_from_g1_body1 = pin.graph.buildModel(
+    g1_g2_merged, "g1/body1", pin.SE3.Identity()
+)
+print("Kinematics tree from g1/body1:")
+print(kinematics_tree_from_g1_body1)
+
+# To lock a joints we only have to provide his name and his reference configuration.
+# We will lock g1/j1 at 0.3 rad.
+g1_g2_merged_locked = pin.graph.lockJoints(g1_g2_merged, ["g1/j1"], [np.array([0.3])])
+
+# We can then create the locked model.
+# We will use g2/body2 as root with a FreeFlyer joint.
+kinematics_tree_from_g2_body2 = pin.graph.buildModel(
+    g1_g2_merged_locked, "g2/body2", pin.SE3.Identity(), pin.graph.JointFreeFlyerGraph()
+)
+print("Kinematics tree with g1/j1 locked and FreeFlyer from g2/body2:")
+print(kinematics_tree_from_g2_body2)

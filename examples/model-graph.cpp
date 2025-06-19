@@ -7,7 +7,7 @@
 #include "pinocchio/multibody/model.hpp"
 
 #include <iostream>
-///
+
 /// This example show how to:
 ///  - Construct a kinematics chain with ModelGraph API
 ///  - Bias a joint
@@ -51,6 +51,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
   // Now we can choose which body will be our root its position, and build the model
   Model kinematics_chain_from_body1 = graph::buildModel(g, "body1", SE3::Identity());
+  std::cout << "Kinematics chain from body1:" << std::endl;
   std::cout << kinematics_chain_from_body1 << std::endl;
 
   // To merge two model, we can create a new ModelGraph and merge it to the first one.
@@ -67,6 +68,7 @@ int main(int /*argc*/, char ** /*argv*/)
   // We can then create our model with any body as a root.
   Model kinematics_tree_from_g1_body1 =
     graph::buildModel(g1_g2_merged, "g1/body1", SE3::Identity());
+  std::cout << "Kinematics tree from g1/body1:" << std::endl;
   std::cout << kinematics_tree_from_g1_body1 << std::endl;
 
   // To lock a joints we only have to provide his name and his reference configuration.
@@ -76,9 +78,10 @@ int main(int /*argc*/, char ** /*argv*/)
   graph::ModelGraph g1_g2_merged_locked = graph::lockJoints(g1_g2_merged, {"g1/j1"}, {j1_lock});
 
   // We can then create the locked model.
-  // We will use g2/body2 as root with a FreeFyier joint.
+  // We will use g2/body2 as root with a FreeFlyer joint.
   Model kinematics_tree_from_g2_body2 = graph::buildModel(
     g1_g2_merged_locked, "g2/body2", SE3::Identity(), graph::JointFreeFlyerGraph());
+  std::cout << "Kinematics tree with g1/j1 locked and FreeFlyer from g2/body2:" << std::endl;
   std::cout << kinematics_tree_from_g2_body2 << std::endl;
 
   return 0;
