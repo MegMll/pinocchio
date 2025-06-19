@@ -7,6 +7,7 @@
 
 #include "pinocchio/bindings/python/parsers/model-graph.hpp"
 #include "pinocchio/bindings/python/parsers/graph/model-configuration-converter.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/graph/model-graph-algo.hpp"
 
@@ -144,6 +145,10 @@ namespace pinocchio
          bp::arg("pose_g2_body_in_g1")),
         "Merge two ModelGraphs together by adding an edge between specified bodies.");
 
+      typedef std::vector<context::VectorXs> StdVec_VectorXs;
+      StdVectorPythonVisitor<StdVec_VectorXs, false>::expose(
+        "StdVec_VectorXs",
+        eigenpy::details::overload_base_get_item_for_std_vector<StdVec_VectorXs>());
       bp::def(
         "lockJoints", &lockJoints,
         (bp::arg("g"), bp::arg("joints_to_lock"), bp::arg("reference_configurations")),
