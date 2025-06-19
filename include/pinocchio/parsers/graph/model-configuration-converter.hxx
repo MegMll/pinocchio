@@ -185,6 +185,110 @@ namespace pinocchio
 
     namespace internal
     {
+      template<typename Scalar, int Options, bool value = is_floating_point<Scalar>::value>
+      struct ReverseZYXEulerAngle
+      {
+        typedef Eigen::Vector<Scalar, 3> Vector3;
+
+        template<typename ConfigVectorType>
+        static Vector3 run(const Eigen::MatrixBase<ConfigVectorType> & q_source)
+        {
+          JointModelSphericalZYXTpl<Scalar, Options> jmodel;
+          jmodel.setIndexes(0, 0, 0);
+          JointDataSphericalZYXTpl<Scalar, Options> jdata;
+          jmodel.calc(jdata, q_source);
+          return jdata.M.rotation().transpose().eulerAngles(2, 1, 0);
+        }
+      };
+
+      template<typename Scalar, int Options>
+      struct ReverseZYXEulerAngle<Scalar, Options, false>
+      {
+        typedef Eigen::Vector<Scalar, 3> Vector3;
+
+        template<typename ConfigVectorType>
+        static Vector3 run(const Eigen::MatrixBase<ConfigVectorType> &)
+        {
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument,
+            "convertConfiguration - JointModelSphericalZYX can only be reversed with real values");
+        }
+      };
+
+      /// Reverse ZYX joint.
+      /// This implementation avoid compilation issues with Casadi scalar type.
+      template<typename Scalar, int Options, typename ConfigVectorType>
+      static Eigen::Vector<Scalar, 3>
+      reverseZYXEulerAngle(const Eigen::MatrixBase<ConfigVectorType> & q_source)
+      {
+        return ReverseZYXEulerAngle<Scalar, Options>::run(q_source);
+      }
+
+      template<typename Scalar, int Options, bool value = is_floating_point<Scalar>::value>
+      struct ReverseZYXEulerAngleMotion
+      {
+        typedef Eigen::Vector<Scalar, 3> Vector3;
+        typedef Eigen::Matrix<Scalar, 3, 3> Matrix3;
+
+        template<typename ConfigVectorType1, typename ConfigVectorType2>
+        static Vector3 run(
+          const Eigen::MatrixBase<ConfigVectorType1> & q_source,
+          const Eigen::MatrixBase<ConfigVectorType2> & v_source)
+        {
+          // JointModelSphericalZYXTpl velocity is computed with
+          // v_j^{source} = S_{source} \alpha_{source}.
+          // We want the reverse joint to compute
+          // v_j^{target} = -X_{source-to-target} v_j^{source}.
+          // Since v_j^{target} = S_{target} \alpha_{target}, then
+          // \alpha_{target} = -S_{target}^{-1} X_{source-to-target} v_j^{source}.
+          // Compute v_target in the right frame
+          JointModelSphericalZYXTpl<Scalar, Options> jmodel;
+          jmodel.setIndexes(0, 0, 0);
+          JointDataSphericalZYXTpl<Scalar, Options> jdata;
+          jmodel.calc(jdata, q_source, v_source);
+          Vector3 eulers = jdata.M.rotation().transpose().eulerAngles(2, 1, 0);
+
+          // Compute S_target^{-1}
+          Scalar c1_target, s1_target;
+          SINCOS(eulers[1], &s1_target, &c1_target);
+          Scalar c2_target, s2_target;
+          SINCOS(eulers[2], &s2_target, &c2_target);
+          Matrix3 S_target;
+          S_target << -s1_target, Scalar(0), Scalar(1), c1_target * s2_target, c2_target, Scalar(0),
+            c1_target * c2_target, -s2_target, Scalar(0);
+          Matrix3 S_target_inv = S_target.inverse();
+
+          // Compute v_target in the right frame
+          return -S_target_inv * jdata.M.rotation() * jdata.v.angular();
+        }
+      };
+
+      template<typename Scalar, int Options>
+      struct ReverseZYXEulerAngleMotion<Scalar, Options, false>
+      {
+        typedef Eigen::Vector<Scalar, 3> Vector3;
+
+        template<typename ConfigVectorType1, typename ConfigVectorType2>
+        static Vector3 run(
+          const Eigen::MatrixBase<ConfigVectorType1> &,
+          const Eigen::MatrixBase<ConfigVectorType2> &)
+        {
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument,
+            "convertConfiguration - JointModelSphericalZYX can only be reversed with real values");
+        }
+      };
+
+      /// Reverse ZYX joint configuration and motion.
+      /// This implementation avoid compilation issues with Casadi scalar type.
+      template<typename Scalar, int Options, typename ConfigVectorType1, typename ConfigVectorType2>
+      static Eigen::Vector<Scalar, 3> reverseZYXEulerAngleMotion(
+        const Eigen::MatrixBase<ConfigVectorType1> & q_source,
+        const Eigen::MatrixBase<ConfigVectorType2> & v_source)
+      {
+        return ReverseZYXEulerAngleMotion<Scalar, Options>::run(q_source, v_source);
+      }
+
       template<
         typename _Scalar,
         int _Options,
@@ -268,7 +372,7 @@ namespace pinocchio
             Vector3 translation_source(q_source.template segment<3>(configuration.idx_qs_source));
             Quaternion rotation_source(
               q_source.template segment<4>(configuration.idx_qs_source + 3));
-            Quaternion rotation_source_inv(rotation_source.inverse());
+            Quaternion rotation_source_inv(rotation_source.conjugate());
 
             Vector3 translation_target(-(rotation_source_inv * translation_source));
             q_target.template segment<3>(configuration.idx_qs_target) = translation_target;
@@ -302,7 +406,8 @@ namespace pinocchio
             JointDataSphericalZYXTpl<Scalar, Options> jdata;
             jmodel.calc(jdata, q_source.template segment<3>(configuration.idx_qs_source));
             q_target.template segment<3>(configuration.idx_qs_target) =
-              jdata.M.rotation().transpose().eulerAngles(2, 1, 0);
+              reverseZYXEulerAngle<Scalar, Options>(
+                q_source.template segment<3>(configuration.idx_qs_source));
           }
         }
 
@@ -521,33 +626,10 @@ namespace pinocchio
           }
           else
           {
-            // JointModelSphericalZYXTpl velocity is computed with
-            // v_j^{source} = S_{source} \alpha_{source}.
-            // We want the reverse joint to compute
-            // v_j^{target} = -X_{source-to-target} v_j^{source}.
-            // Since v_j^{target} = S_{target} \alpha_{target}, then
-            // \alpha_{target} = -S_{target}^{-1} X_{source-to-target} v_j^{source}.
-            JointModelSphericalZYXTpl<Scalar, Options> jmodel;
-            jmodel.setIndexes(0, 0, 0);
-            JointDataSphericalZYXTpl<Scalar, Options> jdata;
-            jmodel.calc(
-              jdata, q_source.template segment<3>(configuration.idx_qs_source),
-              v_source.template segment<3>(tangent.idx_vs_source));
-            Vector3 eulers = jdata.M.rotation().transpose().eulerAngles(2, 1, 0);
-
-            // Compute S_target^{-1}
-            Scalar c1_target, s1_target;
-            SINCOS(eulers[1], &s1_target, &c1_target);
-            Scalar c2_target, s2_target;
-            SINCOS(eulers[2], &s2_target, &c2_target);
-            Matrix3 S_target;
-            S_target << -s1_target, Scalar(0), Scalar(1), c1_target * s2_target, c2_target,
-              Scalar(0), c1_target * c2_target, -s2_target, Scalar(0);
-            Matrix3 S_target_inv = S_target.inverse();
-
-            // Compute v_target in the right frame
             v_target.template segment<3>(tangent.idx_vs_target).noalias() =
-              -S_target_inv * jdata.M.rotation() * jdata.v.angular();
+              reverseZYXEulerAngleMotion<Scalar, Options>(
+                q_source.template segment<3>(configuration.idx_qs_source),
+                v_source.template segment<3>(tangent.idx_vs_source));
           }
         }
 
