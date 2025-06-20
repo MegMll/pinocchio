@@ -21,6 +21,30 @@ namespace pinocchio
   {
     namespace internal
     {
+      struct MakeJointLimitsDefaultVisitor : public boost::static_visitor<JointLimits>
+      {
+        template<typename Joint>
+        JointLimits operator()(const Joint & j) const
+        {
+          JointLimits jlimit;
+          jlimit.setDimensions<j.nq, j.nv>();
+          return jlimit;
+        }
+
+        JointLimits operator()(const JointCompositeGraph & j) const
+        {
+          JointLimits jlimit = boost::apply_visitor(*this, j.joints[0]);
+
+          for (int i = 1; i < static_cast<int>(j.joints.size()); i++)
+          {
+            int nq = boost::apply_visitor([](const auto & j) { return j.nq; }, j.joints[i]);
+            int nv = boost::apply_visitor([](const auto & j) { return j.nv; }, j.joints[i]);
+            jlimit.append(boost::apply_visitor(*this, j.joints[i]), nq, nv);
+          }
+          return jlimit;
+        }
+      };
+
       struct ReverseJointGraphVisitor
       : public boost::static_visitor<std::pair<JointGraphVariant, pinocchio::SE3>>
       {
