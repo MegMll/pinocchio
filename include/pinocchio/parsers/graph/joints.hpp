@@ -57,7 +57,7 @@ namespace pinocchio
 
       bool operator==(const JointFixedGraph & other) const
       {
-        return joint_offset == other.joint_offset && nq == other.nq;
+        return joint_offset == other.joint_offset;
       }
     };
 
