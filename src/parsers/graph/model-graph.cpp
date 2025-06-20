@@ -80,7 +80,7 @@ namespace pinocchio
       const std::string & target_name,
       const SE3 & joint_to_in,
       const JointGraphVariant & joint,
-      const boost::optional<Eigen::VectorXd> q_ref = boost::none)
+      const boost::optional<Eigen::VectorXd> q_ref)
     : name(jname)
     , source_vertex(source_name)
     , out_to_joint(out_to_joint)
