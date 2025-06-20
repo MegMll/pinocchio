@@ -13,6 +13,28 @@ namespace pinocchio
 {
   namespace graph
   {
+    struct MeshGeom
+    {
+    };
+
+    struct BoxGeom
+    {
+    };
+
+    struct CylinderGeom
+    {
+    };
+
+    struct CapsuleGeom
+    {
+    };
+
+    struct SphereGeom
+    {
+    };
+
+    typedef boost::variant<MeshGeom, BoxGeom, CylinderGeom, CapsuleGeom, SphereGeom> GeomVariant;
+
     struct BodyFrameGraph
     {
       /// @brief Spatial inertia of the body, expressed at its center of mass (CoM).
@@ -45,6 +67,7 @@ namespace pinocchio
     };
 
     typedef boost::variant<BodyFrameGraph, SensorFrameGraph, OpFrameGraph> FrameGraphVariant;
+
   } // namespace graph
 } // namespace pinocchio
 #endif
