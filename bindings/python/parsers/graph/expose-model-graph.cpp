@@ -84,9 +84,72 @@ namespace pinocchio
     {
       using namespace pinocchio::graph;
 
+      bp::class_<EdgeParameters>(
+        "EdgeParameters", "Parameters for defining an edge (joint) in the ModelGraph.")
+        // Default constructor
+        .def(bp::init<>())
+        // Parameterized constructor
+        .def(bp::init<
+             const std::string &, const std::string &, const SE3 &, const std::string &,
+             const SE3 &, const JointGraphVariant &, const boost::optional<Eigen::VectorXd>>(
+          (bp::arg("name"), bp::arg("source_vertex"), bp::arg("out_to_joint"),
+           bp::arg("target_vertex"), bp::arg("joint_to_in"), bp::arg("joint"),
+           bp::arg("q_ref") = boost::none),
+          "Constructor to define an edge with specific parameters."))
+        .def_readwrite("name", &EdgeParameters::name, "Name of the edge/joint.")
+        .def_readwrite(
+          "source_vertex", &EdgeParameters::source_vertex,
+          "Name of the source vertex (parent body).")
+        .def_readwrite(
+          "target_vertex", &EdgeParameters::target_vertex,
+          "Name of the target vertex (child body).")
+        .def_readwrite(
+          "out_to_joint", &EdgeParameters::out_to_joint,
+          "Transformation from source_vertex to the joint origin.")
+        .def_readwrite(
+          "joint_to_in", &EdgeParameters::joint_to_in,
+          "Transformation from joint origin to the target_vertex.")
+        .def_readwrite(
+          "q_ref", &EdgeParameters::q_ref, "Optional reference configuration for the joint.")
+        .def_readwrite(
+          "joint", &EdgeParameters::joint, "Type of the joint (e.g., fixed, revolute, prismatic).");
+
+      bp::class_<EdgeBuilder>(
+        "EdgeBuilder",
+        "A builder class for conveniently constructing and adding edges (joints) to a ModelGraph.",
+        bp::init<ModelGraph &>(
+          (bp::arg("graph")), "Constructs an EdgeBuilder associated with a ModelGraph instance."))
+        .def(
+          "withName", &EdgeBuilder::withName, bp::return_self<>(), bp::arg("name"),
+          "Sets the name of the edge/joint")
+        .def(
+          "withTargetVertex", &EdgeBuilder::withTargetVertex, bp::return_self<>(),
+          bp::arg("target_name"), "Sets the target vertex name")
+        .def(
+          "withSourceVertex", &EdgeBuilder::withSourceVertex, bp::return_self<>(),
+          bp::arg("source_name"), "Sets the source vertex name.")
+        .def(
+          "withTargetPose", &EdgeBuilder::withTargetPose, bp::return_self<>(),
+          bp::arg("target_pose"), "Sets the transformation from joint origin to target vertex.")
+        .def(
+          "withSourcePose", &EdgeBuilder::withSourcePose, bp::return_self<>(),
+          bp::arg("source_pose"), "Sets the transformation from source vertex to joint origin")
+        .def(
+          "withJointType", &EdgeBuilder::withJointType, bp::return_self<>(), bp::arg("jtype"),
+          "Sets the type of the joint.")
+        .def(
+          "withQref", &EdgeBuilder::withQref, bp::return_self<>(), bp::arg("qref"),
+          "Sets the optional reference configuration for the joint")
+        .def(
+          "build", &EdgeBuilder::build,
+          "Builds the edge/joint parameters and adds the joint to the associated ModelGraph.")
+        .def_readwrite(
+          "param", &EdgeBuilder::param, "Direct access to the EdgeParameters object being built.");
+
       bp::class_<ModelGraphBuildInfo> model_grap_build_info(
         "ModelGraphBuildInfo",
         "Contains information about how buildModel walked the ModelGraph to construct a Model");
+
       bp::class_<ModelGraph>(
         "ModelGraph", "Represents multibody model as a bidirectional graph.", bp::init<>())
         .def(
@@ -98,12 +161,23 @@ namespace pinocchio
           (bp::arg("self"), bp::arg("vertex_name"), bp::arg("inertia")),
           "Add a new body (vertex with inertia) to the graph.")
         .def(
-          "addJoint", &ModelGraph::addJoint,
+          "addJoint",
+          (void(ModelGraph::*)(
+            const std::string &, const JointGraphVariant &, const std::string &, const SE3 &,
+            const std::string &, const SE3 &, const boost::optional<Eigen::VectorXd> &))
+            & ModelGraph::addJoint,
           (bp::arg("self"), bp::arg("joint_name"), bp::arg("joint"), bp::arg("out_body"),
            bp::arg("out_to_joint"), bp::arg("in_body"), bp::arg("joint_to_in"),
            bp::arg("q_ref") = boost::none),
-          "Add edges (joint) to the graph. Since it's a bidirectional graph, "
-          "edge and its reverse are added to the graph.")
+          "Add edges (joint) to the graph. Since it's a bidirectional graph,\n"
+          "edge and its reverse are added to the graph.\n")
+        .def(
+          "addJoint", (void(ModelGraph::*)(const EdgeParameters &)) & ModelGraph::addJoint,
+          (bp::arg("self"), bp::arg("params")),
+          "Add edges (joint) to the graph using EdgeParameters.")
+        .def(
+          "useEdgeBuilder", &ModelGraph::useEdgeBuilder, bp::arg("self"),
+          "Returns an EdgeBuilder object to construct edges.")
         .def(
           "appendGraph", &ModelGraph::appendGraph, (bp::arg("self"), bp::arg("g")),
           "Copies another ModelGraph into this one. Use with caution, because no edges are created "
