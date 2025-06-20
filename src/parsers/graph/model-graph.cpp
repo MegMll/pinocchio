@@ -73,6 +73,25 @@ namespace pinocchio
       return *this;
     }
 
+    EdgeParameters::EdgeParameters(
+      const std::string & jname,
+      const std::string & source_name,
+      const SE3 & out_to_joint,
+      const std::string & target_name,
+      const SE3 & joint_to_in,
+      const JointGraphVariant & joint,
+      const boost::optional<Eigen::VectorXd> q_ref = boost::none)
+    : name(jname)
+    , source_vertex(source_name)
+    , out_to_joint(out_to_joint)
+    , target_vertex(target_name)
+    , joint_to_in(joint_to_in)
+    , joint(joint)
+    , q_ref(q_ref)
+    , jlimit(boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), joint))
+    {
+    }
+
     void ModelGraph::addFrame(const std::string & vertex_name, const FrameGraphVariant & frame)
     {
       if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
