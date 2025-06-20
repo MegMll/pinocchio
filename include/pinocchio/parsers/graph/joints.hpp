@@ -46,8 +46,8 @@ namespace pinocchio
     struct JointFixedGraph
     {
       pinocchio::SE3 joint_offset = pinocchio::SE3::Identity();
-      static const int nq = 0;
-      static const int nv = 0;
+      static constexpr int nq = 0;
+      static constexpr int nv = 0;
 
       JointFixedGraph() = default;
       JointFixedGraph(const pinocchio::SE3 & pose)
@@ -65,8 +65,8 @@ namespace pinocchio
     {
       // rotation axis
       Eigen::Vector3d axis;
-      static const int nq = 1;
-      static const int nv = 1;
+      static constexpr int nq = 1;
+      static constexpr int nv = 1;
 
       explicit JointRevoluteGraph(const Eigen::Vector3d & ax)
       : axis(ax)
@@ -82,8 +82,8 @@ namespace pinocchio
     struct JointRevoluteUnboundedGraph
     {
       Eigen::Vector3d axis;
-      static const int nq = 2;
-      static const int nv = 1;
+      static constexpr int nq = 2;
+      static constexpr int nv = 1;
 
       explicit JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax)
       : axis(ax)
@@ -99,8 +99,8 @@ namespace pinocchio
     struct JointPrismaticGraph
     {
       Eigen::Vector3d axis;
-      static const int nq = 1;
-      static const int nv = 1;
+      static constexpr int nq = 1;
+      static constexpr int nv = 1;
 
       explicit JointPrismaticGraph(const Eigen::Vector3d & ax)
       : axis(ax)
@@ -115,8 +115,8 @@ namespace pinocchio
 
     struct JointFreeFlyerGraph
     {
-      static const int nq = 7;
-      static const int nv = 6;
+      static constexpr int nq = 7;
+      static constexpr int nv = 6;
 
       JointFreeFlyerGraph() = default;
 
@@ -128,8 +128,8 @@ namespace pinocchio
 
     struct JointSphericalGraph
     {
-      static const int nq = 4;
-      static const int nv = 3;
+      static constexpr int nq = 4;
+      static constexpr int nv = 3;
 
       JointSphericalGraph() = default;
 
@@ -141,8 +141,8 @@ namespace pinocchio
 
     struct JointSphericalZYXGraph
     {
-      static const int nq = 3;
-      static const int nv = 3;
+      static constexpr int nq = 3;
+      static constexpr int nv = 3;
 
       JointSphericalZYXGraph() = default;
 
@@ -154,8 +154,8 @@ namespace pinocchio
 
     struct JointTranslationGraph
     {
-      static const int nq = 3;
-      static const int nv = 3;
+      static constexpr int nq = 3;
+      static constexpr int nv = 3;
 
       JointTranslationGraph() = default;
 
@@ -167,8 +167,8 @@ namespace pinocchio
 
     struct JointPlanarGraph
     {
-      static const int nq = 4;
-      static const int nv = 3;
+      static constexpr int nq = 4;
+      static constexpr int nv = 3;
 
       JointPlanarGraph() = default;
 
@@ -183,8 +183,8 @@ namespace pinocchio
       Eigen::Vector3d axis;
       double pitch;
 
-      static const int nq = 1;
-      static const int nv = 1;
+      static constexpr int nq = 1;
+      static constexpr int nv = 1;
 
       JointHelicalGraph(const Eigen::Vector3d & ax, const double p)
       : axis(ax)
@@ -203,8 +203,8 @@ namespace pinocchio
       Eigen::Vector3d axis1;
       Eigen::Vector3d axis2;
 
-      static const int nq = 2;
-      static const int nv = 2;
+      static constexpr int nq = 2;
+      static constexpr int nv = 2;
 
       JointUniversalGraph(const Eigen::Vector3d & ax1, const Eigen::Vector3d & ax2)
       : axis1(ax1)
@@ -247,8 +247,8 @@ namespace pinocchio
       double scaling;
       double offset;
 
-      static const int nq = 0;
-      static const int nv = 0;
+      static constexpr int nq = 0;
+      static constexpr int nv = 0;
 
       JointMimicGraph() = default;
 
