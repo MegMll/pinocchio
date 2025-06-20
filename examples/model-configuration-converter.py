@@ -25,14 +25,12 @@ g.addJoint(
     "b2",
     pin.SE3.Random(),
 )
-g.addJoint(
-    "j2",
-    pin.graph.JointPrismaticGraph(np.array([1.0, 0.0, 0.0])),
-    "b2",
-    pin.SE3.Random(),
-    "b3",
-    pin.SE3.Random(),
-)
+
+g.useEdgeBuilder().withName("j2").withJointType(
+    pin.graph.JointPrismaticGraph(np.array([1.0, 0.0, 0.0]))
+).withSourceVertex("b2").withSourcePose(pin.SE3.Random()).withTargetVertex(
+    "b3"
+).withTargetPose(pin.SE3.Random()).build()
 
 # Create a Model with b1 as root body and a fixed base.
 forward_model, forward_build_info = pin.graph.buildModelWithBuildInfo(g, "b1", X_I)

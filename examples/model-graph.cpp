@@ -36,18 +36,32 @@ int main(int /*argc*/, char ** /*argv*/)
     pose_j1_to_b2);
 
   // j2 will be biased by 50cm.
+  // To add this joint to the graph we will use another syntax
   SE3 pose_b2_to_j2 = SE3::Random(); // pose of joint j2 wrt body2
   SE3 pose_j2_to_b3 = SE3::Random(); // pose of body3 wrt joint j2
   Eigen::VectorXd j2_bias(1);
   j2_bias << 0.5;
-  g.addJoint(
-    "j2", graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()), "body2", pose_b2_to_j2, "body3",
-    pose_j2_to_b3, j2_bias);
+  g.useEdgeBuilder()
+    .withName("j2")
+    .withSourceVertex("body2")
+    .withSourcePose(pose_b2_to_j2)
+    .withTargetVertex("body3")
+    .withTargetPose(pose_j2_to_b3)
+    .withJointType(graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()))
+    .withQref(j2_bias)
+    .build();
 
   // sensor1 is a sensor frame so it can only be linked to the others body via a fixed joint
   SE3 pose_b1_s1 = SE3::Random();
   SE3 pose_s1 = SE3::Random();
-  g.addJoint("b1_s1", graph::JointFixedGraph(), "body1", pose_b1_s1, "sensor1", pose_s1);
+  g.useEdgeBuilder()
+    .withName("b1_s1")
+    .withSourceVertex("body1")
+    .withSourcePose(pose_b1_s1)
+    .withTargetVertex("sensor1")
+    .withTargetPose(pose_s1)
+    .withJointType(graph::JointFixedGraph())
+    .build();
 
   // Now we can choose which body will be our root its position, and build the model
   Model kinematics_chain_from_body1 = graph::buildModel(g, "body1", SE3::Identity());

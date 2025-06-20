@@ -21,6 +21,7 @@ g.addFrame("sensor1", pin.graph.SensorFrameGraph())
 # Now we add the joints between every body/sensor we have in the pin.graph.
 pose_b1_to_j1 = pin.SE3.Random()  # pose of joint j1 wrt body1
 pose_j1_to_b2 = pin.SE3.Random()  # pose of body2 wrt joint j1
+
 g.addJoint(
     "j1",
     pin.graph.JointRevoluteGraph(np.array([0.0, 0.0, 1.0])),
@@ -33,23 +34,25 @@ g.addJoint(
 # j2 will be biased by 50cm.
 pose_b2_to_j2 = pin.SE3.Random()  # pose of joint j2 wrt body2
 pose_j2_to_b3 = pin.SE3.Random()  # pose of body3 wrt joint j2
-g.addJoint(
-    "j2",
-    pin.graph.JointPrismaticGraph(np.array([1.0, 0.0, 0.0])),
-    "body2",
-    pose_b2_to_j2,
-    "body3",
-    pose_j2_to_b3,
-    np.array([0.5]),
-)
+
+# Using builder interface to add the bias on j2
+g.useEdgeBuilder().withName("j2").withJointType(
+    pin.graph.JointPrismaticGraph(np.array([1, 0, 0]))
+).withSourceVertex("body2").withSourcePose(pose_b2_to_j2).withTargetVertex(
+    "body3"
+).withTargetPose(pose_j2_to_b3).withQref(np.array([0.5])).build()
+
 
 # sensor1 is a sensor frame so it can only be linked to the others body
 # via a fixed joint
 pose_b1_s1 = pin.SE3.Random()
 pose_s1 = pin.SE3.Random()
-g.addJoint(
-    "b1_s1", pin.graph.JointFixedGraph(), "body1", pose_b1_s1, "sensor1", pose_s1
-)
+
+g.useEdgeBuilder().withName("b1_s1").withJointType(
+    pin.graph.JointFixedGraph()
+).withSourceVertex("body1").withSourcePose(pose_b1_s1).withTargetVertex(
+    "sensor1"
+).withTargetPose(pose_s1).build()
 
 # Now we can choose which body will be our root its position, and build the model
 kinematics_chain_from_body1 = pin.graph.buildModel(g, "body1", pin.SE3.Identity())
