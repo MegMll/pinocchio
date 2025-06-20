@@ -28,7 +28,7 @@ namespace pinocchio
         JointLimits operator()(const Joint & j) const
         {
           JointLimits jlimit;
-          jlimit.setDimensions<j.nq, j.nv>();
+          jlimit.setDimensions<Joint::nq, Joint::nv>();
           return jlimit;
         }
 
