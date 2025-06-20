@@ -125,8 +125,17 @@ namespace pinocchio
         const SE3 & joint_to_in,
         const boost::optional<Eigen::VectorXd> & q_ref = boost::none);
 
+      /// \brief Add edges (joint) to the graph. Since it's a bidirectional graph,
+      /// edge and its reverse are added to the graph.
+      ///
+      /// \param[in] params Structure that holds all of the joint parameters
+      ///
+      /// \note Since it's a bidirectional graph, two edges are added to the graph.
+      /// Joints and transformation are inverted, to create reverse edge.
       void addJoint(const EdgeParameters & params);
 
+      /// \brief Create an EdgeBuilde. This will allow to use EdgeBuilder interface to have a more
+      /// flexible edge configuration.
       EdgeBuilder useEdgeBuilder();
 
       /// @brief  add all the vertex and edges from a graph to this one.
@@ -143,22 +152,33 @@ namespace pinocchio
       std::unordered_map<std::string, VertexDesc> name_to_vertex;
     };
 
-    struct EdgeParameters
+    /// @brief Structure that holds all the parameters useful to create an edge.
+    struct PINOCCHIO_PARSERS_DLLAPI EdgeParameters
     {
+      /// @brief Edge name
       std::string name;
 
+      /// @brief Source name
       std::string source_vertex;
+      /// @brief Placement of Edge wrt source vertex
       SE3 out_to_joint = SE3::Identity();
+      /// @brief Target name
       std::string target_vertex;
+      /// @brief Placement of target wrt edge
       SE3 joint_to_in = SE3::Identity();
 
+      /// @brief Type of joint for edge
       JointGraphVariant joint = JointFixedGraph();
 
+      /// @brief Bias for the joint
       boost::optional<Eigen::VectorXd> q_ref = boost::none;
+      /// @brief Limits of the joint
       JointLimits jlimit;
 
+      /// @brief Default Constructor
       EdgeParameters() = default;
 
+      /// @brief Constructor with all parameters
       EdgeParameters(
         const std::string & jname,
         const std::string & source_name,
@@ -166,115 +186,123 @@ namespace pinocchio
         const std::string & target_name,
         const SE3 & joint_to_in,
         const JointGraphVariant & joint,
-        const boost::optional<Eigen::VectorXd> q_ref = boost::none)
-      : name(jname)
-      , source_vertex(source_name)
-      , out_to_joint(out_to_joint)
-      , target_vertex(target_name)
-      , joint_to_in(joint_to_in)
-      , joint(joint)
-      , q_ref(q_ref)
-      {
-      }
+        const boost::optional<Eigen::VectorXd> q_ref = boost::none);
     };
 
+    /// @brief Builder interface to add an edge to the graph.
+    /// Allows for an easy customization of the edge.
     struct PINOCCHIO_PARSERS_DLLAPI EdgeBuilder
     {
+      /// @brief ModelGraph to which the edge will be added
       ModelGraph & g;
 
+      /// @brief Parameters of the edge
       EdgeParameters param;
 
+      /// @brief Constructor
       EdgeBuilder(ModelGraph & graph)
       : g(graph)
       {
       }
 
+      /// @brief Specify the type of joint for the edge. Default : Fixed
       EdgeBuilder & withJointType(const JointGraphVariant & jtype);
 
+      /// @brief Specify the name of the edge
       EdgeBuilder & withName(const std::string & name)
       {
         param.name = name;
         return *this;
       }
-
+      /// @brief Specify the name of the target vertex
       EdgeBuilder & withTargetVertex(const std::string & target_name)
       {
         param.target_vertex = target_name;
         return *this;
       }
-
+      /// @brief Specify the name of the source vertex
       EdgeBuilder & withSourceVertex(const std::string & source_name)
       {
         param.source_vertex = source_name;
         return *this;
       }
-
+      /// @brief Specify the pose of target vertex wrt edge. Default : Identity
       EdgeBuilder & withTargetPose(const SE3 & target_pose)
       {
         param.joint_to_in = target_pose;
         return *this;
       }
-
+      /// @brief Specify the pose of the joint wrt the source vertex. Default : Identity
       EdgeBuilder & withSourcePose(const SE3 & source_pose)
       {
         param.out_to_joint = source_pose;
         return *this;
       }
 
+      /// @brief Specify a bias for the joint configuration
       EdgeBuilder & withQref(const Eigen::VectorXd & qref)
       {
         param.q_ref = qref;
         return *this;
       }
 
+      /// @brief Specify limit minConfig
       EdgeBuilder & withMinConfig(const Eigen::VectorXd & minConfig)
       {
         param.jlimit.minConfig = minConfig;
         return *this;
       }
 
+      /// @brief Specify limit maxConfig
       EdgeBuilder & withMaxConfig(const Eigen::VectorXd & maxConfig)
       {
         param.jlimit.maxConfig = maxConfig;
         return *this;
       }
 
+      /// @brief Specify limit maxVel
       EdgeBuilder & withMaxVel(const Eigen::VectorXd & maxVel)
       {
         param.jlimit.maxVel = maxVel;
         return *this;
       }
 
+      /// @brief Specify limit maxEffort
       EdgeBuilder & withMaxEffort(const Eigen::VectorXd & maxEffort)
       {
         param.jlimit.maxEffort = maxEffort;
         return *this;
       }
 
+      /// @brief Specify friction
       EdgeBuilder & withFriction(const Eigen::VectorXd & friction)
       {
         param.jlimit.friction = friction;
         return *this;
       }
 
+      /// @brief Specify damping
       EdgeBuilder & withDamping(const Eigen::VectorXd & damping)
       {
         param.jlimit.damping = damping;
         return *this;
       }
 
+      /// @brief Specify armature
       EdgeBuilder & withArmature(const Eigen::VectorXd & armature)
       {
         param.jlimit.armature = armature;
         return *this;
       }
 
+      /// @brief Specify friction loss
       EdgeBuilder & withFrictionLoss(const double frictionLoss)
       {
         param.jlimit.frictionLoss = frictionLoss;
         return *this;
       }
 
+      /// @brief Add the edge to the ModelGraph
       void build()
       {
         g.addJoint(param);
