@@ -148,16 +148,14 @@ namespace pinocchio
       std::string name;
 
       std::string source_vertex;
-      std::string target_vertex;
-
       SE3 out_to_joint = SE3::Identity();
+      std::string target_vertex;
       SE3 joint_to_in = SE3::Identity();
-
-      boost::optional<Eigen::VectorXd> q_ref = boost::none;
 
       JointGraphVariant joint = JointFixedGraph();
 
-      // JointLimits jlimit;
+      boost::optional<Eigen::VectorXd> q_ref = boost::none;
+      JointLimits jlimit;
 
       EdgeParameters() = default;
 
@@ -186,12 +184,12 @@ namespace pinocchio
 
       EdgeParameters param;
 
-      EdgeBuilder() = default;
-
       EdgeBuilder(ModelGraph & graph)
       : g(graph)
       {
       }
+
+      EdgeBuilder & withJointType(const JointGraphVariant & jtype);
 
       EdgeBuilder & withName(const std::string & name)
       {
@@ -223,11 +221,57 @@ namespace pinocchio
         return *this;
       }
 
-      EdgeBuilder & withJointType(const JointGraphVariant & jtype);
-
       EdgeBuilder & withQref(const Eigen::VectorXd & qref)
       {
         param.q_ref = qref;
+        return *this;
+      }
+
+      EdgeBuilder & withMinConfig(const Eigen::VectorXd & minConfig)
+      {
+        param.jlimit.minConfig = minConfig;
+        return *this;
+      }
+
+      EdgeBuilder & withMaxConfig(const Eigen::VectorXd & maxConfig)
+      {
+        param.jlimit.maxConfig = maxConfig;
+        return *this;
+      }
+
+      EdgeBuilder & withMaxVel(const Eigen::VectorXd & maxVel)
+      {
+        param.jlimit.maxVel = maxVel;
+        return *this;
+      }
+
+      EdgeBuilder & withMaxEffort(const Eigen::VectorXd & maxEffort)
+      {
+        param.jlimit.maxEffort = maxEffort;
+        return *this;
+      }
+
+      EdgeBuilder & withFriction(const Eigen::VectorXd & friction)
+      {
+        param.jlimit.friction = friction;
+        return *this;
+      }
+
+      EdgeBuilder & withDamping(const Eigen::VectorXd & damping)
+      {
+        param.jlimit.damping = damping;
+        return *this;
+      }
+
+      EdgeBuilder & withArmature(const Eigen::VectorXd & armature)
+      {
+        param.jlimit.armature = armature;
+        return *this;
+      }
+
+      EdgeBuilder & withFrictionLoss(const double frictionLoss)
+      {
+        param.jlimit.frictionLoss = frictionLoss;
         return *this;
       }
 

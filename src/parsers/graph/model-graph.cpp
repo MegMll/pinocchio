@@ -38,7 +38,7 @@ namespace pinocchio
       minConfig = Eigen::VectorXd::Constant(Nq, -infty);
       friction = Eigen::VectorXd::Constant(Nv, 0.);
       damping = Eigen::VectorXd::Constant(Nv, 0.);
-      armature = Eigen::VectorXd::Constant(Nv, armature[0]);
+      armature = Eigen::VectorXd::Constant(Nv, 0);
     }
 
     void JointLimits::append(const JointLimits & range, const int nq, const int nv)
@@ -68,7 +68,7 @@ namespace pinocchio
     EdgeBuilder & EdgeBuilder::withJointType(const JointGraphVariant & jtype)
     {
       param.joint = jtype;
-      // param.jlimit = boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), jtype);
+      param.jlimit = boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), jtype);
 
       return *this;
     }
@@ -135,6 +135,8 @@ namespace pinocchio
 
       edge.joint_to_in = params.joint_to_in;
 
+      edge.jlimit = params.jlimit;
+
       auto reverse_edge_desc = boost::add_edge(in_vertex->second, out_vertex->second, graph);
       if (!reverse_edge_desc.second)
       {
@@ -161,6 +163,9 @@ namespace pinocchio
 
       reverse_edge.joint_to_in = reversed_joint.second * params.out_to_joint.inverse();
       reverse_edge.forward = false;
+
+      reverse_edge.jlimit =
+        boost::apply_visitor(internal::ReverseJointLimitsVisitor(params.jlimit), params.joint);
     }
 
     void ModelGraph::addJoint(
