@@ -141,9 +141,14 @@ namespace pinocchio
           const auto & src_name = g.graph[src].name;
           const auto & tgt_name = g.graph[tgt].name;
 
-          g_return.addJoint(
-            prefix + edge_data.name, edge_data.joint, prefix + src_name, edge_data.out_to_joint,
-            prefix + tgt_name, edge_data.joint_to_in);
+          g_return.useEdgeBuilder()
+            .withName(prefix + edge_data.name)
+            .withSourceVertex(prefix + src_name)
+            .withSourcePose(edge_data.out_to_joint)
+            .withTargetVertex(prefix + tgt_name)
+            .withTargetPose(edge_data.joint_to_in)
+            .withJointType(edge_data.joint)
+            .build();
         }
       }
       return g_return;
@@ -186,9 +191,13 @@ namespace pinocchio
 
       const std::string g2_body_merged = g2_body;
 
-      g_merged.addJoint(
-        merging_joint_name, merging_joint, g1_body, SE3::Identity(), g2_body_merged,
-        pose_g2_body_in_g1);
+      g_merged.useEdgeBuilder()
+        .withName(merging_joint_name)
+        .withSourceVertex(g1_body)
+        .withTargetVertex(g2_body)
+        .withTargetPose(pose_g2_body_in_g1)
+        .withJointType(merging_joint)
+        .build();
 
       return g_merged;
     }
@@ -228,6 +237,14 @@ namespace pinocchio
           const auto & tgt_name = g.graph[tgt].name;
 
           auto it = std::find(joints_to_lock.begin(), joints_to_lock.end(), edge_data.name);
+
+          EdgeBuilder builder = g_locked.useEdgeBuilder()
+                                  .withName(edge_data.name)
+                                  .withSourceVertex(src_name)
+                                  .withSourcePose(edge_data.out_to_joint)
+                                  .withTargetVertex(tgt_name)
+                                  .withTargetPose(edge_data.joint_to_in);
+
           if (it != joints_to_lock.end())
           {
             auto index = std::distance(joints_to_lock.begin(), it);
@@ -237,16 +254,12 @@ namespace pinocchio
             internal::UpdateJointGraphPoseVisitor ujgpv(q_ref);
             pinocchio::SE3 pose_offset = boost::apply_visitor(ujgpv, edge_data.joint);
 
-            g_locked.addJoint(
-              edge_data.name, JointFixedGraph(pose_offset), src_name, edge_data.out_to_joint,
-              tgt_name, edge_data.joint_to_in, q_ref);
+            builder.withJointType(JointFixedGraph(pose_offset)).withQref(q_ref);
           }
           else
-          {
-            g_locked.addJoint(
-              edge_data.name, edge_data.joint, src_name, edge_data.out_to_joint, tgt_name,
-              edge_data.joint_to_in);
-          }
+            builder.withJointType(edge_data.joint);
+
+          builder.build();
         }
       }
       return g_locked;

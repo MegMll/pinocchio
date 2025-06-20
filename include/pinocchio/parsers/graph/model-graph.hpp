@@ -29,11 +29,10 @@ namespace pinocchio
 {
   namespace graph
   {
+    struct EdgeBuilder;
+    struct EdgeParameters;
+
     /// @brief Represents a vertex (body, sensor, operational frame) in the model graph.
-    ///
-    /// A vertex corresponds to a rigid body in the multibody model.
-    /// For now, a vertex represents only a body, but this may evolve to include
-    /// sensors, actuators, or other entities in the future.
     struct ModelGraphVertex
     {
       /// @brief Unique name of the body.
@@ -50,6 +49,9 @@ namespace pinocchio
 
       /// @brief What is the type of the joint
       JointGraphVariant joint;
+
+      /// @brief All the limits of the joint
+      JointLimits jlimit;
 
       /// @brief Transformation from the previous vertex to edge
       ///
@@ -123,6 +125,10 @@ namespace pinocchio
         const SE3 & joint_to_in,
         const boost::optional<Eigen::VectorXd> & q_ref = boost::none);
 
+      void addJoint(const EdgeParameters & params);
+
+      EdgeBuilder useEdgeBuilder();
+
       /// @brief  add all the vertex and edges from a graph to this one.
       /// Attention : it does not add an edge between the two, so it will be like having two graph
       /// coexisting in this structure.
@@ -135,6 +141,100 @@ namespace pinocchio
       Graph graph;
       /// @brief Name of the vertexes in the graph. Useful for graph parcours.
       std::unordered_map<std::string, VertexDesc> name_to_vertex;
+    };
+
+    struct EdgeParameters
+    {
+      std::string name;
+
+      std::string source_vertex;
+      std::string target_vertex;
+
+      SE3 out_to_joint = SE3::Identity();
+      SE3 joint_to_in = SE3::Identity();
+
+      boost::optional<Eigen::VectorXd> q_ref = boost::none;
+
+      JointGraphVariant joint = JointFixedGraph();
+
+      // JointLimits jlimit;
+
+      EdgeParameters() = default;
+
+      EdgeParameters(
+        const std::string & jname,
+        const std::string & source_name,
+        const SE3 & out_to_joint,
+        const std::string & target_name,
+        const SE3 & joint_to_in,
+        const JointGraphVariant & joint,
+        const boost::optional<Eigen::VectorXd> q_ref = boost::none)
+      : name(jname)
+      , source_vertex(source_name)
+      , out_to_joint(out_to_joint)
+      , target_vertex(target_name)
+      , joint_to_in(joint_to_in)
+      , joint(joint)
+      , q_ref(q_ref)
+      {
+      }
+    };
+
+    struct PINOCCHIO_PARSERS_DLLAPI EdgeBuilder
+    {
+      ModelGraph & g;
+
+      EdgeParameters param;
+
+      EdgeBuilder() = default;
+
+      EdgeBuilder(ModelGraph & graph)
+      : g(graph)
+      {
+      }
+
+      EdgeBuilder & withName(const std::string & name)
+      {
+        param.name = name;
+        return *this;
+      }
+
+      EdgeBuilder & withTargetVertex(const std::string & target_name)
+      {
+        param.target_vertex = target_name;
+        return *this;
+      }
+
+      EdgeBuilder & withSourceVertex(const std::string & source_name)
+      {
+        param.source_vertex = source_name;
+        return *this;
+      }
+
+      EdgeBuilder & withTargetPose(const SE3 & target_pose)
+      {
+        param.joint_to_in = target_pose;
+        return *this;
+      }
+
+      EdgeBuilder & withSourcePose(const SE3 & source_pose)
+      {
+        param.out_to_joint = source_pose;
+        return *this;
+      }
+
+      EdgeBuilder & withJointType(const JointGraphVariant & jtype);
+
+      EdgeBuilder & withQref(const Eigen::VectorXd & qref)
+      {
+        param.q_ref = qref;
+        return *this;
+      }
+
+      void build()
+      {
+        g.addJoint(param);
+      }
     };
 
   } // namespace graph
