@@ -10,6 +10,46 @@
 
 namespace pinocchio
 {
+  namespace graph
+  {
+    // Define all static const int members for Boost.Python exposure
+    const int JointFixedGraph::nq;
+    const int JointFixedGraph::nv;
+
+    const int JointRevoluteGraph::nq;
+    const int JointRevoluteGraph::nv;
+
+    const int JointRevoluteUnboundedGraph::nq;
+    const int JointRevoluteUnboundedGraph::nv;
+
+    const int JointPrismaticGraph::nq;
+    const int JointPrismaticGraph::nv;
+
+    const int JointFreeFlyerGraph::nq;
+    const int JointFreeFlyerGraph::nv;
+
+    const int JointSphericalGraph::nq;
+    const int JointSphericalGraph::nv;
+
+    const int JointSphericalZYXGraph::nq;
+    const int JointSphericalZYXGraph::nv;
+
+    const int JointTranslationGraph::nq;
+    const int JointTranslationGraph::nv;
+
+    const int JointPlanarGraph::nq;
+    const int JointPlanarGraph::nv;
+
+    const int JointHelicalGraph::nq;
+    const int JointHelicalGraph::nv;
+
+    const int JointUniversalGraph::nq;
+    const int JointUniversalGraph::nv;
+
+    const int JointMimicGraph::nq;
+    const int JointMimicGraph::nv;
+  } // namespace graph
+
   namespace python
   {
     namespace bp = boost::python;
@@ -76,69 +116,62 @@ namespace pinocchio
         .def(bp::init<const pinocchio::SE3 &>(
           bp::args("self", "pose"), "Constructor with joint offset."))
         .def_readwrite("joint_offset", &JointFixedGraph::joint_offset, "Offset of the joint.")
-        .def_readwrite(
-          "nq", &JointFixedGraph::nq, "Number of configuration variables (0 for fixed).");
+        .def_readonly("nq", &JointFixedGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointFixedGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointRevoluteGraph>(
         "JointRevoluteGraph", "Represents a revolute joint.",
         bp::init<const Eigen::Vector3d &>(
           bp::args("self", "axis"), "Constructor with rotation axis."))
         .def_readwrite("axis", &JointRevoluteGraph::axis, "Rotation axis.")
-        .def_readwrite(
-          "nq", &JointRevoluteGraph::nq, "Number of configuration variables (1 for revolute).");
+        .def_readonly("nq", &JointRevoluteGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointRevoluteGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointRevoluteUnboundedGraph>(
         "JointRevoluteUnboundedGraph", "Represents an unbounded revolute joint.",
         bp::init<const Eigen::Vector3d &>(
           bp::args("self", "axis"), "Constructor with rotation axis."))
         .def_readwrite("axis", &JointRevoluteUnboundedGraph::axis, "Rotation axis.")
-        .def_readwrite(
-          "nq", &JointRevoluteUnboundedGraph::nq,
-          "Number of configuration variables (2 for unbounded revolute - typically pos/vel or "
-          "sin/cos).");
+        .def_readonly("nq", &JointRevoluteUnboundedGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointRevoluteUnboundedGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointPrismaticGraph>(
         "JointPrismaticGraph", "Represents a prismatic joint.",
         bp::init<const Eigen::Vector3d &>(
           bp::args("self", "axis"), "Constructor with translation axis."))
         .def_readwrite("axis", &JointPrismaticGraph::axis, "Translation axis.")
-        .def_readwrite(
-          "nq", &JointPrismaticGraph::nq, "Number of configuration variables (1 for prismatic).");
+        .def_readonly("nq", &JointPrismaticGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointPrismaticGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointFreeFlyerGraph>(
         "JointFreeFlyerGraph", "Represents a free-flyer joint.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def_readwrite(
-          "nq", &JointFreeFlyerGraph::nq, "Number of configuration variables (7 for free-flyer).");
+        .def_readonly("nq", &JointFreeFlyerGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointFreeFlyerGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointSphericalGraph>(
         "JointSphericalGraph", "Represents a spherical joint.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def_readwrite(
-          "nq", &JointSphericalGraph::nq,
-          "Number of configuration variables (4 for spherical - quaternion).");
+        .def_readonly("nq", &JointSphericalGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointSphericalGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointSphericalZYXGraph>(
         "JointSphericalZYXGraph", "Represents a spherical ZYX joint.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def_readwrite(
-          "nq", &JointSphericalZYXGraph::nq,
-          "Number of configuration variables (3 for ZYX spherical).");
+        .def_readonly("nq", &JointSphericalZYXGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointSphericalZYXGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointTranslationGraph>(
         "JointTranslationGraph", "Represents a translation joint.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def_readwrite(
-          "nq", &JointTranslationGraph::nq,
-          "Number of configuration variables (3 for translation).");
+        .def_readonly("nq", &JointTranslationGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointTranslationGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointPlanarGraph>(
         "JointPlanarGraph", "Represents a planar joint.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def_readwrite(
-          "nq", &JointPlanarGraph::nq,
-          "Number of configuration variables (4 for planar - typically x, y, cos_theta, sin_theta "
-          "or 3 if x,y,theta).");
+        .def_readonly("nq", &JointPlanarGraph::nq, "Number of configuration variables ")
+        .def_readonly("nv", &JointPlanarGraph::nv, "Number of tangent variables ");
 
       bp::class_<JointHelicalGraph>(
         "JointHelicalGraph", "Represents a helical joint.",
@@ -146,8 +179,8 @@ namespace pinocchio
           bp::args("self", "axis", "pitch"), "Constructor with axis and pitch."))
         .def_readwrite("axis", &JointHelicalGraph::axis, "Axis of the helical joint.")
         .def_readwrite("pitch", &JointHelicalGraph::pitch, "Pitch of the helical joint.")
-        .def_readwrite(
-          "nq", &JointHelicalGraph::nq, "Number of configuration variables (1 for helical).");
+        .def_readonly("nq", &JointHelicalGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointHelicalGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointUniversalGraph>(
         "JointUniversalGraph", "Represents a universal joint.",
@@ -155,8 +188,8 @@ namespace pinocchio
           bp::args("self", "axis1", "axis2"), "Constructor with two axes."))
         .def_readwrite("axis1", &JointUniversalGraph::axis1, "First axis of the universal joint.")
         .def_readwrite("axis2", &JointUniversalGraph::axis2, "Second axis of the universal joint.")
-        .def_readwrite(
-          "nq", &JointUniversalGraph::nq, "Number of configuration variables (2 for universal).");
+        .def_readonly("nq", &JointUniversalGraph::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointUniversalGraph::nv, "Number of tangent variables.");
 
       bp::class_<JointCompositeGraph>(
         "JointCompositeGraph", "Represents a composite joint.",
@@ -174,6 +207,9 @@ namespace pinocchio
           "List of placements for the joints.")
         .def_readwrite(
           "nq", &JointCompositeGraph::nq,
+          "Total number of configuration variables for the composite joint.")
+        .def_readwrite(
+          "nv", &JointCompositeGraph::nv,
           "Total number of configuration variables for the composite joint.")
         .def(
           "addJoint", &JointCompositeGraph::addJoint,
@@ -194,9 +230,12 @@ namespace pinocchio
           "The model of the secondary (mimicking) joint.")
         .def_readwrite("scaling", &JointMimicGraph::scaling, "Scaling factor for the mimicry.")
         .def_readwrite("offset", &JointMimicGraph::offset, "Offset for the mimicry.")
-        .def_readwrite(
+        .def_readonly(
           "nq", &JointMimicGraph::nq,
-          "Number of configuration variables (0 for mimic, as it depends on primary).");
+          "Number of configuration variables (0 for mimic, as it depends on primary).")
+        .def_readonly(
+          "nv", &JointMimicGraph::nv,
+          "Number of tangent variables (0 for mimic, as it depends on primary).");
 
       bp::to_python_converter<JointGraphVariant, VariantToPythonVisitor<JointGraphVariant>>();
 
