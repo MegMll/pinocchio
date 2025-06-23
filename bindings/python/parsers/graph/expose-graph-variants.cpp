@@ -77,9 +77,8 @@ namespace pinocchio
       bp::class_<BodyFrame>(
         "BodyFrame", "Represents a body frame in the model graph, including its inertia.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def(
-          bp::init<const pinocchio::Inertia &>(
-            bp::args("self", "inertia"), "Constructor initializing with a specific inertia."))
+        .def(bp::init<const pinocchio::Inertia &>(
+          bp::args("self", "inertia"), "Constructor initializing with a specific inertia."))
         .def_readwrite(
           "inertia", &BodyFrame::inertia,
           "Spatial inertia of the body, expressed at its center of mass (CoM).")
@@ -115,9 +114,8 @@ namespace pinocchio
       bp::class_<JointFixed>(
         "JointFixed", "Represents a fixed joint in the graph.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def(
-          bp::init<const pinocchio::SE3 &>(
-            bp::args("self", "pose"), "Constructor with joint offset."))
+        .def(bp::init<const pinocchio::SE3 &>(
+          bp::args("self", "pose"), "Constructor with joint offset."))
         .def_readwrite("joint_offset", &JointFixed::joint_offset, "Offset of the joint.")
         .def_readonly("nq", &JointFixed::nq, "Number of configuration variables.")
         .def_readonly("nv", &JointFixed::nv, "Number of tangent variables.");
@@ -197,14 +195,12 @@ namespace pinocchio
       bp::class_<JointComposite>(
         "JointComposite", "Represents a composite joint.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def(
-          bp::init<const JointVariant &, const pinocchio::SE3 &>(
-            bp::args("self", "joint_variant", "joint_pose"),
-            "Constructor with a single joint and its placement."))
-        .def(
-          bp::init<const std::vector<JointVariant> &, const std::vector<SE3> &>(
-            bp::args("self", "joints_variants", "joint_poses"),
-            "Constructor with multiple joints and their placements."))
+        .def(bp::init<const JointVariant &, const pinocchio::SE3 &>(
+          bp::args("self", "joint_variant", "joint_pose"),
+          "Constructor with a single joint and its placement."))
+        .def(bp::init<const std::vector<JointVariant> &, const std::vector<SE3> &>(
+          bp::args("self", "joints_variants", "joint_poses"),
+          "Constructor with multiple joints and their placements."))
         .def_readwrite("joints", &JointComposite::joints, "List of joints in the composite joint.")
         .def_readwrite(
           "jointsPlacements", &JointComposite::jointsPlacements,
@@ -223,10 +219,9 @@ namespace pinocchio
       bp::class_<JointMimic>(
         "JointMimic", "Represents a mimic joint.",
         bp::init<>(bp::args("self"), "Default constructor."))
-        .def(
-          bp::init<const JointVariant &, const std::string &, double, double>(
-            bp::args("self", "secondary_joint_model", "primary_name", "scaling", "offset"),
-            "Constructor for mimic joint."))
+        .def(bp::init<const JointVariant &, const std::string &, double, double>(
+          bp::args("self", "secondary_joint_model", "primary_name", "scaling", "offset"),
+          "Constructor for mimic joint."))
         .def_readwrite(
           "primary_name", &JointMimic::primary_name, "Name of the primary joint being mimicked.")
         .def_readwrite(

@@ -27,7 +27,6 @@ namespace pinocchio
       MeshGeom(const std::string & name_path)
       : path(name_path)
       {
-
       }
     };
 
@@ -35,40 +34,44 @@ namespace pinocchio
     {
       Eigen::Vector3d size = Eigen::Vector3d::Constant(0);
 
-        BoxGeom() = default;
+      BoxGeom() = default;
       BoxGeom(const Eigen::Vector3d & size)
       : size(size)
-      {}
+      {
+      }
     };
 
     struct CylinderGeom
     {
       Eigen::Vector2d size = Eigen::Vector2d::Constant(0);
 
-            CylinderGeom() = default;
+      CylinderGeom() = default;
       CylinderGeom(const Eigen::Vector2d & size)
       : size(size)
-      {}
+      {
+      }
     };
 
     struct CapsuleGeom
     {
       Eigen::Vector2d size = Eigen::Vector2d::Constant(0);
 
-            CapsuleGeom() = default;
+      CapsuleGeom() = default;
       CapsuleGeom(const Eigen::Vector2d & size)
       : size(size)
-      {}
+      {
+      }
     };
 
     struct SphereGeom
     {
       double radius = 0;
 
-            SphereGeom() = default;
+      SphereGeom() = default;
       SphereGeom(const double r)
       : radius(r)
-      {}
+      {
+      }
     };
 
     typedef boost::variant<MeshGeom, BoxGeom, CylinderGeom, CapsuleGeom, SphereGeom> GeomVariant;
@@ -89,40 +92,41 @@ namespace pinocchio
 
       Geometry() = default;
 
-      Geometry(const std::string & name, 
-        const SE3 & placement, 
-        const GEOM_TYPE & type, 
-        const Eigen::Vector3d & scale, 
-        const Eigen::Vector4d & color, 
+      Geometry(
+        const std::string & name,
+        const SE3 & placement,
+        const GEOM_TYPE & type,
+        const Eigen::Vector3d & scale,
+        const Eigen::Vector4d & color,
         const GeomVariant & geom)
-      : name(name),
-      placement(placement),
-      scale(scale),
-      color(color),
-      type(type),
-      geometry(geom)
-      {}
+      : name(name)
+      , placement(placement)
+      , scale(scale)
+      , color(color)
+      , type(type)
+      , geometry(geom)
+      {
+      }
     };
-  
 
     struct GeometryParameters
     {
 
-        std::string name_geometry;
-        std::string name_body;
+      std::string name_geometry;
+      std::string name_body;
 
-        SE3 placement = SE3::Identity();
+      SE3 placement = SE3::Identity();
 
-        Eigen::Vector3d scale = Eigen::Vector3d::Constant(1);
-        Eigen::Vector4d color = Eigen::Vector4d::Constant(1);
+      Eigen::Vector3d scale = Eigen::Vector3d::Constant(1);
+      Eigen::Vector4d color = Eigen::Vector4d::Constant(1);
 
-        GEOM_TYPE geom_type;
+      GEOM_TYPE geom_type;
 
-        GeomVariant geom;
+      GeomVariant geom;
 
-        GeometryParameters() = default;
+      GeometryParameters() = default;
     };
-}
-}
+  } // namespace graph
+} // namespace pinocchio
 
 #endif //__pinocchio_parsers_geometries_graph_hpp__

@@ -89,14 +89,13 @@ namespace pinocchio
         // Default constructor
         .def(bp::init<>())
         // Parameterized constructor
-        .def(
-          bp::init<
-            const std::string &, const std::string &, const SE3 &, const std::string &, const SE3 &,
-            const JointVariant &, const boost::optional<Eigen::VectorXd>>(
-            (bp::arg("name"), bp::arg("source_vertex"), bp::arg("source_to_joint"),
-             bp::arg("target_vertex"), bp::arg("joint_to_target"), bp::arg("joint"),
-             bp::arg("q_ref") = boost::none),
-            "Constructor to define an edge with specific parameters."))
+        .def(bp::init<
+             const std::string &, const std::string &, const SE3 &, const std::string &,
+             const SE3 &, const JointVariant &, const boost::optional<Eigen::VectorXd>>(
+          (bp::arg("name"), bp::arg("source_vertex"), bp::arg("source_to_joint"),
+           bp::arg("target_vertex"), bp::arg("joint_to_target"), bp::arg("joint"),
+           bp::arg("q_ref") = boost::none),
+          "Constructor to define an edge with specific parameters."))
         .def_readwrite("name", &EdgeParameters::name, "Name of the edge/joint.")
         .def_readwrite(
           "source_vertex", &EdgeParameters::source_vertex,
@@ -163,17 +162,17 @@ namespace pinocchio
           "Add a new body (vertex with inertia) to the graph.")
         .def(
           "addJoint",
-          (void (ModelGraph::*)(
+          (void(ModelGraph::*)(
             const std::string &, const JointVariant &, const std::string &, const SE3 &,
-            const std::string &, const SE3 &,
-            const boost::optional<Eigen::VectorXd> &))&ModelGraph::addJoint,
+            const std::string &, const SE3 &, const boost::optional<Eigen::VectorXd> &))
+            & ModelGraph::addJoint,
           (bp::arg("self"), bp::arg("joint_name"), bp::arg("joint"), bp::arg("source_body"),
            bp::arg("source_to_joint"), bp::arg("target_body"), bp::arg("joint_to_target"),
            bp::arg("q_ref") = boost::none),
           "Add edges (joint) to the graph. Since it's a bidirectional graph,\n"
           "edge and its reverse are added to the graph.\n")
         .def(
-          "addJoint", (void (ModelGraph::*)(const EdgeParameters &))&ModelGraph::addJoint,
+          "addJoint", (void(ModelGraph::*)(const EdgeParameters &)) & ModelGraph::addJoint,
           (bp::arg("self"), bp::arg("params")),
           "Add edges (joint) to the graph using EdgeParameters.")
         .def(
