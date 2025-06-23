@@ -110,6 +110,37 @@ namespace pinocchio
       addFrame(vertex_name, BodyFrameGraph(inert));
     }
 
+    GeometryBuilder ModelGraph::useGeometryBuilder()
+    {
+      return GeometryBuilder(*this);
+    }
+
+    void ModelGraph::addGeometry(const std::string & vertex_name, const Geometry & geom)
+    {
+      auto vertex_n = name_to_vertex.find(vertex_name);
+      if (vertex_n == name_to_vertex.end())
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "Graph - Vertex does not exist. Cannot add geometry");
+
+      ModelGraphVertex & vertex_desc = graph[vertex_n->second];
+
+      vertex_desc.addGeometry(geom);
+    }
+
+    void
+    ModelGraph::addGeometries(const std::string & vertex_name, const std::vector<Geometry> & geoms)
+    {
+      auto vertex_n = name_to_vertex.find(vertex_name);
+      if (vertex_n == name_to_vertex.end())
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "Graph - Vertex does not exist. Cannot add geometry");
+
+      ModelGraphVertex & vertex_desc = graph[vertex_n->second];
+
+      for (const auto & g : geoms)
+        vertex_desc.addGeometry(g);
+    }
+
     void ModelGraph::addJoint(const EdgeParameters & params)
     {
       auto out_vertex = name_to_vertex.find(params.source_vertex);

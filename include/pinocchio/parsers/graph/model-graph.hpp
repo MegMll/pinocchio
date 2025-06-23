@@ -13,6 +13,7 @@
 
 #include "pinocchio/parsers/graph/joints.hpp"
 #include "pinocchio/parsers/graph/frames.hpp"
+#include "pinocchio/parsers/graph/geometries.hpp"
 
 #include <Eigen/Core>
 
@@ -31,6 +32,7 @@ namespace pinocchio
   {
     struct EdgeBuilder;
     struct EdgeParameters;
+    struct GeometryBuilder;
 
     /// @brief Represents a vertex (body, sensor, operational frame) in the model graph.
     struct ModelGraphVertex
@@ -39,6 +41,13 @@ namespace pinocchio
       std::string name;
 
       FrameGraphVariant frame;
+
+      std::vector<Geometry> geometries;
+
+      void addGeometry(const Geometry & geo)
+      {
+        geometries.push_back(geo);
+      }
     };
 
     /// @brief Represents an edge (joint) in the model graph.
@@ -102,6 +111,10 @@ namespace pinocchio
       /// \param[in] vertex_name Name of the vertex
       /// \param[in] inert inertia of the body
       void addBody(const std::string & vertex_name, const Inertia & inert);
+
+      GeometryBuilder useGeometryBuilder();
+      void addGeometry(const std::string & vertex_name, const Geometry & geom);
+      void addGeometries(const std::string & vertex_name, const std::vector<Geometry> & geoms);
 
       /// \brief Add edges (joint) to the graph. Since it's a bidirectional graph,
       /// edge and its reverse are added to the graph.
@@ -309,6 +322,69 @@ namespace pinocchio
       }
     };
 
+    struct GeometryBuilder
+    {
+      GeometryParameters gParam;
+      ModelGraph & g;
+
+      GeometryBuilder(ModelGraph & g)
+      : g(g)
+      {
+      }
+
+      GeometryBuilder & withName(const std::string & n)
+      {
+        gParam.name_geometry = n;
+        return *this;
+      }
+
+      GeometryBuilder & withBody(const std::string & n)
+      {
+        gParam.name_body = n;
+        return *this;
+      }
+
+      GeometryBuilder & withPlacement(const SE3 & p)
+      {
+        gParam.placement = p;
+        return *this;
+      }
+
+      GeometryBuilder & withScale(const Eigen::Vector3d & s)
+      {
+        gParam.scale = s;
+        return *this;
+      }
+
+      GeometryBuilder & withColor(const Eigen::Vector4d & c)
+      {
+        gParam.color = c;
+        return *this;
+      }
+
+      GeometryBuilder & withGeomType(const GEOM_TYPE type)
+      {
+        gParam.geom_type = type;
+        return *this;
+      }
+
+      GeometryBuilder & withGeom(const GeomVariant & g)
+      {
+        gParam.geom = g;
+        return *this;
+      }
+
+      void build()
+      {
+        if (gParam.name_geometry.empty())
+          PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - geometry should have a name.");
+
+        return g.addGeometry(
+          gParam.name_body, Geometry(
+                              gParam.name_geometry, gParam.placement, gParam.geom_type,
+                              gParam.scale, gParam.color, gParam.geom));
+      }
+    };
   } // namespace graph
 } // namespace pinocchio
 
