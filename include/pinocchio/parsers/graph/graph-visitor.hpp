@@ -59,24 +59,26 @@ namespace pinocchio
         JointLimits operator()(const Joint &) const
         {
           JointLimits jlimit_return = jlimit;
-          jlimit_return.maxConfig = jlimit.minConfig;
-          jlimit_return.minConfig = jlimit.maxConfig;
+          jlimit_return.maxConfig = -jlimit.minConfig;
+          jlimit_return.minConfig = -jlimit.maxConfig;
 
           return jlimit_return;
         }
 
-        // For freeFlyer, Spherical = no changes
+        // For freeFlyer = no changes, except for translation limits.
         JointLimits operator()(const JointFreeFlyerGraph &) const
         {
+
           return jlimit;
         }
 
+        // For spherical = no changes
         JointLimits operator()(const JointSphericalGraph &) const
         {
           return jlimit;
         }
 
-        // universal = inverse axis config.
+        // universal = inverse axis config, so inverse limits
         JointLimits operator()(const JointUniversalGraph & j) const
         {
           JointLimits jlimit_return = jlimit;
@@ -97,7 +99,7 @@ namespace pinocchio
             jlimit_return.armature[i] = jlimit.armature[j.nv - 1 - i];
           }
 
-          return jlimit;
+          return jlimit_return;
         }
 
         // ZYX = inverse order and max becomes min
@@ -106,8 +108,8 @@ namespace pinocchio
           JointLimits jlimit_return = jlimit;
           for (int i = 0; i < j.nq; i++)
           {
-            jlimit_return.maxConfig[i] = jlimit.minConfig[j.nq - 1 - i];
-            jlimit_return.minConfig[i] = jlimit.maxConfig[j.nq - 1 - i];
+            jlimit_return.maxConfig[i] = -jlimit.minConfig[j.nq - 1 - i];
+            jlimit_return.minConfig[i] = -jlimit.maxConfig[j.nq - 1 - i];
           }
 
           for (int i = 0; i < j.nv; i++)
@@ -121,7 +123,7 @@ namespace pinocchio
             jlimit_return.armature[i] = jlimit.armature[j.nv - 1 - i];
           }
 
-          return jlimit;
+          return jlimit_return;
         }
 
         // Composite = inverse order inside and apply visitor on each joint
