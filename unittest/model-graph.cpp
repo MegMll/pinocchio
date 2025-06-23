@@ -65,12 +65,12 @@ BOOST_AUTO_TEST_CASE(test_add_vertex)
   BOOST_CHECK(g.name_to_vertex.find("body1") != g.name_to_vertex.end());
 }
 
-// / @brief Test if edges and their reverse are added correctly to the graph and the following edge
-// / case:
-// /  - source body doesn't exists
-// /  - target body doesn't exists
-// /  - joint name already exists
-// /  - only one joint between two body
+/// @brief Test if edges and their reverse are added correctly to the graph and the following edge
+/// case:
+///  - source body doesn't exists
+///  - target body doesn't exists
+///  - joint name already exists
+///  - only one joint between two body
 BOOST_AUTO_TEST_CASE(test_add_joint)
 {
   using namespace pinocchio::graph;
@@ -246,9 +246,9 @@ BOOST_AUTO_TEST_CASE(test_loop)
 /// @brief Test of multi-body loop inside the model graph
 ///      b1
 ///     |  |
-///    b2 - b4
-///      |   |
-///        b3
+///    b2  b4
+///     |  |
+///      b3
 BOOST_AUTO_TEST_CASE(test_giant_loop)
 {
   using namespace pinocchio::graph;
@@ -508,7 +508,6 @@ BOOST_AUTO_TEST_CASE(test_reverse_helical)
 }
 
 /// @brief test reversing helical joint on a simple linear robot
-/// body1 --- body2
 BOOST_AUTO_TEST_CASE(test_reverse_universal)
 {
   using namespace pinocchio::graph;
@@ -778,11 +777,154 @@ BOOST_AUTO_TEST_CASE(test_inertia)
   BOOST_CHECK(d.M.isApprox(d1.M));
 }
 
+/// @brief test if joint limits are parsed correctly (forward and backward)
+BOOST_AUTO_TEST_CASE(test_joint_limits)
+{
+  using namespace pinocchio::graph;
+
+  ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addFrame("body1", BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", BodyFrameGraph(pinocchio::Inertia::Identity()));
+
+  /////////////////////////////////////// Joints
+  g.useEdgeBuilder()
+    .withName("body1_to_body2")
+    .withSourceVertex("body1")
+    .withSourcePose(pinocchio::SE3::Random())
+    .withTargetVertex("body2")
+    .withTargetPose(pinocchio::SE3::Random())
+    .withJointType(JointRevoluteGraph(Eigen::Vector3d::UnitX()))
+    .withMaxConfig(Eigen::VectorXd::Constant(1, M_PI))
+    .withMinConfig(Eigen::VectorXd::Constant(1, -M_PI / 4))
+    .withMaxVel(Eigen::VectorXd::Constant(1, 0.3))
+    .build();
+
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
+  pinocchio::Data d_f(m_forward);
+
+  pinocchio::framesForwardKinematics(m_forward, d_f, m_forward.lowerPositionLimit);
+
+  //////////////////////////////////// Reverse model
+  pinocchio::Model m_reverse =
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+  pinocchio::Data d_reverse(m_reverse);
+
+  pinocchio::framesForwardKinematics(m_reverse, d_reverse, m_reverse.upperPositionLimit);
+
+  //////////////////////////////////// All bodies should be at the same configuration
+  BOOST_CHECK(SE3isApprox(
+    d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
+    d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
+}
+
+/// @brief test if joint limits are parsed correctly (forward and backward)
+BOOST_AUTO_TEST_CASE(test_joint_limits_universal)
+{
+  using namespace pinocchio::graph;
+
+  ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addFrame("body1", BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", BodyFrameGraph(pinocchio::Inertia::Identity()));
+
+  Eigen::Vector2d minConfig;
+  minConfig << -M_PI / 3, 0;
+  Eigen::Vector2d maxConfig;
+  maxConfig << M_PI / 2, M_PI;
+
+  /////////////////////////////////////// Joints
+  g.useEdgeBuilder()
+    .withName("body1_to_body2")
+    .withSourceVertex("body1")
+    .withSourcePose(pinocchio::SE3::Random())
+    .withTargetVertex("body2")
+    .withTargetPose(pinocchio::SE3::Random())
+    .withJointType(JointUniversalGraph(Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY()))
+    .withMaxConfig(maxConfig)
+    .withMinConfig(minConfig)
+    .build();
+
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
+  pinocchio::Data d_f(m_forward);
+
+  pinocchio::framesForwardKinematics(m_forward, d_f, m_forward.lowerPositionLimit);
+
+  //////////////////////////////////// Reverse model
+  pinocchio::Model m_reverse =
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+  pinocchio::Data d_reverse(m_reverse);
+
+  pinocchio::framesForwardKinematics(m_reverse, d_reverse, m_reverse.lowerPositionLimit);
+
+  //////////////////////////////////// All bodies should be at the same configuration
+  BOOST_CHECK(SE3isApprox(
+    d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
+    d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
+}
+
+/// @brief test joint limits for composite joints (forward and backward)
+BOOST_AUTO_TEST_CASE(test_joint_limits_composite)
+{
+  using namespace pinocchio::graph;
+
+  ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addFrame("body1", BodyFrameGraph(pinocchio::Inertia::Identity()));
+  g.addFrame("body2", BodyFrameGraph(pinocchio::Inertia::Identity()));
+
+  JointCompositeGraph jmodel;
+  pinocchio::SE3 jPose1 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 3., 0.)); // from body to j1
+  pinocchio::SE3 jPose2 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)); // from j1 to j2
+  pinocchio::SE3 jPose3 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)); // from j2 to j3
+  jmodel.addJoint(JointRevoluteGraph(Eigen::Vector3d::UnitX()), jPose1);
+  jmodel.addJoint(JointRevoluteGraph(Eigen::Vector3d::UnitZ()), jPose2);
+  jmodel.addJoint(JointPrismaticGraph(Eigen::Vector3d::UnitY()), jPose3);
+
+  Eigen::Vector3d minConfig;
+  minConfig << -M_PI / 4, -M_PI / 3, 0.3;
+  Eigen::Vector3d maxConfig;
+  maxConfig << M_PI / 2, M_PI, 0.6;
+
+  /////////////////////////////////////// Joints
+  g.useEdgeBuilder()
+    .withName("body1_to_body2")
+    .withSourceVertex("body1")
+    .withSourcePose(pinocchio::SE3::Random())
+    .withTargetVertex("body2")
+    .withTargetPose(pinocchio::SE3::Random())
+    .withJointType(jmodel)
+    .withMaxConfig(maxConfig)
+    .withMinConfig(minConfig)
+    .build();
+
+  pinocchio::Model m_forward = buildModel(g, "body1", pinocchio::SE3::Identity());
+  pinocchio::Data d_f(m_forward);
+
+  pinocchio::framesForwardKinematics(m_forward, d_f, m_forward.lowerPositionLimit);
+
+  //////////////////////////////////// Reverse model
+  pinocchio::Model m_reverse =
+    buildModel(g, "body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+  pinocchio::Data d_reverse(m_reverse);
+
+  Eigen::Vector2d q_reverse;
+  q_reverse << minConfig[1], minConfig[0];
+  pinocchio::framesForwardKinematics(m_reverse, d_reverse, m_reverse.upperPositionLimit);
+
+  //////////////////////////////////// All bodies should be at the same configuration
+  BOOST_CHECK(SE3isApprox(
+    d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
+    d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
+}
+
 /// @brief test out a tree robot
 ///          /---- left leg
 /// torso ---
 ///          \--- right leg
-/// @param
 BOOST_AUTO_TEST_CASE(test_tree_robot)
 {
   using namespace pinocchio::graph;
@@ -823,9 +965,7 @@ BOOST_AUTO_TEST_CASE(test_tree_robot)
 }
 
 /// @brief Test to make sure that we can't chain sensor or OpFrame, that not fixed joint is
-// created
-/// when adding a sensor frame
-/// @param
+// created when adding a sensor frame
 BOOST_AUTO_TEST_CASE(test_other_frame)
 {
   using namespace pinocchio::graph;
@@ -1087,6 +1227,7 @@ BOOST_AUTO_TEST_CASE(test_merge_graphs)
     == pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 4)));
 }
 
+/// @brief Test algorithm for locking joints
 BOOST_AUTO_TEST_CASE(test_lock_joint)
 {
   using namespace pinocchio::graph;
