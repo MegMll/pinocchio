@@ -30,10 +30,9 @@ int main(int /*argc*/, char ** /*argv*/)
   g.addBody("b2", I_I);
   g.addBody("b3", I_I);
   g.addJoint(
-    "j1", graph::JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "b1", SE3::Random(), "b2",
-    SE3::Random());
+    "j1", graph::JointRevolute(Eigen::Vector3d::UnitZ()), "b1", SE3::Random(), "b2", SE3::Random());
   g.addJoint(
-    "j2", graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()), "b2", SE3::Random(), "b3",
+    "j2", graph::JointPrismatic(Eigen::Vector3d::UnitX()), "b2", SE3::Random(), "b3",
     SE3::Random());
 
   /// Create a Model with b1 as root body and a fixed base.
@@ -55,7 +54,7 @@ int main(int /*argc*/, char ** /*argv*/)
   /// Create the backward model with b3 as root body and a free flyer as root joint.
   /// b3 is placed at the same position and same velocity than b3 in the forward model.
   const auto backward_build =
-    graph::buildModelWithBuildInfo(g, "b3", X_b3, graph::JointFreeFlyerGraph());
+    graph::buildModelWithBuildInfo(g, "b3", X_b3, graph::JointFreeFlyer());
   const auto & backward_model = backward_build.model;
   Data backward_data(backward_model);
   Eigen::VectorXd backward_q = neutral(backward_model);

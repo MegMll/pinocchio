@@ -13,7 +13,7 @@ namespace pinocchio
 {
   namespace graph
   {
-    struct BodyFrameGraph
+    struct BodyFrame
     {
       /// @brief Spatial inertia of the body, expressed at its center of mass (CoM).
       ///
@@ -23,28 +23,28 @@ namespace pinocchio
 
       pinocchio::FrameType f_type = BODY;
 
-      BodyFrameGraph() = default;
-      BodyFrameGraph(const pinocchio::Inertia & in)
+      BodyFrame() = default;
+      BodyFrame(const pinocchio::Inertia & in)
       : inertia(in)
       {
       }
     };
 
-    struct SensorFrameGraph
+    struct SensorFrame
     {
       pinocchio::FrameType f_type = SENSOR;
 
-      SensorFrameGraph() = default;
+      SensorFrame() = default;
     };
 
-    struct OpFrameGraph
+    struct OpFrame
     {
       pinocchio::FrameType f_type = OP_FRAME;
 
-      OpFrameGraph() = default;
+      OpFrame() = default;
     };
 
-    typedef boost::variant<BodyFrameGraph, SensorFrameGraph, OpFrameGraph> FrameGraphVariant;
+    typedef boost::variant<BodyFrame, SensorFrame, OpFrame> FrameVariant;
 
   } // namespace graph
 } // namespace pinocchio

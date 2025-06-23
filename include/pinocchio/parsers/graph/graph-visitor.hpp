@@ -32,7 +32,7 @@ namespace pinocchio
           return jlimit;
         }
 
-        JointLimits operator()(const JointCompositeGraph & j) const
+        JointLimits operator()(const JointComposite & j) const
         {
           JointLimits jlimit = boost::apply_visitor(*this, j.joints[0]);
 
@@ -66,20 +66,20 @@ namespace pinocchio
         }
 
         // For freeFlyer = no changes, except for translation limits.
-        JointLimits operator()(const JointFreeFlyerGraph &) const
+        JointLimits operator()(const JointFreeFlyer &) const
         {
 
           return jlimit;
         }
 
         // For spherical = no changes
-        JointLimits operator()(const JointSphericalGraph &) const
+        JointLimits operator()(const JointSpherical &) const
         {
           return jlimit;
         }
 
         // universal = inverse axis config, so inverse limits
-        JointLimits operator()(const JointUniversalGraph & j) const
+        JointLimits operator()(const JointUniversal & j) const
         {
           JointLimits jlimit_return = jlimit;
           for (int i = 0; i < j.nq; i++)
@@ -103,7 +103,7 @@ namespace pinocchio
         }
 
         // ZYX = inverse order and max becomes min
-        JointLimits operator()(const JointSphericalZYXGraph & j) const
+        JointLimits operator()(const JointSphericalZYX & j) const
         {
           JointLimits jlimit_return = jlimit;
           for (int i = 0; i < j.nq; i++)
@@ -127,7 +127,7 @@ namespace pinocchio
         }
 
         // Composite = inverse order inside and apply visitor on each joint
-        JointLimits operator()(const JointCompositeGraph & j) const
+        JointLimits operator()(const JointComposite & j) const
         {
           int nq_curr =
             boost::apply_visitor([](const auto & j_) { return j_.nq; }, j.joints.back());
@@ -196,64 +196,64 @@ namespace pinocchio
       };
 
       struct ReverseJointGraphVisitor
-      : public boost::static_visitor<std::pair<JointGraphVariant, pinocchio::SE3>>
+      : public boost::static_visitor<std::pair<JointVariant, pinocchio::SE3>>
       {
-        using ReturnType = std::pair<JointGraphVariant, pinocchio::SE3>;
+        using ReturnType = std::pair<JointVariant, pinocchio::SE3>;
 
-        ReturnType operator()(const JointRevoluteGraph & joint) const
+        ReturnType operator()(const JointRevolute & joint) const
         {
-          return {JointRevoluteGraph(joint.axis), pinocchio::SE3::Identity()};
-        }
-
-        ReturnType operator()(const JointRevoluteUnboundedGraph & joint) const
-        {
-          return {JointRevoluteUnboundedGraph(joint.axis), pinocchio::SE3::Identity()};
+          return {JointRevolute(joint.axis), pinocchio::SE3::Identity()};
         }
 
-        ReturnType operator()(const JointPrismaticGraph & joint) const
+        ReturnType operator()(const JointRevoluteUnbounded & joint) const
         {
-          return {JointPrismaticGraph(joint.axis), pinocchio::SE3::Identity()};
+          return {JointRevoluteUnbounded(joint.axis), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointFixedGraph & joint) const
+
+        ReturnType operator()(const JointPrismatic & joint) const
         {
-          return {JointFixedGraph(joint.joint_offset.inverse()), pinocchio::SE3::Identity()};
+          return {JointPrismatic(joint.axis), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointFreeFlyerGraph &) const
+        ReturnType operator()(const JointFixed & joint) const
+        {
+          return {JointFixed(joint.joint_offset.inverse()), pinocchio::SE3::Identity()};
+        }
+        ReturnType operator()(const JointFreeFlyer &) const
         {
 
-          return {JointFreeFlyerGraph(), pinocchio::SE3::Identity()};
+          return {JointFreeFlyer(), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointSphericalGraph &) const
+        ReturnType operator()(const JointSpherical &) const
         {
-          return {JointSphericalGraph(), pinocchio::SE3::Identity()};
+          return {JointSpherical(), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointSphericalZYXGraph &) const
+        ReturnType operator()(const JointSphericalZYX &) const
         {
-          return {JointSphericalZYXGraph(), pinocchio::SE3::Identity()};
+          return {JointSphericalZYX(), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointTranslationGraph &) const
+        ReturnType operator()(const JointTranslation &) const
         {
-          return {JointTranslationGraph(), pinocchio::SE3::Identity()};
+          return {JointTranslation(), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointPlanarGraph &) const
+        ReturnType operator()(const JointPlanar &) const
         {
-          return {JointPlanarGraph(), pinocchio::SE3::Identity()};
+          return {JointPlanar(), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointHelicalGraph & joint) const
+        ReturnType operator()(const JointHelical & joint) const
         {
-          return {JointHelicalGraph(joint.axis, joint.pitch), pinocchio::SE3::Identity()};
+          return {JointHelical(joint.axis, joint.pitch), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointUniversalGraph & joint) const
+        ReturnType operator()(const JointUniversal & joint) const
         {
-          return {JointUniversalGraph(-joint.axis2, -joint.axis1), pinocchio::SE3::Identity()};
+          return {JointUniversal(-joint.axis2, -joint.axis1), pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointMimicGraph & joint) const
+        ReturnType operator()(const JointMimic & joint) const
         {
           return {joint, pinocchio::SE3::Identity()};
         }
-        ReturnType operator()(const JointCompositeGraph & joint) const
+        ReturnType operator()(const JointComposite & joint) const
         {
-          JointCompositeGraph jReturn;
+          JointComposite jReturn;
           auto temp = boost::apply_visitor(*this, joint.joints.back());
           jReturn.addJoint(temp.first, temp.second * pinocchio::SE3::Identity());
           // Reverse joints
@@ -271,13 +271,13 @@ namespace pinocchio
       {
         typedef JointModel ReturnType;
 
-        ReturnType operator()(const JointFixedGraph & /*joint*/) const
+        ReturnType operator()(const JointFixed & /*joint*/) const
         {
           PINOCCHIO_THROW_PRETTY(
             std::invalid_argument,
             "Graph - cannot create a fixed joint. In pinocchio, fixed joints are frame.");
         }
-        ReturnType operator()(const JointRevoluteGraph & joint) const
+        ReturnType operator()(const JointRevolute & joint) const
         {
           if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
           {
@@ -296,7 +296,7 @@ namespace pinocchio
             return pinocchio::JointModelRevoluteUnaligned(joint.axis);
           }
         }
-        ReturnType operator()(const JointRevoluteUnboundedGraph & joint) const
+        ReturnType operator()(const JointRevoluteUnbounded & joint) const
         {
           if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
           {
@@ -315,7 +315,7 @@ namespace pinocchio
             return pinocchio::JointModelRevoluteUnboundedUnaligned(joint.axis);
           }
         }
-        ReturnType operator()(const JointPrismaticGraph & joint) const
+        ReturnType operator()(const JointPrismatic & joint) const
         {
           if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
           {
@@ -334,7 +334,7 @@ namespace pinocchio
             return pinocchio::JointModelPrismaticUnaligned(joint.axis);
           }
         }
-        ReturnType operator()(const JointHelicalGraph & joint) const
+        ReturnType operator()(const JointHelical & joint) const
         {
           if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
           {
@@ -353,36 +353,36 @@ namespace pinocchio
             return pinocchio::JointModelHelicalUnaligned(joint.axis, joint.pitch);
           }
         }
-        ReturnType operator()(const JointFreeFlyerGraph & /*joint*/) const
+        ReturnType operator()(const JointFreeFlyer & /*joint*/) const
         {
           return JointModelFreeFlyer();
         }
-        ReturnType operator()(const JointTranslationGraph & /*joint*/) const
+        ReturnType operator()(const JointTranslation & /*joint*/) const
         {
           return JointModelTranslation();
         }
-        ReturnType operator()(const JointPlanarGraph & /*joint*/) const
+        ReturnType operator()(const JointPlanar & /*joint*/) const
         {
           return JointModelPlanar();
         }
-        ReturnType operator()(const JointSphericalGraph & /*joint*/) const
+        ReturnType operator()(const JointSpherical & /*joint*/) const
         {
           return JointModelSpherical();
         }
-        ReturnType operator()(const JointSphericalZYXGraph & /*joint*/) const
+        ReturnType operator()(const JointSphericalZYX & /*joint*/) const
         {
           return JointModelSphericalZYX();
         }
-        ReturnType operator()(const JointUniversalGraph & joint) const
+        ReturnType operator()(const JointUniversal & joint) const
         {
           return JointModelUniversal(joint.axis1, joint.axis2);
         }
 
-        ReturnType operator()(const JointMimicGraph & joint) const
+        ReturnType operator()(const JointMimic & joint) const
         {
           return boost::apply_visitor(*this, joint.secondary_joint);
         }
-        ReturnType operator()(const JointCompositeGraph & joint) const
+        ReturnType operator()(const JointComposite & joint) const
         {
           JointModelComposite jmodel;
           for (size_t i = 0; i < joint.joints.size(); i++)
@@ -423,15 +423,15 @@ namespace pinocchio
         }
 
         template<typename JointGraph>
-        void operator()(const JointGraph & joint, const BodyFrameGraph & b_f)
+        void operator()(const JointGraph & joint, const BodyFrame & b_f)
         {
-          if (boost::get<BodyFrameGraph>(&source_vertex.frame) == nullptr) // body frame is index 0
-                                                                           // in variant
+          if (boost::get<BodyFrame>(&source_vertex.frame) == nullptr) // body frame is index 0
+                                                                      // in variant
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph -Invalid joint between a body and a non body frame.");
 
-          const pinocchio::SE3 & joint_pose = edge.out_to_joint;
-          const pinocchio::SE3 & body_pose = edge.joint_to_in;
+          const pinocchio::SE3 & joint_pose = edge.source_to_joint;
+          const pinocchio::SE3 & body_pose = edge.joint_to_target;
 
           const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
           JointIndex j_id = model.addJoint(
@@ -449,21 +449,21 @@ namespace pinocchio
         }
 
         template<typename FrameGraph>
-        void operator()(const JointFixedGraph & /*joint*/, const FrameGraph & f_)
+        void operator()(const JointFixed & /*joint*/, const FrameGraph & f_)
         {
           const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
 
           model.addFrame(Frame(
             target_vertex.name, previous_body.parentJoint,
-            previous_body.placement * edge.out_to_joint * edge.joint_to_in, f_.f_type));
+            previous_body.placement * edge.source_to_joint * edge.joint_to_target, f_.f_type));
         }
 
-        void operator()(const JointMimicGraph & joint, const BodyFrameGraph & b_f)
+        void operator()(const JointMimic & joint, const BodyFrame & b_f)
         {
           if (!edge.forward)
             PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - JointMimic cannot be reversed.");
 
-          if (boost::get<BodyFrameGraph>(&source_vertex.frame) == nullptr)
+          if (boost::get<BodyFrame>(&source_vertex.frame) == nullptr)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - Invalid joint between a body and a non body frame.");
 
@@ -474,8 +474,8 @@ namespace pinocchio
 
           const auto primary_joint = model.joints[model.getJointId(joint.primary_name)];
 
-          const pinocchio::SE3 & joint_pose = edge.out_to_joint;
-          const pinocchio::SE3 & body_pose = edge.joint_to_in;
+          const pinocchio::SE3 & joint_pose = edge.source_to_joint;
+          const pinocchio::SE3 & body_pose = edge.joint_to_target;
 
           const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
           JointIndex j_id = model.addJoint(
@@ -488,12 +488,12 @@ namespace pinocchio
           model.addBodyFrame(target_vertex.name, j_id, body_pose);
         }
 
-        void operator()(const JointFixedGraph & /*joint*/, const BodyFrameGraph & b_f)
+        void operator()(const JointFixed & /*joint*/, const BodyFrame & b_f)
         {
           // Need to check what's vertex the edge is coming from. If it's a body, then we add
           // both the fixed joint frame and a body frame. Otherwise, it's a "fake" fixed joint
           // That's only used for graph construction, so we just add the body frame.
-          if (boost::get<BodyFrameGraph>(&source_vertex.frame) == nullptr)
+          if (boost::get<BodyFrame>(&source_vertex.frame) == nullptr)
           {
             FrameIndex prev_f_id = model.getFrameId(source_vertex.name, OP_FRAME);
             if (prev_f_id == model.frames.size())
@@ -502,17 +502,18 @@ namespace pinocchio
             const Frame previous_frame = model.frames[prev_f_id];
             model.addFrame(Frame(
               target_vertex.name, previous_frame.parentJoint,
-              previous_frame.placement * edge.out_to_joint * edge.joint_to_in, BODY, b_f.inertia));
+              previous_frame.placement * edge.source_to_joint * edge.joint_to_target, BODY,
+              b_f.inertia));
           }
           else
           {
             const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
             // Don't add a new joint in the model — create the fixed_joint frame
             const FrameIndex f_id = model.addFrame(Frame(
-              edge.name, previous_body.parentJoint, previous_body.placement * edge.out_to_joint,
+              edge.name, previous_body.parentJoint, previous_body.placement * edge.source_to_joint,
               FIXED_JOINT, b_f.inertia));
             model.addBodyFrame(
-              target_vertex.name, previous_body.parentJoint, edge.joint_to_in, (int)f_id);
+              target_vertex.name, previous_body.parentJoint, edge.joint_to_target, (int)f_id);
           }
         }
       };
@@ -526,12 +527,12 @@ namespace pinocchio
         {
         }
 
-        Eigen::VectorXd operator()(const JointRevoluteGraph &) const
+        Eigen::VectorXd operator()(const JointRevolute &) const
         {
           return -q;
         }
 
-        Eigen::VectorXd operator()(const JointRevoluteUnboundedGraph &) const
+        Eigen::VectorXd operator()(const JointRevoluteUnbounded &) const
         {
           Eigen::Vector2d q_rev;
           q_rev << q[0], q[1];
@@ -539,17 +540,17 @@ namespace pinocchio
           return q_rev;
         }
 
-        Eigen::VectorXd operator()(const JointPrismaticGraph &) const
+        Eigen::VectorXd operator()(const JointPrismatic &) const
         {
           return -q;
         }
 
-        Eigen::VectorXd operator()(const JointFixedGraph &) const
+        Eigen::VectorXd operator()(const JointFixed &) const
         {
           return q;
         }
 
-        Eigen::VectorXd operator()(const JointFreeFlyerGraph &) const
+        Eigen::VectorXd operator()(const JointFreeFlyer &) const
         {
           // Compute the inverse rotation and extract the ZYX euler angles
           JointModelFreeFlyer jmodel;
@@ -564,13 +565,13 @@ namespace pinocchio
 
           return q_rev;
         }
-        Eigen::VectorXd operator()(const JointSphericalGraph &) const
+        Eigen::VectorXd operator()(const JointSpherical &) const
         {
           Eigen::Quaterniond q_temp(q[3], q[0], q[1], q[2]);
 
           return q_temp.inverse().coeffs();
         }
-        Eigen::VectorXd operator()(const JointSphericalZYXGraph &) const
+        Eigen::VectorXd operator()(const JointSphericalZYX &) const
         {
           // rotation matrix for spherique xyz for inverting spherical zyx
           Eigen::AngleAxisd Rx(-q[2], Eigen::Vector3d::UnitX());
@@ -583,11 +584,11 @@ namespace pinocchio
 
           return q_reverse;
         }
-        Eigen::VectorXd operator()(const JointTranslationGraph &) const
+        Eigen::VectorXd operator()(const JointTranslation &) const
         {
           return -q;
         }
-        Eigen::VectorXd operator()(const JointPlanarGraph &) const
+        Eigen::VectorXd operator()(const JointPlanar &) const
         {
           Eigen::Vector3d trans;
           trans << q[0], q[3], 0;
@@ -599,22 +600,22 @@ namespace pinocchio
           q_rev << trans_rev[0], trans_rev[1], q[2], -q[3];
           return q_rev;
         }
-        Eigen::VectorXd operator()(const JointHelicalGraph &) const
+        Eigen::VectorXd operator()(const JointHelical &) const
         {
           return -q;
         }
-        Eigen::VectorXd operator()(const JointUniversalGraph &) const
+        Eigen::VectorXd operator()(const JointUniversal &) const
         {
           return q; // Because reverse is done in the joint, so q stays the same
         }
 
-        Eigen::VectorXd operator()(const JointMimicGraph & joint) const
+        Eigen::VectorXd operator()(const JointMimic & joint) const
         {
           return boost::apply_visitor(
             *this, joint.secondary_joint); // Don't know how to handle this yet
         }
 
-        Eigen::VectorXd operator()(const JointCompositeGraph & joint) const
+        Eigen::VectorXd operator()(const JointComposite & joint) const
         {
           Eigen::VectorXd q_rev = Eigen::VectorXd::Zero(joint.nq);
           int index_back =
@@ -655,12 +656,12 @@ namespace pinocchio
           return jdata.M();
         }
 
-        pinocchio::SE3 operator()(const JointFixedGraph & joint) const
+        pinocchio::SE3 operator()(const JointFixed & joint) const
         {
           return joint.joint_offset;
         }
 
-        pinocchio::SE3 operator()(const JointRevoluteGraph & joint) const
+        pinocchio::SE3 operator()(const JointRevolute & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -669,7 +670,7 @@ namespace pinocchio
           return joint_calc(JointModelRevoluteUnaligned(joint.axis));
         }
 
-        pinocchio::SE3 operator()(const JointPrismaticGraph & joint) const
+        pinocchio::SE3 operator()(const JointPrismatic & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -678,7 +679,7 @@ namespace pinocchio
           return joint_calc(JointModelPrismaticUnaligned(joint.axis));
         }
 
-        pinocchio::SE3 operator()(const JointRevoluteUnboundedGraph & joint) const
+        pinocchio::SE3 operator()(const JointRevoluteUnbounded & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -688,7 +689,7 @@ namespace pinocchio
           return joint_calc(JointModelRevoluteUnboundedUnaligned(joint.axis));
         }
 
-        pinocchio::SE3 operator()(const JointHelicalGraph & joint) const
+        pinocchio::SE3 operator()(const JointHelical & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -697,7 +698,7 @@ namespace pinocchio
           return joint_calc(JointModelHelicalUnaligned(joint.axis, joint.pitch));
         }
 
-        pinocchio::SE3 operator()(const JointUniversalGraph & joint) const
+        pinocchio::SE3 operator()(const JointUniversal & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -706,7 +707,7 @@ namespace pinocchio
           return joint_calc(JointModelUniversal(joint.axis1, joint.axis2));
         }
 
-        pinocchio::SE3 operator()(const JointFreeFlyerGraph & joint) const
+        pinocchio::SE3 operator()(const JointFreeFlyer & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -715,7 +716,7 @@ namespace pinocchio
           return joint_calc(JointModelFreeFlyer());
         }
 
-        pinocchio::SE3 operator()(const JointSphericalGraph & joint) const
+        pinocchio::SE3 operator()(const JointSpherical & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -724,7 +725,7 @@ namespace pinocchio
           return joint_calc(JointModelSpherical());
         }
 
-        pinocchio::SE3 operator()(const JointSphericalZYXGraph & joint) const
+        pinocchio::SE3 operator()(const JointSphericalZYX & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -733,7 +734,7 @@ namespace pinocchio
           return joint_calc(JointModelSphericalZYX());
         }
 
-        pinocchio::SE3 operator()(const JointPlanarGraph & joint) const
+        pinocchio::SE3 operator()(const JointPlanar & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -742,7 +743,7 @@ namespace pinocchio
           return joint_calc(JointModelPlanar());
         }
 
-        pinocchio::SE3 operator()(const JointTranslationGraph & joint) const
+        pinocchio::SE3 operator()(const JointTranslation & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -751,21 +752,21 @@ namespace pinocchio
           return joint_calc(JointModelTranslation());
         }
 
-        pinocchio::SE3 operator()(const JointMimicGraph & /*joint*/) const
+        pinocchio::SE3 operator()(const JointMimic & /*joint*/) const
         {
           PINOCCHIO_THROW_PRETTY(
             std::invalid_argument,
             "Graph - Joint Mimic cannot have a q_ref. Please use the joint offset directly.");
         }
 
-        pinocchio::SE3 operator()(const JointCompositeGraph & joint) const
+        pinocchio::SE3 operator()(const JointComposite & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument,
               "Graph - Joint Composite and its configuration vector have different sizes");
 
-          JointCompositeGraph * joint_ptr = const_cast<JointCompositeGraph *>(&joint);
+          JointComposite * joint_ptr = const_cast<JointComposite *>(&joint);
 
           int index = 0;
 

@@ -79,10 +79,9 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   g.addBody("b4", I_I);
   g.addBody("b5", I_I);
 
-  pinocchio::graph::JointRevoluteGraph joint(Eigen::Vector3d::UnitX());
+  pinocchio::graph::JointRevolute joint(Eigen::Vector3d::UnitX());
   g.addJoint(
-    "j1", pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "b1", X_I, "b2",
-    X_I);
+    "j1", pinocchio::graph::JointRevoluteUnbounded(Eigen::Vector3d::UnitX()), "b1", X_I, "b2", X_I);
   g.addJoint("j2", joint, "b2", X_I, "b3", X_I);
   g.addJoint("j3", joint, "b3", X_I, "b4", X_I);
   g.addJoint("j4", joint, "b3", X_I, "b5", X_I);
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE(test_create_converter)
   auto b4_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b4", X_I);
   auto b5_ret = pinocchio::graph::buildModelWithBuildInfo(g, "b5", X_I);
   auto b1_ff_ret = pinocchio::graph::buildModelWithBuildInfo(
-    g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
+    g, "b1", X_I, pinocchio::graph::JointFreeFlyer(), "ff");
 
   auto b1_to_b4_converter = pinocchio::graph::createConverter(
     b1_ret.model, b4_ret.model, b1_ret.build_info, b4_ret.build_info);
@@ -331,10 +330,10 @@ BOOST_AUTO_TEST_CASE(test_create_converter_composite)
   g.addBody("b3", I_I);
   g.addBody("b4", I_I);
 
-  pinocchio::graph::JointRevoluteGraph joint(Eigen::Vector3d::UnitX());
-  pinocchio::graph::JointCompositeGraph composite;
+  pinocchio::graph::JointRevolute joint(Eigen::Vector3d::UnitX());
+  pinocchio::graph::JointComposite composite;
   composite.addJoint(joint);
-  composite.addJoint(pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()));
+  composite.addJoint(pinocchio::graph::JointRevoluteUnbounded(Eigen::Vector3d::UnitX()));
   g.addJoint("j1", joint, "b1", X_I, "b2", X_I);
   g.addJoint("j2", composite, "b2", X_I, "b3", X_I);
   g.addJoint("j3", joint, "b3", X_I, "b4", X_I);
@@ -415,43 +414,42 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   g.addBody("b12", I_I);
   // We can't test mimic joint because backward construction is not supported
   g.addJoint(
-    "j1", pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "b1",
-    pinocchio::SE3::Random(), "b2", pinocchio::SE3::Random());
+    "j1", pinocchio::graph::JointRevolute(Eigen::Vector3d::UnitX()), "b1", pinocchio::SE3::Random(),
+    "b2", pinocchio::SE3::Random());
   g.addJoint(
-    "j2", pinocchio::graph::JointFreeFlyerGraph(), "b2", pinocchio::SE3::Random(), "b3",
+    "j2", pinocchio::graph::JointFreeFlyer(), "b2", pinocchio::SE3::Random(), "b3",
     pinocchio::SE3::Random());
   g.addJoint(
-    "j3", pinocchio::graph::JointSphericalGraph(), "b3", pinocchio::SE3::Random(), "b4",
+    "j3", pinocchio::graph::JointSpherical(), "b3", pinocchio::SE3::Random(), "b4",
     pinocchio::SE3::Random());
   g.addJoint(
-    "j4", pinocchio::graph::JointUniversalGraph(Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY()),
+    "j4", pinocchio::graph::JointUniversal(Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY()),
     "b4", pinocchio::SE3::Random(), "b5", pinocchio::SE3::Random());
   g.addJoint(
-    "j5", pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "b5",
+    "j5", pinocchio::graph::JointRevoluteUnbounded(Eigen::Vector3d::UnitX()), "b5",
     pinocchio::SE3::Random(), "b6", pinocchio::SE3::Random());
   g.addJoint(
-    "j6", pinocchio::graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()), "b6",
+    "j6", pinocchio::graph::JointPrismatic(Eigen::Vector3d::UnitX()), "b6",
     pinocchio::SE3::Random(), "b7", pinocchio::SE3::Random());
   g.addJoint(
-    "j7", pinocchio::graph::JointHelicalGraph(Eigen::Vector3d::UnitX(), 0.1), "b7",
+    "j7", pinocchio::graph::JointHelical(Eigen::Vector3d::UnitX(), 0.1), "b7",
     pinocchio::SE3::Random(), "b8", pinocchio::SE3::Random());
   g.addJoint(
-    "j8", pinocchio::graph::JointTranslationGraph(), "b8", pinocchio::SE3::Random(), "b9",
+    "j8", pinocchio::graph::JointTranslation(), "b8", pinocchio::SE3::Random(), "b9",
     pinocchio::SE3::Random());
   g.addJoint(
-    "j9", pinocchio::graph::JointSphericalZYXGraph(), "b9", pinocchio::SE3::Random(), "b10",
+    "j9", pinocchio::graph::JointSphericalZYX(), "b9", pinocchio::SE3::Random(), "b10",
     pinocchio::SE3::Random());
   g.addJoint(
-    "j10", pinocchio::graph::JointPlanarGraph(), "b10", pinocchio::SE3::Random(), "b11",
+    "j10", pinocchio::graph::JointPlanar(), "b10", pinocchio::SE3::Random(), "b11",
     pinocchio::SE3::Random());
 
-  pinocchio::graph::JointCompositeGraph joint_composite;
+  pinocchio::graph::JointComposite joint_composite;
   joint_composite.addJoint(
-    pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
-  joint_composite.addJoint(pinocchio::graph::JointSphericalGraph(), pinocchio::SE3::Random());
+    pinocchio::graph::JointRevolute(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
+  joint_composite.addJoint(pinocchio::graph::JointSpherical(), pinocchio::SE3::Random());
   joint_composite.addJoint(
-    pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()),
-    pinocchio::SE3::Random());
+    pinocchio::graph::JointRevoluteUnbounded(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
   g.addJoint(
     "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
 
@@ -505,7 +503,7 @@ BOOST_AUTO_TEST_CASE(test_convert_configuration)
   // Check forward conversion with custom root joint
   {
     const auto model_a_ff_ret = pinocchio::graph::buildModelWithBuildInfo(
-      g, "b1", X_I, pinocchio::graph::JointFreeFlyerGraph(), "ff");
+      g, "b1", X_I, pinocchio::graph::JointFreeFlyer(), "ff");
     const auto model_a_ff = model_a_ff_ret.model;
     pinocchio::Data data_a_ff(model_a_ff);
     const Eigen::VectorXd qmax_ff = Eigen::VectorXd::Ones(model_a_ff.nq);
@@ -548,43 +546,42 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
   g.addBody("b12", I_I);
   // We can't test mimic joint because backward construction is not supported
   g.addJoint(
-    "j1", pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "b1",
-    pinocchio::SE3::Random(), "b2", pinocchio::SE3::Random());
+    "j1", pinocchio::graph::JointRevolute(Eigen::Vector3d::UnitX()), "b1", pinocchio::SE3::Random(),
+    "b2", pinocchio::SE3::Random());
   g.addJoint(
-    "j2", pinocchio::graph::JointFreeFlyerGraph(), "b2", pinocchio::SE3::Random(), "b3",
+    "j2", pinocchio::graph::JointFreeFlyer(), "b2", pinocchio::SE3::Random(), "b3",
     pinocchio::SE3::Random());
   g.addJoint(
-    "j3", pinocchio::graph::JointSphericalGraph(), "b3", pinocchio::SE3::Random(), "b4",
+    "j3", pinocchio::graph::JointSpherical(), "b3", pinocchio::SE3::Random(), "b4",
     pinocchio::SE3::Random());
   g.addJoint(
-    "j4", pinocchio::graph::JointUniversalGraph(Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY()),
+    "j4", pinocchio::graph::JointUniversal(Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY()),
     "b4", pinocchio::SE3::Random(), "b5", pinocchio::SE3::Random());
   g.addJoint(
-    "j5", pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "b5",
+    "j5", pinocchio::graph::JointRevoluteUnbounded(Eigen::Vector3d::UnitX()), "b5",
     pinocchio::SE3::Random(), "b6", pinocchio::SE3::Random());
   g.addJoint(
-    "j6", pinocchio::graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()), "b6",
+    "j6", pinocchio::graph::JointPrismatic(Eigen::Vector3d::UnitX()), "b6",
     pinocchio::SE3::Random(), "b7", pinocchio::SE3::Random());
   g.addJoint(
-    "j7", pinocchio::graph::JointHelicalGraph(Eigen::Vector3d::UnitX(), 0.1), "b7",
+    "j7", pinocchio::graph::JointHelical(Eigen::Vector3d::UnitX(), 0.1), "b7",
     pinocchio::SE3::Random(), "b8", pinocchio::SE3::Random());
   g.addJoint(
-    "j8", pinocchio::graph::JointTranslationGraph(), "b8", pinocchio::SE3::Random(), "b9",
+    "j8", pinocchio::graph::JointTranslation(), "b8", pinocchio::SE3::Random(), "b9",
     pinocchio::SE3::Random());
   g.addJoint(
-    "j9", pinocchio::graph::JointSphericalZYXGraph(), "b9", pinocchio::SE3::Random(), "b10",
+    "j9", pinocchio::graph::JointSphericalZYX(), "b9", pinocchio::SE3::Random(), "b10",
     pinocchio::SE3::Random());
   g.addJoint(
-    "j10", pinocchio::graph::JointPlanarGraph(), "b10", pinocchio::SE3::Random(), "b11",
+    "j10", pinocchio::graph::JointPlanar(), "b10", pinocchio::SE3::Random(), "b11",
     pinocchio::SE3::Random());
 
-  pinocchio::graph::JointCompositeGraph joint_composite;
+  pinocchio::graph::JointComposite joint_composite;
   joint_composite.addJoint(
-    pinocchio::graph::JointRevoluteGraph(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
-  joint_composite.addJoint(pinocchio::graph::JointSphericalGraph(), pinocchio::SE3::Random());
+    pinocchio::graph::JointRevolute(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
+  joint_composite.addJoint(pinocchio::graph::JointSpherical(), pinocchio::SE3::Random());
   joint_composite.addJoint(
-    pinocchio::graph::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()),
-    pinocchio::SE3::Random());
+    pinocchio::graph::JointRevoluteUnbounded(Eigen::Vector3d::UnitX()), pinocchio::SE3::Random());
   g.addJoint(
     "j11", joint_composite, "b11", pinocchio::SE3::Random(), "b12", pinocchio::SE3::Random());
 
@@ -605,7 +602,7 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     const std::string end_effector = "b12";
     const auto end_effector_frame_id = model_a.getFrameId(end_effector, pinocchio::BODY);
     const auto model_b_ret = pinocchio::graph::buildModelWithBuildInfo(
-      g, end_effector, data_a.oMf[end_effector_frame_id], pinocchio::graph::JointFreeFlyerGraph());
+      g, end_effector, data_a.oMf[end_effector_frame_id], pinocchio::graph::JointFreeFlyer());
     const auto model_b = model_b_ret.model;
     pinocchio::Data data_b(model_b);
     Eigen::VectorXd q_b = pinocchio::neutral(model_b);

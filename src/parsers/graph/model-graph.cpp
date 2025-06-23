@@ -65,7 +65,7 @@ namespace pinocchio
       armature.tail(nv) = range.armature;
     }
 
-    EdgeBuilder & EdgeBuilder::withJointType(const JointGraphVariant & jtype)
+    EdgeBuilder & EdgeBuilder::withJointType(const JointVariant & jtype)
     {
       param.joint = jtype;
       param.jlimit = boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), jtype);
@@ -76,23 +76,23 @@ namespace pinocchio
     EdgeParameters::EdgeParameters(
       const std::string & jname,
       const std::string & source_name,
-      const SE3 & out_to_joint,
+      const SE3 & source_to_joint,
       const std::string & target_name,
-      const SE3 & joint_to_in,
-      const JointGraphVariant & joint,
+      const SE3 & joint_to_target,
+      const JointVariant & joint,
       const boost::optional<Eigen::VectorXd> q_ref)
     : name(jname)
     , source_vertex(source_name)
-    , out_to_joint(out_to_joint)
+    , source_to_joint(source_to_joint)
     , target_vertex(target_name)
-    , joint_to_in(joint_to_in)
+    , joint_to_target(joint_to_target)
     , joint(joint)
     , q_ref(q_ref)
     , jlimit(boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), joint))
     {
     }
 
-    void ModelGraph::addFrame(const std::string & vertex_name, const FrameGraphVariant & frame)
+    void ModelGraph::addFrame(const std::string & vertex_name, const FrameVariant & frame)
     {
       if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - vertex already in graph");
@@ -107,7 +107,7 @@ namespace pinocchio
 
     void ModelGraph::addBody(const std::string & vertex_name, const Inertia & inert)
     {
-      addFrame(vertex_name, BodyFrameGraph(inert));
+      addFrame(vertex_name, BodyFrame(inert));
     }
 
     GeometryBuilder ModelGraph::useGeometryBuilder()
@@ -143,30 +143,30 @@ namespace pinocchio
 
     void ModelGraph::addJoint(const EdgeParameters & params)
     {
-      auto out_vertex = name_to_vertex.find(params.source_vertex);
-      if (out_vertex == name_to_vertex.end())
+      auto source_vertex = name_to_vertex.find(params.source_vertex);
+      if (source_vertex == name_to_vertex.end())
       {
-        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - out_vertex does not exists");
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - source_vertex does not exists");
       }
-      auto in_vertex = name_to_vertex.find(params.target_vertex);
-      if (in_vertex == name_to_vertex.end())
+      auto target_vertex = name_to_vertex.find(params.target_vertex);
+      if (target_vertex == name_to_vertex.end())
       {
-        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - in_vertex does not exists");
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - target_vertex does not exists");
       }
       if (isJointNameExists(graph, params.name))
       {
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - joint_name already exists");
       }
-      if (boost::edge(out_vertex->second, in_vertex->second, graph).second)
+      if (boost::edge(source_vertex->second, target_vertex->second, graph).second)
       {
         PINOCCHIO_THROW_PRETTY(
-          std::invalid_argument, "Graph - Joint already connect in_body to out_body");
+          std::invalid_argument, "Graph - Joint already connect source_body to target_body");
       }
-      if (boost::get<BodyFrameGraph>(&graph[out_vertex->second].frame) == nullptr)
+      if (boost::get<BodyFrame>(&graph[source_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Graph - sensor and op_frame can only be appended to bodies");
 
-      auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, graph);
+      auto edge_desc = boost::add_edge(source_vertex->second, target_vertex->second, graph);
       if (!edge_desc.second)
       {
         PINOCCHIO_THROW_PRETTY(
@@ -177,17 +177,17 @@ namespace pinocchio
       edge.name = params.name;
       edge.joint = params.joint;
       if (params.q_ref)
-        edge.out_to_joint =
-          params.out_to_joint
+        edge.source_to_joint =
+          params.source_to_joint
           * boost::apply_visitor(internal::UpdateJointGraphPoseVisitor(*params.q_ref), edge.joint);
       else
-        edge.out_to_joint = params.out_to_joint;
+        edge.source_to_joint = params.source_to_joint;
 
-      edge.joint_to_in = params.joint_to_in;
+      edge.joint_to_target = params.joint_to_target;
 
       edge.jlimit = params.jlimit;
 
-      auto reverse_edge_desc = boost::add_edge(in_vertex->second, out_vertex->second, graph);
+      auto reverse_edge_desc = boost::add_edge(target_vertex->second, source_vertex->second, graph);
       if (!reverse_edge_desc.second)
       {
         PINOCCHIO_THROW_PRETTY(
@@ -203,15 +203,15 @@ namespace pinocchio
       {
         const Eigen::VectorXd q_ref_reverse =
           boost::apply_visitor(internal::ReverseQVisitor(*params.q_ref), params.joint);
-        reverse_edge.out_to_joint =
-          params.joint_to_in.inverse()
+        reverse_edge.source_to_joint =
+          params.joint_to_target.inverse()
           * boost::apply_visitor(
             internal::UpdateJointGraphPoseVisitor(q_ref_reverse), reverse_edge.joint);
       }
       else
-        reverse_edge.out_to_joint = params.joint_to_in.inverse();
+        reverse_edge.source_to_joint = params.joint_to_target.inverse();
 
-      reverse_edge.joint_to_in = reversed_joint.second * params.out_to_joint.inverse();
+      reverse_edge.joint_to_target = reversed_joint.second * params.source_to_joint.inverse();
       reverse_edge.forward = false;
 
       reverse_edge.jlimit =
@@ -220,15 +220,15 @@ namespace pinocchio
 
     void ModelGraph::addJoint(
       const std::string & joint_name,
-      const JointGraphVariant & joint,
-      const std::string & out_body,
-      const SE3 & out_to_joint,
-      const std::string & in_body,
-      const SE3 & joint_to_in,
+      const JointVariant & joint,
+      const std::string & source_body,
+      const SE3 & source_to_joint,
+      const std::string & target_body,
+      const SE3 & joint_to_target,
       const boost::optional<Eigen::VectorXd> & q_ref)
     {
-      return addJoint(
-        EdgeParameters(joint_name, out_body, out_to_joint, in_body, joint_to_in, joint, q_ref));
+      return addJoint(EdgeParameters(
+        joint_name, source_body, source_to_joint, target_body, joint_to_target, joint, q_ref));
     }
 
     EdgeBuilder ModelGraph::useEdgeBuilder()
@@ -265,9 +265,9 @@ namespace pinocchio
           this->useEdgeBuilder()
             .withName(edge_data.name)
             .withSourceVertex(src_name)
-            .withSourcePose(edge_data.out_to_joint)
+            .withSourcePose(edge_data.source_to_joint)
             .withTargetVertex(tgt_name)
-            .withTargetPose(edge_data.joint_to_in)
+            .withTargetPose(edge_data.joint_to_target)
             .withJointType(edge_data.joint)
             .build();
         }

@@ -40,7 +40,7 @@ namespace pinocchio
       /// @brief Unique name of the body.
       std::string name;
 
-      FrameGraphVariant frame;
+      FrameVariant frame;
 
       std::vector<Geometry> geometries;
 
@@ -57,7 +57,7 @@ namespace pinocchio
       std::string name;
 
       /// @brief What is the type of the joint
-      JointGraphVariant joint;
+      JointVariant joint;
 
       /// @brief All the limits of the joint
       JointLimits jlimit;
@@ -65,12 +65,12 @@ namespace pinocchio
       /// @brief Transformation from the previous vertex to edge
       ///
       /// Correspond to the transformation from body supporting joint to said joint
-      SE3 out_to_joint;
+      SE3 source_to_joint;
 
       /// @brief Transformation from edge to next vertex
       ///
       /// Correspond to the transformation from the current joint to its supported body.
-      SE3 joint_to_in;
+      SE3 joint_to_target;
 
       /// @brief boolean to know if we are in a forward or backward edge
       bool forward = true;
@@ -104,7 +104,7 @@ namespace pinocchio
       ///
       /// \param[in] vertex_name Name of the vertex
       /// \param[in] frame which type of frame will be added to the model (op_frame, sensor, body)
-      void addFrame(const std::string & vertex_name, const FrameGraphVariant & frame);
+      void addFrame(const std::string & vertex_name, const FrameVariant & frame);
 
       /// \brief Add a new body to the graph
       ///
@@ -121,21 +121,21 @@ namespace pinocchio
       ///
       /// \param[in] joint_name Name of the edge
       /// \param[in] joint Type of the joint
-      /// \param[in] out_body Vertex that is supporting the edge
-      /// \param[in] out_to_joint Transformation from supporting vertex to edge
-      /// \param[in] in_body Vertex that is supported by edge
-      /// \param[in] joint_to_in Transformation from edge to supported vertex
+      /// \param[in] source_body Vertex that is supporting the edge
+      /// \param[in] source_to_joint Transformation from supporting vertex to edge
+      /// \param[in] target_body Vertex that is supported by edge
+      /// \param[in] joint_to_target Transformation from edge to supported vertex
       /// \param[in] q_ref q offset of the joint
       ///
       /// \note Since it's a bidirectional graph, two edges are added to the graph.
       /// Joints and transformation are inverted, to create reverse edge.
       void addJoint(
         const std::string & joint_name,
-        const JointGraphVariant & joint,
-        const std::string & out_body,
-        const SE3 & out_to_joint,
-        const std::string & in_body,
-        const SE3 & joint_to_in,
+        const JointVariant & joint,
+        const std::string & source_body,
+        const SE3 & source_to_joint,
+        const std::string & target_body,
+        const SE3 & joint_to_target,
         const boost::optional<Eigen::VectorXd> & q_ref = boost::none);
 
       /// \brief Add edges (joint) to the graph. Since it's a bidirectional graph,
@@ -174,14 +174,14 @@ namespace pinocchio
       /// @brief Source name
       std::string source_vertex;
       /// @brief Placement of Edge wrt source vertex
-      SE3 out_to_joint = SE3::Identity();
+      SE3 source_to_joint = SE3::Identity();
       /// @brief Target name
       std::string target_vertex;
       /// @brief Placement of target wrt edge
-      SE3 joint_to_in = SE3::Identity();
+      SE3 joint_to_target = SE3::Identity();
 
       /// @brief Type of joint for edge
-      JointGraphVariant joint = JointFixedGraph();
+      JointVariant joint = JointFixed();
 
       /// @brief Bias for the joint
       boost::optional<Eigen::VectorXd> q_ref = boost::none;
@@ -195,10 +195,10 @@ namespace pinocchio
       EdgeParameters(
         const std::string & jname,
         const std::string & source_name,
-        const SE3 & out_to_joint,
+        const SE3 & source_to_joint,
         const std::string & target_name,
-        const SE3 & joint_to_in,
-        const JointGraphVariant & joint,
+        const SE3 & joint_to_target,
+        const JointVariant & joint,
         const boost::optional<Eigen::VectorXd> q_ref = boost::none);
     };
 
@@ -219,7 +219,7 @@ namespace pinocchio
       }
 
       /// @brief Specify the type of joint for the edge. Default : Fixed
-      EdgeBuilder & withJointType(const JointGraphVariant & jtype);
+      EdgeBuilder & withJointType(const JointVariant & jtype);
 
       /// @brief Specify the name of the edge
       EdgeBuilder & withName(const std::string & name)
@@ -242,13 +242,13 @@ namespace pinocchio
       /// @brief Specify the pose of target vertex wrt edge. Default : Identity
       EdgeBuilder & withTargetPose(const SE3 & target_pose)
       {
-        param.joint_to_in = target_pose;
+        param.joint_to_target = target_pose;
         return *this;
       }
       /// @brief Specify the pose of the joint wrt the source vertex. Default : Identity
       EdgeBuilder & withSourcePose(const SE3 & source_pose)
       {
-        param.out_to_joint = source_pose;
+        param.source_to_joint = source_pose;
         return *this;
       }
 

@@ -12,11 +12,11 @@ g = pin.graph.ModelGraph()
 
 # Adding bodies to the pin.graph.
 g.addBody("body1", pin.Inertia.Identity())
-g.addFrame("body2", pin.graph.BodyFrameGraph(pin.Inertia.Identity()))
-g.addFrame("body3", pin.graph.BodyFrameGraph(pin.Inertia.Identity()))
+g.addFrame("body2", pin.graph.BodyFrame(pin.Inertia.Identity()))
+g.addFrame("body3", pin.graph.BodyFrame(pin.Inertia.Identity()))
 
 # Adding a sensor to the pin.graph.
-g.addFrame("sensor1", pin.graph.SensorFrameGraph())
+g.addFrame("sensor1", pin.graph.SensorFrame())
 
 # Now we add the joints between every body/sensor we have in the pin.graph.
 pose_b1_to_j1 = pin.SE3.Random()  # pose of joint j1 wrt body1
@@ -24,7 +24,7 @@ pose_j1_to_b2 = pin.SE3.Random()  # pose of body2 wrt joint j1
 
 g.addJoint(
     "j1",
-    pin.graph.JointRevoluteGraph(np.array([0.0, 0.0, 1.0])),
+    pin.graph.JointRevolute(np.array([0.0, 0.0, 1.0])),
     "body1",
     pose_b1_to_j1,
     "body2",
@@ -37,7 +37,7 @@ pose_j2_to_b3 = pin.SE3.Random()  # pose of body3 wrt joint j2
 
 # Using builder interface to add the bias on j2
 g.useEdgeBuilder().withName("j2").withJointType(
-    pin.graph.JointPrismaticGraph(np.array([1, 0, 0]))
+    pin.graph.JointPrismatic(np.array([1, 0, 0]))
 ).withSourceVertex("body2").withSourcePose(pose_b2_to_j2).withTargetVertex(
     "body3"
 ).withTargetPose(pose_j2_to_b3).withQref(np.array([0.5])).build()
@@ -49,7 +49,7 @@ pose_b1_s1 = pin.SE3.Random()
 pose_s1 = pin.SE3.Random()
 
 g.useEdgeBuilder().withName("b1_s1").withJointType(
-    pin.graph.JointFixedGraph()
+    pin.graph.JointFixed()
 ).withSourceVertex("body1").withSourcePose(pose_b1_s1).withTargetVertex(
     "sensor1"
 ).withTargetPose(pose_s1).build()
@@ -68,7 +68,7 @@ g2 = pin.graph.prefixNames(g, "g2/")
 
 # Then we will attach g2/body3 to g1/body2 with a spherical joint.
 g1_g2_merged = pin.graph.merge(
-    g1, g2, "g1/body2", "g2/body3", pin.SE3.Random(), pin.graph.JointSphericalGraph()
+    g1, g2, "g1/body2", "g2/body3", pin.SE3.Random(), pin.graph.JointSpherical()
 )
 
 # We can then create our model with any body as a root.
@@ -85,7 +85,7 @@ g1_g2_merged_locked = pin.graph.lockJoints(g1_g2_merged, ["g1/j1"], [np.array([0
 # We can then create the locked model.
 # We will use g2/body2 as root with a FreeFlyer joint.
 kinematics_tree_from_g2_body2 = pin.graph.buildModel(
-    g1_g2_merged_locked, "g2/body2", pin.SE3.Identity(), pin.graph.JointFreeFlyerGraph()
+    g1_g2_merged_locked, "g2/body2", pin.SE3.Identity(), pin.graph.JointFreeFlyer()
 )
 print("Kinematics tree with g1/j1 locked and FreeFlyer from g2/body2:")
 print(kinematics_tree_from_g2_body2)

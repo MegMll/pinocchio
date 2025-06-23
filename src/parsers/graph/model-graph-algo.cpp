@@ -27,7 +27,7 @@ namespace pinocchio
       {
       }
 
-      void operator()(const BodyFrameGraph & b_f) const
+      void operator()(const BodyFrame & b_f) const
       {
         const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
         model.addFrame(Frame(vertex.name, j, f_id, position, BODY, b_f.inertia));
@@ -45,7 +45,7 @@ namespace pinocchio
       const ModelGraph & g,
       const std::string & root_body,
       const pinocchio::SE3 & root_position,
-      const JointGraphVariant & root_joint,
+      const JointVariant & root_joint,
       const std::string & root_joint_name)
     {
       BuildModelWithBuildInfoReturn ret;
@@ -70,7 +70,7 @@ namespace pinocchio
       Model & model = ret.model;
       const ModelGraphVertex & root_vertex_data = g.graph[root_vertex->second];
 
-      if (!boost::get<JointFixedGraph>(&root_joint)) // Root joint provided
+      if (!boost::get<JointFixed>(&root_joint)) // Root joint provided
       {
         ret.build_info._is_fixed = false;
         JointIndex j_id = model.addJoint(
@@ -107,7 +107,7 @@ namespace pinocchio
       const ModelGraph & g,
       const std::string & root_body,
       const pinocchio::SE3 & root_position,
-      const JointGraphVariant & root_joint,
+      const JointVariant & root_joint,
       const std::string & root_joint_name)
     {
       return buildModelWithBuildInfo(g, root_body, root_position, root_joint, root_joint_name)
@@ -144,9 +144,9 @@ namespace pinocchio
           g_return.useEdgeBuilder()
             .withName(prefix + edge_data.name)
             .withSourceVertex(prefix + src_name)
-            .withSourcePose(edge_data.out_to_joint)
+            .withSourcePose(edge_data.source_to_joint)
             .withTargetVertex(prefix + tgt_name)
-            .withTargetPose(edge_data.joint_to_in)
+            .withTargetPose(edge_data.joint_to_target)
             .withJointType(edge_data.joint)
             .build();
         }
@@ -160,7 +160,7 @@ namespace pinocchio
       const std::string & g1_body,
       const std::string & g2_body,
       const SE3 & pose_g2_body_in_g1,
-      const JointGraphVariant & merging_joint,
+      const JointVariant & merging_joint,
       const std::string & merging_joint_name)
     {
       // Check bodies exists in graphs
@@ -168,7 +168,7 @@ namespace pinocchio
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "mergeGraph - g1_body not found");
 
       auto g1_vertex = g1.name_to_vertex.find(g1_body);
-      if (boost::get<BodyFrameGraph>(&g1.graph[g1_vertex->second].frame) == nullptr)
+      if (boost::get<BodyFrame>(&g1.graph[g1_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "mergeGraph - Merging graphes needs to be done between two bodies. "
@@ -178,7 +178,7 @@ namespace pinocchio
         PINOCCHIO_THROW_PRETTY(std::invalid_argument, "mergeGraph - g2_body not found");
 
       auto g2_vertex = g2.name_to_vertex.find(g2_body);
-      if (boost::get<BodyFrameGraph>(&g2.graph[g2_vertex->second].frame) == nullptr)
+      if (boost::get<BodyFrame>(&g2.graph[g2_vertex->second].frame) == nullptr)
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "mergeGraph - Merging graphes needs to be done between two bodies. "
@@ -241,9 +241,9 @@ namespace pinocchio
           EdgeBuilder builder = g_locked.useEdgeBuilder()
                                   .withName(edge_data.name)
                                   .withSourceVertex(src_name)
-                                  .withSourcePose(edge_data.out_to_joint)
+                                  .withSourcePose(edge_data.source_to_joint)
                                   .withTargetVertex(tgt_name)
-                                  .withTargetPose(edge_data.joint_to_in);
+                                  .withTargetPose(edge_data.joint_to_target);
 
           if (it != joints_to_lock.end())
           {
@@ -254,7 +254,7 @@ namespace pinocchio
             internal::UpdateJointGraphPoseVisitor ujgpv(q_ref);
             pinocchio::SE3 pose_offset = boost::apply_visitor(ujgpv, edge_data.joint);
 
-            builder.withJointType(JointFixedGraph(pose_offset)).withQref(q_ref);
+            builder.withJointType(JointFixed(pose_offset)).withQref(q_ref);
           }
           else
             builder.withJointType(edge_data.joint);

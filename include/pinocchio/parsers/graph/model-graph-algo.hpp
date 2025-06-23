@@ -35,7 +35,7 @@ namespace pinocchio
       const ModelGraph & g,
       const std::string & root_body,
       const pinocchio::SE3 & root_position,
-      const JointGraphVariant & root_joint = JointFixedGraph(),
+      const JointVariant & root_joint = JointFixed(),
       const std::string & root_joint_name = "root_joint");
 
     /// @brief  Build a pinocchio model based on the graph that was built previously, that allows
@@ -52,7 +52,7 @@ namespace pinocchio
       const ModelGraph & g,
       const std::string & root_body,
       const pinocchio::SE3 & root_position,
-      const JointGraphVariant & root_joint = JointFixedGraph(),
+      const JointVariant & root_joint = JointFixed(),
       const std::string & root_joint_name = "root_joint");
 
     /// @brief  Add a prefix to all bodies and joints in graph g. Mandatory step before using
@@ -82,7 +82,7 @@ namespace pinocchio
       const std::string & g1_body,
       const std::string & g2_body,
       const SE3 & pose_g2_body_in_g1,
-      const JointGraphVariant & merging_joint = JointFixedGraph(),
+      const JointVariant & merging_joint = JointFixed(),
       const std::string & merging_joint_name = "merging_joint");
 
     /// @brief  Transform a list of joints into its fixed version, locked into a reference

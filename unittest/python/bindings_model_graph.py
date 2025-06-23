@@ -11,7 +11,7 @@ class TestModelGraphBindings(unittest.TestCase):
         g.addBody("body2", pin.Inertia.Identity())
 
         g.useEdgeBuilder().withName("b1_b2").withJointType(
-            pin.graph.JointPrismaticGraph(np.array([1, 0, 0]))
+            pin.graph.JointPrismatic(np.array([1, 0, 0]))
         ).withSourceVertex("body1").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body2"
         ).withTargetPose(pin.SE3.Random()).build()
@@ -35,7 +35,7 @@ class TestModelGraphBindings(unittest.TestCase):
             "body1",
             "body2",
             pin.SE3.Random(),
-            pin.graph.JointPrismaticGraph(np.array([1, 0, 0])),
+            pin.graph.JointPrismatic(np.array([1, 0, 0])),
             "b1_b2",
         )
         m = pin.graph.buildModel(g, "body1", pin.SE3.Identity())
@@ -48,7 +48,7 @@ class TestModelGraphBindings(unittest.TestCase):
         g.addBody("body2", pin.Inertia.Identity())
 
         g.useEdgeBuilder().withName("b1_b2").withJointType(
-            pin.graph.JointPrismaticGraph(np.array([1, 0, 0]))
+            pin.graph.JointPrismatic(np.array([1, 0, 0]))
         ).withSourceVertex("body1").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body2"
         ).withTargetPose(pin.SE3.Random()).build()
@@ -63,7 +63,7 @@ class TestModelGraphBindings(unittest.TestCase):
         g.addBody("body2", pin.Inertia.Identity())
 
         g.useEdgeBuilder().withName("b1_b2").withJointType(
-            pin.graph.JointPrismaticGraph(np.array([1, 0, 0]))
+            pin.graph.JointPrismatic(np.array([1, 0, 0]))
         ).withSourceVertex("body1").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body2"
         ).withTargetPose(pin.SE3.Random()).build()
@@ -80,13 +80,13 @@ class TestModelGraphBindings(unittest.TestCase):
         g.addBody("body3", pin.Inertia.Identity())
 
         g.useEdgeBuilder().withName("b1_b2").withJointType(
-            pin.graph.JointPrismaticGraph(np.array([1, 0, 0]))
+            pin.graph.JointPrismatic(np.array([1, 0, 0]))
         ).withSourceVertex("body1").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body2"
         ).withTargetPose(pin.SE3.Random()).build()
 
         g.useEdgeBuilder().withName("b2_b3").withJointType(
-            pin.graph.JointPrismaticGraph(np.array([0, 1, 0]))
+            pin.graph.JointPrismatic(np.array([0, 1, 0]))
         ).withSourceVertex("body2").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body3"
         ).withTargetPose(pin.SE3.Random()).build()

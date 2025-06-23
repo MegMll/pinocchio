@@ -22,17 +22,17 @@ int main(int /*argc*/, char ** /*argv*/)
 
   // Adding bodies to the graph.
   g.addBody("body1", Inertia::Identity());
-  g.addFrame("body2", graph::BodyFrameGraph(Inertia::Identity()));
-  g.addFrame("body3", graph::BodyFrameGraph(Inertia::Identity()));
+  g.addFrame("body2", graph::BodyFrame(Inertia::Identity()));
+  g.addFrame("body3", graph::BodyFrame(Inertia::Identity()));
 
   // Adding a sensor to the graph.
-  g.addFrame("sensor1", graph::SensorFrameGraph());
+  g.addFrame("sensor1", graph::SensorFrame());
 
   // Now we add the joints between every body/sensor we have in the graph.
   SE3 pose_b1_to_j1 = SE3::Random(); // pose of joint j1 wrt body1
   SE3 pose_j1_to_b2 = SE3::Random(); // pose of body2 wrt joint j1
   g.addJoint(
-    "j1", graph::JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body1", pose_b1_to_j1, "body2",
+    "j1", graph::JointRevolute(Eigen::Vector3d::UnitZ()), "body1", pose_b1_to_j1, "body2",
     pose_j1_to_b2);
 
   // j2 will be biased by 50cm.
@@ -47,7 +47,7 @@ int main(int /*argc*/, char ** /*argv*/)
     .withSourcePose(pose_b2_to_j2)
     .withTargetVertex("body3")
     .withTargetPose(pose_j2_to_b3)
-    .withJointType(graph::JointPrismaticGraph(Eigen::Vector3d::UnitX()))
+    .withJointType(graph::JointPrismatic(Eigen::Vector3d::UnitX()))
     .withQref(j2_bias)
     .build();
 
@@ -60,7 +60,7 @@ int main(int /*argc*/, char ** /*argv*/)
     .withSourcePose(pose_b1_s1)
     .withTargetVertex("sensor1")
     .withTargetPose(pose_s1)
-    .withJointType(graph::JointFixedGraph())
+    .withJointType(graph::JointFixed())
     .build();
 
   // Now we can choose which body will be our root its position, and build the model
@@ -77,7 +77,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
   // Then we will attach g2/body3 to g1/body2 with a spherical joint.
   graph::ModelGraph g1_g2_merged =
-    graph::merge(g1, g2, "g1/body2", "g2/body3", SE3::Random(), graph::JointSphericalGraph());
+    graph::merge(g1, g2, "g1/body2", "g2/body3", SE3::Random(), graph::JointSpherical());
 
   // We can then create our model with any body as a root.
   Model kinematics_tree_from_g1_body1 =
@@ -93,8 +93,8 @@ int main(int /*argc*/, char ** /*argv*/)
 
   // We can then create the locked model.
   // We will use g2/body2 as root with a FreeFlyer joint.
-  Model kinematics_tree_from_g2_body2 = graph::buildModel(
-    g1_g2_merged_locked, "g2/body2", SE3::Identity(), graph::JointFreeFlyerGraph());
+  Model kinematics_tree_from_g2_body2 =
+    graph::buildModel(g1_g2_merged_locked, "g2/body2", SE3::Identity(), graph::JointFreeFlyer());
   std::cout << "Kinematics tree with g1/j1 locked and FreeFlyer from g2/body2:" << std::endl;
   std::cout << kinematics_tree_from_g2_body2 << std::endl;
 

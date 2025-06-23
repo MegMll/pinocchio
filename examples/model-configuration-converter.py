@@ -19,7 +19,7 @@ g.addBody("b2", I_I)
 g.addBody("b3", I_I)
 g.addJoint(
     "j1",
-    pin.graph.JointRevoluteGraph(np.array([0.0, 0.0, 1.0])),
+    pin.graph.JointRevolute(np.array([0.0, 0.0, 1.0])),
     "b1",
     pin.SE3.Random(),
     "b2",
@@ -27,7 +27,7 @@ g.addJoint(
 )
 
 g.useEdgeBuilder().withName("j2").withJointType(
-    pin.graph.JointPrismaticGraph(np.array([1.0, 0.0, 0.0]))
+    pin.graph.JointPrismatic(np.array([1.0, 0.0, 0.0]))
 ).withSourceVertex("b2").withSourcePose(pin.SE3.Random()).withTargetVertex(
     "b3"
 ).withTargetPose(pin.SE3.Random()).build()
@@ -50,7 +50,7 @@ V_b3 = pin.getFrameVelocity(forward_model, forward_data, b3_index)
 # Create the backward model with b3 as root body and a free flyer as root joint.
 # b3 is placed at the same position and same velocity than b3 in the forward model.
 backward_model, backward_build_info = pin.graph.buildModelWithBuildInfo(
-    g, "b3", X_b3, pin.graph.JointFreeFlyerGraph()
+    g, "b3", X_b3, pin.graph.JointFreeFlyer()
 )
 backward_data = backward_model.createData()
 
