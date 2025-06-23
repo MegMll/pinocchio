@@ -921,6 +921,33 @@ BOOST_AUTO_TEST_CASE(test_joint_limits_composite)
     d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
 }
 
+BOOST_AUTO_TEST_CASE(test_add_geometry)
+{
+  using namespace pinocchio::graph;
+  ModelGraph g = buildReversableModelGraph(JointRevoluteGraph(Eigen::Vector3d::UnitY()));
+
+  pinocchio::SE3 placement = pinocchio::SE3::Random();
+  g.useGeometryBuilder()
+    .withBody("body1")
+    .withGeomType(VISUAL)
+    .withName("body1_geom1")
+    .withPlacement(placement)
+    .withGeom(BoxGeom(Eigen::Vector3d::Constant(2)))
+    .build();
+
+  g.useGeometryBuilder()
+    .withBody("body1")
+    .withGeomType(VISUAL)
+    .withName("body1_geom2")
+    .withPlacement(placement)
+    .withGeom(SphereGeom(4))
+    .build();
+
+  auto vertex_n = g.name_to_vertex.find("body1");
+  auto vertex = g.graph[vertex_n->second];
+
+  BOOST_CHECK(vertex.geometries.size() == 2);
+}
 /// @brief test out a tree robot
 ///          /---- left leg
 /// torso ---
