@@ -183,8 +183,17 @@ namespace pinocchio
 
       /// @brief Bias for the joint
       boost::optional<Eigen::VectorXd> q_ref = boost::none;
-      /// @brief Limits of the joint
+
       JointLimits jlimit;
+
+      boost::optional<Eigen::VectorXd> minConfig;
+      boost::optional<Eigen::VectorXd> maxConfig;
+      boost::optional<Eigen::VectorXd> maxVel;
+      boost::optional<Eigen::VectorXd> maxEffort;
+      boost::optional<Eigen::VectorXd> armature;
+      boost::optional<Eigen::VectorXd> friction;
+      boost::optional<Eigen::VectorXd> damping;
+      double frictionLoss = 0;
 
       /// @brief Default Constructor
       EdgeParameters() = default;
@@ -217,7 +226,11 @@ namespace pinocchio
       }
 
       /// @brief Specify the type of joint for the edge. Default : Fixed
-      EdgeBuilder & withJointType(const JointVariant & jtype);
+      EdgeBuilder & withJointType(const JointVariant & jtype)
+      {
+        param.joint = jtype;
+        return *this;
+      }
 
       /// @brief Specify the name of the edge
       EdgeBuilder & withName(const std::string & name)
@@ -260,69 +273,68 @@ namespace pinocchio
       /// @brief Specify limit minConfig
       EdgeBuilder & withMinConfig(const Eigen::VectorXd & minConfig)
       {
-        param.jlimit.minConfig = minConfig;
+        param.minConfig = minConfig;
         return *this;
       }
 
       /// @brief Specify limit maxConfig
       EdgeBuilder & withMaxConfig(const Eigen::VectorXd & maxConfig)
       {
-        param.jlimit.maxConfig = maxConfig;
+        param.maxConfig = maxConfig;
         return *this;
       }
 
       /// @brief Specify limit maxVel
       EdgeBuilder & withMaxVel(const Eigen::VectorXd & maxVel)
       {
-        param.jlimit.maxVel = maxVel;
+        param.maxVel = maxVel;
         return *this;
       }
 
       /// @brief Specify limit maxEffort
       EdgeBuilder & withMaxEffort(const Eigen::VectorXd & maxEffort)
       {
-        param.jlimit.maxEffort = maxEffort;
+        param.maxEffort = maxEffort;
         return *this;
       }
 
       /// @brief Specify friction
       EdgeBuilder & withFriction(const Eigen::VectorXd & friction)
       {
-        param.jlimit.friction = friction;
+        param.friction = friction;
         return *this;
       }
 
       /// @brief Specify damping
       EdgeBuilder & withDamping(const Eigen::VectorXd & damping)
       {
-        param.jlimit.damping = damping;
+        param.damping = damping;
         return *this;
       }
 
       /// @brief Specify armature
       EdgeBuilder & withArmature(const Eigen::VectorXd & armature)
       {
-        param.jlimit.armature = armature;
+        param.armature = armature;
         return *this;
       }
 
       /// @brief Specify friction loss
       EdgeBuilder & withFrictionLoss(const double frictionLoss)
       {
-        param.jlimit.frictionLoss = frictionLoss;
+        param.frictionLoss = frictionLoss;
         return *this;
       }
 
       /// @brief Add the edge to the ModelGraph
-      void build()
-      {
-        g.addJoint(param);
-      }
+      void build();
     };
 
     struct GeometryBuilder
     {
-      GeometryParameters gParam;
+      Geometry geometry;
+      std::string name_body;
+
       ModelGraph & g;
 
       GeometryBuilder(ModelGraph & g)
@@ -332,55 +344,52 @@ namespace pinocchio
 
       GeometryBuilder & withName(const std::string & n)
       {
-        gParam.name_geometry = n;
+        geometry.name = n;
         return *this;
       }
 
       GeometryBuilder & withBody(const std::string & n)
       {
-        gParam.name_body = n;
+        name_body = n;
         return *this;
       }
 
       GeometryBuilder & withPlacement(const SE3 & p)
       {
-        gParam.placement = p;
+        geometry.placement = p;
         return *this;
       }
 
       GeometryBuilder & withScale(const Eigen::Vector3d & s)
       {
-        gParam.scale = s;
+        geometry.scale = s;
         return *this;
       }
 
       GeometryBuilder & withColor(const Eigen::Vector4d & c)
       {
-        gParam.color = c;
+        geometry.color = c;
         return *this;
       }
 
-      GeometryBuilder & withGeomType(const GEOM_TYPE type)
+      GeometryBuilder & withGeomType(const GeomType type)
       {
-        gParam.geom_type = type;
+        geometry.type = type;
         return *this;
       }
 
       GeometryBuilder & withGeom(const GeomVariant & g)
       {
-        gParam.geom = g;
+        geometry.geometry = g;
         return *this;
       }
 
       void build()
       {
-        if (gParam.name_geometry.empty())
+        if (geometry.name.empty())
           PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Graph - geometry should have a name.");
 
-        return g.addGeometry(
-          gParam.name_body, Geometry(
-                              gParam.name_geometry, gParam.placement, gParam.geom_type,
-                              gParam.scale, gParam.color, gParam.geom));
+        return g.addGeometry(name_body, geometry);
       }
     };
   } // namespace graph

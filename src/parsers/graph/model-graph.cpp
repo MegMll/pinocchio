@@ -65,14 +65,6 @@ namespace pinocchio
       armature.tail(nv) = range.armature;
     }
 
-    EdgeBuilder & EdgeBuilder::withJointType(const JointVariant & jtype)
-    {
-      param.joint = jtype;
-      param.jlimit = boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), jtype);
-
-      return *this;
-    }
-
     EdgeParameters::EdgeParameters(
       const std::string & jname,
       const std::string & source_name,
@@ -90,6 +82,31 @@ namespace pinocchio
     , q_ref(q_ref)
     , jlimit(boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), joint))
     {
+    }
+
+    void EdgeBuilder::build()
+    {
+      // fill jointLimits
+      param.jlimit = boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), param.joint);
+
+      auto assignIfPresent = [&](auto & target, const auto & source) {
+        if (source)
+        {
+          target = *source;
+        }
+      };
+
+      assignIfPresent(param.jlimit.maxConfig, param.maxConfig);
+      assignIfPresent(param.jlimit.minConfig, param.minConfig);
+      assignIfPresent(param.jlimit.maxVel, param.maxVel);
+      assignIfPresent(param.jlimit.maxEffort, param.maxEffort);
+      assignIfPresent(param.jlimit.friction, param.friction);
+      assignIfPresent(param.jlimit.damping, param.damping);
+      assignIfPresent(param.jlimit.armature, param.armature);
+
+      param.jlimit.frictionLoss = param.frictionLoss;
+
+      g.addJoint(param);
     }
 
     void ModelGraph::addFrame(const std::string & vertex_name, const FrameVariant & frame)
@@ -110,7 +127,7 @@ namespace pinocchio
       addFrame(vertex_name, BodyFrame(inert));
     }
 
-    GeometryBuilder ModelGraph::useGeometryBuilder()
+    GeometryBuilder ModelGraph::geometryBuilder()
     {
       return GeometryBuilder(*this);
     }
@@ -124,6 +141,10 @@ namespace pinocchio
 
       ModelGraphVertex & vertex_desc = graph[vertex_n->second];
 
+      if (boost::get<BodyFrame>(&vertex_desc.frame) == nullptr)
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "Graph - Geometries can only be added to bodies");
+
       vertex_desc.addGeometry(geom);
     }
 
@@ -136,6 +157,10 @@ namespace pinocchio
           std::invalid_argument, "Graph - Vertex does not exist. Cannot add geometry");
 
       ModelGraphVertex & vertex_desc = graph[vertex_n->second];
+
+      if (boost::get<BodyFrame>(&vertex_desc.frame) == nullptr)
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "Graph - Geometries can only be added to bodies");
 
       for (const auto & g : geoms)
         vertex_desc.addGeometry(g);
