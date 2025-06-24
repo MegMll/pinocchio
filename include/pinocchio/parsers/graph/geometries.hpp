@@ -108,24 +108,6 @@ namespace pinocchio
       {
       }
     };
-
-    struct GeometryParameters
-    {
-
-      std::string name_geometry;
-      std::string name_body;
-
-      SE3 placement = SE3::Identity();
-
-      Eigen::Vector3d scale = Eigen::Vector3d::Constant(1);
-      Eigen::Vector4d color = Eigen::Vector4d::Constant(1);
-
-      GEOM_TYPE geom_type;
-
-      GeomVariant geom;
-
-      GeometryParameters() = default;
-    };
   } // namespace graph
 } // namespace pinocchio
 
