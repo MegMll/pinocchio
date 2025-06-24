@@ -222,26 +222,18 @@ namespace pinocchio
       using namespace pinocchio::graph;
 
       bp::class_<JointLimits>("JointLimits", bp::init<>())
-        .def_readwrite("maxEffort", &JointLimits::maxEffort,
-                       "Max effort ")
-        .def_readwrite("maxVel", &JointLimits::maxVel,
-                       "Max velocity ")
-        .def_readwrite("maxConfig", &JointLimits::maxConfig,
-                       "Max position ")
-        .def_readwrite("minConfig", &JointLimits::minConfig,
-                       "Min position ")
-        .def_readwrite("friction", &JointLimits::friction,
-                       "Friction ")
-        .def_readwrite("damping", &JointLimits::damping,
-                       "Damping ")
-        .def_readwrite("armature", &JointLimits::armature,
-                       "Armature inertia ")
-        .def_readwrite("frictionLoss", &JointLimits::frictionLoss,
-                       "Dry friction loss ")
+        .def_readwrite("maxEffort", &JointLimits::maxEffort, "Max effort ")
+        .def_readwrite("maxVel", &JointLimits::maxVel, "Max velocity ")
+        .def_readwrite("maxConfig", &JointLimits::maxConfig, "Max position ")
+        .def_readwrite("minConfig", &JointLimits::minConfig, "Min position ")
+        .def_readwrite("friction", &JointLimits::friction, "Friction ")
+        .def_readwrite("damping", &JointLimits::damping, "Damping ")
+        .def_readwrite("armature", &JointLimits::armature, "Armature inertia ")
+        .def_readwrite("frictionLoss", &JointLimits::frictionLoss, "Dry friction loss ")
         // Expose the append method. Need to find a way to expose setDimensions
-        .def("append", &JointLimits::append,
-             (bp::arg("jlimit"), bp::arg("nq"), bp::arg("nv")),
-             "Appends data from another JointLimits object.");
+        .def(
+          "append", &JointLimits::append, (bp::arg("jlimit"), bp::arg("nq"), bp::arg("nv")),
+          "Appends data from another JointLimits object.");
     }
 
     void exposeEdgesAlgo()
@@ -277,7 +269,8 @@ namespace pinocchio
           "q_ref", &EdgeParameters::q_ref, "Optional reference configuration for the joint.")
         .def_readwrite(
           "joint", &EdgeParameters::joint, "Type of the joint (e.g., fixed, revolute, prismatic).")
-        .def_readwrite("jlimit", &EdgeParameters::jlimit, "Limits of the joint"); // expose boost optional ? 
+        .def_readwrite(
+          "jlimit", &EdgeParameters::jlimit, "Limits of the joint"); // expose boost optional ?
 
       bp::class_<EdgeBuilder>(
         "EdgeBuilder",
@@ -308,7 +301,7 @@ namespace pinocchio
         .def(
           "withMinConfig", &EdgeBuilder::withMinConfig, bp::return_self<>(), bp::arg("minConfig"),
           "Sets the min configuration")
-          .def(
+        .def(
           "withMaxConfig", &EdgeBuilder::withMaxConfig, bp::return_self<>(), bp::arg("maxConfig"),
           "Sets the max configuration")
         .def(
@@ -327,8 +320,8 @@ namespace pinocchio
           "withArmature", &EdgeBuilder::withArmature, bp::return_self<>(), bp::arg("armature"),
           "Sets joint's armature")
         .def(
-          "withFrictionLoss", &EdgeBuilder::withFrictionLoss, bp::return_self<>(), bp::arg("frictionLoss"),
-          "Sets friction loss")
+          "withFrictionLoss", &EdgeBuilder::withFrictionLoss, bp::return_self<>(),
+          bp::arg("frictionLoss"), "Sets friction loss")
         .def(
           "build", &EdgeBuilder::build,
           "Builds the edge/joint parameters and adds the joint to the associated ModelGraph.")

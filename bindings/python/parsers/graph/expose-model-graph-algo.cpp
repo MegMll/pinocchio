@@ -81,7 +81,7 @@ namespace pinocchio
 
     void exposeModelGraphAlgo()
     {
-        using namespace pinocchio::graph;
+      using namespace pinocchio::graph;
 
       // Expose the global functions
       bp::def(
@@ -133,5 +133,5 @@ namespace pinocchio
         "Add a prefix to all names (body and joints) in the graph g. Useful to use before merging "
         "two model graphs.");
     }
-} // namespace python
+  } // namespace python
 } // namespace pinocchio

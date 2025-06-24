@@ -44,7 +44,7 @@ namespace pinocchio
         .def_readwrite(
           "f_type", &BodyFrame::f_type, "Type of the frame (e.g., pinocchio.FrameType.BODY).");
 
-        bp::class_<SensorFrame>(
+      bp::class_<SensorFrame>(
         "SensorFrame", "Represents a sensor frame in the model graph.",
         bp::init<>(bp::args("self"), "Default constructor."))
         .def_readwrite(
