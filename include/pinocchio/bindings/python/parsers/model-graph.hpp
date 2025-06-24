@@ -18,13 +18,26 @@ namespace pinocchio
 
     void exposeFramesGraph();
     void exposeJointsGraph();
+    void exposeJointLimits();
+    void exposeEdgesAlgo();
+    void exposeGeometriesVariant();
+    void exposeGeometryGraph();
+    void exposeGeometryBuilder();
+    void exposeModelGraph();
     void exposeModelGraphAlgo();
 
-    inline void exposeModelGraph()
+    inline void exposeGraph()
     {
       boost::python::scope graph = boost::python::class_<GraphNamespace>("graph");
+
       exposeFramesGraph();
       exposeJointsGraph();
+      exposeJointLimits();
+      exposeEdgesAlgo();
+      exposeGeometriesVariant();
+      exposeGeometryGraph();
+      exposeGeometryBuilder();
+      exposeModelGraph();
       exposeModelGraphAlgo();
     }
   } // namespace python

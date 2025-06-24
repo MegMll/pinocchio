@@ -19,7 +19,7 @@ namespace pinocchio
       exposeURDFParser();
       exposeSRDFParser();
       exposeMJCFParser();
-      exposeModelGraph();
+      exposeGraph();
     }
 
   } // namespace python

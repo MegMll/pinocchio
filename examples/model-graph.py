@@ -36,7 +36,7 @@ pose_b2_to_j2 = pin.SE3.Random()  # pose of joint j2 wrt body2
 pose_j2_to_b3 = pin.SE3.Random()  # pose of body3 wrt joint j2
 
 # Using builder interface to add the bias on j2
-g.useEdgeBuilder().withName("j2").withJointType(
+g.edgeBuilder().withName("j2").withJointType(
     pin.graph.JointPrismatic(np.array([1, 0, 0]))
 ).withSourceVertex("body2").withSourcePose(pose_b2_to_j2).withTargetVertex(
     "body3"
@@ -48,7 +48,7 @@ g.useEdgeBuilder().withName("j2").withJointType(
 pose_b1_s1 = pin.SE3.Random()
 pose_s1 = pin.SE3.Random()
 
-g.useEdgeBuilder().withName("b1_s1").withJointType(
+g.edgeBuilder().withName("b1_s1").withJointType(
     pin.graph.JointFixed()
 ).withSourceVertex("body1").withSourcePose(pose_b1_s1).withTargetVertex(
     "sensor1"

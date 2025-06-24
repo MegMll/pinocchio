@@ -69,44 +69,6 @@ namespace pinocchio
       }
     };
 
-    void exposeFramesGraph()
-    {
-      using namespace pinocchio::graph;
-
-      // Expose BodyFrame struct to Python
-      bp::class_<BodyFrame>(
-        "BodyFrame", "Represents a body frame in the model graph, including its inertia.",
-        bp::init<>(bp::args("self"), "Default constructor."))
-        .def(bp::init<const pinocchio::Inertia &>(
-          bp::args("self", "inertia"), "Constructor initializing with a specific inertia."))
-        .def_readwrite(
-          "inertia", &BodyFrame::inertia,
-          "Spatial inertia of the body, expressed at its center of mass (CoM).")
-        .def_readwrite(
-          "f_type", &BodyFrame::f_type, "Type of the frame (e.g., pinocchio.FrameType.BODY).");
-      // Expose SensorFrame struct to Python
-      bp::class_<SensorFrame>(
-        "SensorFrame", "Represents a sensor frame in the model graph.",
-        bp::init<>(bp::args("self"), "Default constructor."))
-        .def_readwrite(
-          "f_type", &SensorFrame::f_type,
-          "Type of the frame (should be pinocchio.FrameType.SENSOR).");
-
-      // Expose OpFrame struct to Python
-      bp::class_<OpFrame>(
-        "OpFrame", "Represents an operational (task) frame in the model graph.",
-        bp::init<>(bp::args("self"), "Default constructor."))
-        .def_readwrite(
-          "f_type", &OpFrame::f_type,
-          "Type of the frame (should be pinocchio.FrameType.OP_FRAME).");
-
-      bp::to_python_converter<FrameVariant, VariantToPythonVisitor<FrameVariant>>();
-
-      bp::implicitly_convertible<BodyFrame, FrameVariant>();
-      bp::implicitly_convertible<SensorFrame, FrameVariant>();
-      bp::implicitly_convertible<OpFrame, FrameVariant>();
-    }
-
     void exposeJointsGraph()
     {
       using namespace pinocchio::graph;
@@ -253,6 +215,125 @@ namespace pinocchio
       bp::implicitly_convertible<JointMimic, JointVariant>();
 
       StdAlignedVectorPythonVisitor<JointVariant>::expose("StdVec_JointVariant");
+    }
+
+    void exposeJointLimits()
+    {
+      using namespace pinocchio::graph;
+
+      bp::class_<JointLimits>("JointLimits", bp::init<>())
+        .def_readwrite("maxEffort", &JointLimits::maxEffort,
+                       "Max effort ")
+        .def_readwrite("maxVel", &JointLimits::maxVel,
+                       "Max velocity ")
+        .def_readwrite("maxConfig", &JointLimits::maxConfig,
+                       "Max position ")
+        .def_readwrite("minConfig", &JointLimits::minConfig,
+                       "Min position ")
+        .def_readwrite("friction", &JointLimits::friction,
+                       "Friction ")
+        .def_readwrite("damping", &JointLimits::damping,
+                       "Damping ")
+        .def_readwrite("armature", &JointLimits::armature,
+                       "Armature inertia ")
+        .def_readwrite("frictionLoss", &JointLimits::frictionLoss,
+                       "Dry friction loss ")
+        // Expose the append method. Need to find a way to expose setDimensions
+        .def("append", &JointLimits::append,
+             (bp::arg("jlimit"), bp::arg("nq"), bp::arg("nv")),
+             "Appends data from another JointLimits object.");
+    }
+
+    void exposeEdgesAlgo()
+    {
+      using namespace pinocchio::graph;
+
+      bp::class_<EdgeParameters>(
+        "EdgeParameters", "Parameters for defining an edge (joint) in the ModelGraph.")
+        // Default constructor
+        .def(bp::init<>())
+        // Parameterized constructor
+        .def(bp::init<
+             const std::string &, const std::string &, const SE3 &, const std::string &,
+             const SE3 &, const JointVariant &, const boost::optional<Eigen::VectorXd>>(
+          (bp::arg("name"), bp::arg("source_vertex"), bp::arg("source_to_joint"),
+           bp::arg("target_vertex"), bp::arg("joint_to_target"), bp::arg("joint"),
+           bp::arg("q_ref") = boost::none),
+          "Constructor to define an edge with specific parameters."))
+        .def_readwrite("name", &EdgeParameters::name, "Name of the edge/joint.")
+        .def_readwrite(
+          "source_vertex", &EdgeParameters::source_vertex,
+          "Name of the source vertex (parent body).")
+        .def_readwrite(
+          "target_vertex", &EdgeParameters::target_vertex,
+          "Name of the target vertex (child body).")
+        .def_readwrite(
+          "source_to_joint", &EdgeParameters::source_to_joint,
+          "Transformation from source_vertex to the joint origin.")
+        .def_readwrite(
+          "joint_to_target", &EdgeParameters::joint_to_target,
+          "Transformation from joint origin to the target_vertex.")
+        .def_readwrite(
+          "q_ref", &EdgeParameters::q_ref, "Optional reference configuration for the joint.")
+        .def_readwrite(
+          "joint", &EdgeParameters::joint, "Type of the joint (e.g., fixed, revolute, prismatic).")
+        .def_readwrite("jlimit", &EdgeParameters::jlimit, "Limits of the joint"); // expose boost optional ? 
+
+      bp::class_<EdgeBuilder>(
+        "EdgeBuilder",
+        "A builder class for conveniently constructing and adding edges (joints) to a ModelGraph.",
+        bp::init<ModelGraph &>(
+          (bp::arg("graph")), "Constructs an EdgeBuilder associated with a ModelGraph instance."))
+        .def(
+          "withName", &EdgeBuilder::withName, bp::return_self<>(), bp::arg("name"),
+          "Sets the name of the edge/joint")
+        .def(
+          "withTargetVertex", &EdgeBuilder::withTargetVertex, bp::return_self<>(),
+          bp::arg("target_name"), "Sets the target vertex name")
+        .def(
+          "withSourceVertex", &EdgeBuilder::withSourceVertex, bp::return_self<>(),
+          bp::arg("source_name"), "Sets the source vertex name.")
+        .def(
+          "withTargetPose", &EdgeBuilder::withTargetPose, bp::return_self<>(),
+          bp::arg("target_pose"), "Sets the transformation from joint origin to target vertex.")
+        .def(
+          "withSourcePose", &EdgeBuilder::withSourcePose, bp::return_self<>(),
+          bp::arg("source_pose"), "Sets the transformation from source vertex to joint origin")
+        .def(
+          "withJointType", &EdgeBuilder::withJointType, bp::return_self<>(), bp::arg("jtype"),
+          "Sets the type of the joint.")
+        .def(
+          "withQref", &EdgeBuilder::withQref, bp::return_self<>(), bp::arg("qref"),
+          "Sets the optional reference configuration for the joint")
+        .def(
+          "withMinConfig", &EdgeBuilder::withMinConfig, bp::return_self<>(), bp::arg("minConfig"),
+          "Sets the min configuration")
+          .def(
+          "withMaxConfig", &EdgeBuilder::withMaxConfig, bp::return_self<>(), bp::arg("maxConfig"),
+          "Sets the max configuration")
+        .def(
+          "withMaxVel", &EdgeBuilder::withMaxVel, bp::return_self<>(), bp::arg("maxVel"),
+          "Sets the maximum velocity")
+        .def(
+          "withMaxEffort", &EdgeBuilder::withMaxEffort, bp::return_self<>(), bp::arg("maxEffort"),
+          "Sets the maximum effort")
+        .def(
+          "withDamping", &EdgeBuilder::withDamping, bp::return_self<>(), bp::arg("damping"),
+          "Sets the damping")
+        .def(
+          "withFriction", &EdgeBuilder::withFriction, bp::return_self<>(), bp::arg("friction"),
+          "Sets the Friction")
+        .def(
+          "withArmature", &EdgeBuilder::withArmature, bp::return_self<>(), bp::arg("armature"),
+          "Sets joint's armature")
+        .def(
+          "withFrictionLoss", &EdgeBuilder::withFrictionLoss, bp::return_self<>(), bp::arg("frictionLoss"),
+          "Sets friction loss")
+        .def(
+          "build", &EdgeBuilder::build,
+          "Builds the edge/joint parameters and adds the joint to the associated ModelGraph.")
+        .def_readwrite(
+          "param", &EdgeBuilder::param, "Direct access to the EdgeParameters object being built.");
     }
   } // namespace python
 } // namespace pinocchio

@@ -615,7 +615,10 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/srdf.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/model.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/geometry.cpp
-    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-graph-variants.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-edges.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-frames.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-geometries.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-graph-algo.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-graph.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-extras.cpp)
 

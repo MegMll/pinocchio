@@ -41,7 +41,7 @@ int main(int /*argc*/, char ** /*argv*/)
   SE3 pose_j2_to_b3 = SE3::Random(); // pose of body3 wrt joint j2
   Eigen::VectorXd j2_bias(1);
   j2_bias << 0.5;
-  g.useEdgeBuilder()
+  g.edgeBuilder()
     .withName("j2")
     .withSourceVertex("body2")
     .withSourcePose(pose_b2_to_j2)
@@ -54,7 +54,7 @@ int main(int /*argc*/, char ** /*argv*/)
   // sensor1 is a sensor frame so it can only be linked to the others body via a fixed joint
   SE3 pose_b1_s1 = SE3::Random();
   SE3 pose_s1 = SE3::Random();
-  g.useEdgeBuilder()
+  g.edgeBuilder()
     .withName("b1_s1")
     .withSourceVertex("body1")
     .withSourcePose(pose_b1_s1)

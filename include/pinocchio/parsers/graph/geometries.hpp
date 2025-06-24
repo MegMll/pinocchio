@@ -19,62 +19,62 @@ namespace pinocchio
       BOTH
     };
 
-    struct MeshGeom
+    struct Mesh
     {
       std::string path;
 
-      MeshGeom() = default;
-      MeshGeom(const std::string & name_path)
+      Mesh() = default;
+      Mesh(const std::string & name_path)
       : path(name_path)
       {
       }
     };
 
-    struct BoxGeom
+    struct Box
     {
       Eigen::Vector3d size = Eigen::Vector3d::Constant(0);
 
-      BoxGeom() = default;
-      BoxGeom(const Eigen::Vector3d & size)
+      Box() = default;
+      Box(const Eigen::Vector3d & size)
       : size(size)
       {
       }
     };
 
-    struct CylinderGeom
+    struct Cylinder
     {
       Eigen::Vector2d size = Eigen::Vector2d::Constant(0);
 
-      CylinderGeom() = default;
-      CylinderGeom(const Eigen::Vector2d & size)
+      Cylinder() = default;
+      Cylinder(const Eigen::Vector2d & size)
       : size(size)
       {
       }
     };
 
-    struct CapsuleGeom
+    struct Capsule
     {
       Eigen::Vector2d size = Eigen::Vector2d::Constant(0);
 
-      CapsuleGeom() = default;
-      CapsuleGeom(const Eigen::Vector2d & size)
+      Capsule() = default;
+      Capsule(const Eigen::Vector2d & size)
       : size(size)
       {
       }
     };
 
-    struct SphereGeom
+    struct Sphere
     {
       double radius = 0;
 
-      SphereGeom() = default;
-      SphereGeom(const double r)
+      Sphere() = default;
+      Sphere(const double r)
       : radius(r)
       {
       }
     };
 
-    typedef boost::variant<MeshGeom, BoxGeom, CylinderGeom, CapsuleGeom, SphereGeom> GeomVariant;
+    typedef boost::variant<Mesh, Box, Cylinder, Capsule, Sphere> GeomVariant;
 
     struct Geometry
     {

@@ -931,7 +931,7 @@ BOOST_AUTO_TEST_CASE(test_add_geometry)
     .withGeomType(GeomType::VISUAL)
     .withName("body1_geom1")
     .withPlacement(placement)
-    .withGeom(BoxGeom(Eigen::Vector3d::Constant(2)))
+    .withGeom(Box(Eigen::Vector3d::Constant(2)))
     .build();
 
   g.geometryBuilder()
@@ -939,7 +939,7 @@ BOOST_AUTO_TEST_CASE(test_add_geometry)
     .withGeomType(GeomType::VISUAL)
     .withName("body1_geom2")
     .withPlacement(placement)
-    .withGeom(SphereGeom(4))
+    .withGeom(Sphere(4))
     .build();
 
   auto vertex_n = g.name_to_vertex.find("body1");

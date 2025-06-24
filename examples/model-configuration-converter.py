@@ -26,7 +26,7 @@ g.addJoint(
     pin.SE3.Random(),
 )
 
-g.useEdgeBuilder().withName("j2").withJointType(
+g.edgeBuilder().withName("j2").withJointType(
     pin.graph.JointPrismatic(np.array([1.0, 0.0, 0.0]))
 ).withSourceVertex("b2").withSourcePose(pin.SE3.Random()).withTargetVertex(
     "b3"

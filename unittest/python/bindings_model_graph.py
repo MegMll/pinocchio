@@ -10,7 +10,7 @@ class TestModelGraphBindings(unittest.TestCase):
         g.addBody("body1", pin.Inertia.Identity())
         g.addBody("body2", pin.Inertia.Identity())
 
-        g.useEdgeBuilder().withName("b1_b2").withJointType(
+        g.edgeBuilder().withName("b1_b2").withJointType(
             pin.graph.JointPrismatic(np.array([1, 0, 0]))
         ).withSourceVertex("body1").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body2"
@@ -47,7 +47,7 @@ class TestModelGraphBindings(unittest.TestCase):
         g.addBody("body1", pin.Inertia.Identity())
         g.addBody("body2", pin.Inertia.Identity())
 
-        g.useEdgeBuilder().withName("b1_b2").withJointType(
+        g.edgeBuilder().withName("b1_b2").withJointType(
             pin.graph.JointPrismatic(np.array([1, 0, 0]))
         ).withSourceVertex("body1").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body2"
@@ -62,7 +62,7 @@ class TestModelGraphBindings(unittest.TestCase):
         g.addBody("body1", pin.Inertia.Identity())
         g.addBody("body2", pin.Inertia.Identity())
 
-        g.useEdgeBuilder().withName("b1_b2").withJointType(
+        g.edgeBuilder().withName("b1_b2").withJointType(
             pin.graph.JointPrismatic(np.array([1, 0, 0]))
         ).withSourceVertex("body1").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body2"
@@ -79,13 +79,13 @@ class TestModelGraphBindings(unittest.TestCase):
         g.addBody("body2", pin.Inertia.Identity())
         g.addBody("body3", pin.Inertia.Identity())
 
-        g.useEdgeBuilder().withName("b1_b2").withJointType(
+        g.edgeBuilder().withName("b1_b2").withJointType(
             pin.graph.JointPrismatic(np.array([1, 0, 0]))
         ).withSourceVertex("body1").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body2"
         ).withTargetPose(pin.SE3.Random()).build()
 
-        g.useEdgeBuilder().withName("b2_b3").withJointType(
+        g.edgeBuilder().withName("b2_b3").withJointType(
             pin.graph.JointPrismatic(np.array([0, 1, 0]))
         ).withSourceVertex("body2").withSourcePose(pin.SE3.Random()).withTargetVertex(
             "body3"
