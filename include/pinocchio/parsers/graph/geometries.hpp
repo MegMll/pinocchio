@@ -12,7 +12,7 @@ namespace pinocchio
   namespace graph
   {
     // Kind of possible geometry
-    enum GEOM_TYPE
+    enum struct GeomType
     {
       VISUAL,
       COLLISION,
@@ -80,7 +80,7 @@ namespace pinocchio
     {
       std::string name;
 
-      GEOM_TYPE type = BOTH;
+      GeomType type = GeomType::BOTH;
 
       Eigen::Vector3d scale = Eigen::Vector3d::Constant(1);
 
@@ -95,7 +95,7 @@ namespace pinocchio
       Geometry(
         const std::string & name,
         const SE3 & placement,
-        const GEOM_TYPE & type,
+        const GeomType & type,
         const Eigen::Vector3d & scale,
         const Eigen::Vector4d & color,
         const GeomVariant & geom)
