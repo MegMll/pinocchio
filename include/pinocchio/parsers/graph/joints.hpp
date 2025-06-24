@@ -220,7 +220,6 @@ namespace pinocchio
 
     // Forward declare
     struct JointComposite;
-    // Forward declare
     struct JointMimic;
 
     typedef boost::variant<

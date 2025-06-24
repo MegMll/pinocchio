@@ -266,7 +266,6 @@ namespace pinocchio
         }
       };
 
-      // Add const to every operator (otherwise call fails)
       struct CreateJointModelVisitor : public boost::static_visitor<JointModel>
       {
         typedef JointModel ReturnType;
