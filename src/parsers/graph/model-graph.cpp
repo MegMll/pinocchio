@@ -224,14 +224,13 @@ namespace pinocchio
       const std::string & source_body,
       const SE3 & source_to_joint,
       const std::string & target_body,
-      const SE3 & joint_to_target,
-      const boost::optional<Eigen::VectorXd> & q_ref)
+      const SE3 & joint_to_target)
     {
       return addJoint(EdgeParameters(
-        joint_name, source_body, source_to_joint, target_body, joint_to_target, joint, q_ref));
+        joint_name, source_body, source_to_joint, target_body, joint_to_target, joint));
     }
 
-    EdgeBuilder ModelGraph::useEdgeBuilder()
+    EdgeBuilder ModelGraph::edgeBuilder()
     {
       return EdgeBuilder(*this);
     }
@@ -262,7 +261,7 @@ namespace pinocchio
           const auto & src_name = g.graph[src].name;
           const auto & tgt_name = g.graph[tgt].name;
 
-          this->useEdgeBuilder()
+          this->edgeBuilder()
             .withName(edge_data.name)
             .withSourceVertex(src_name)
             .withSourcePose(edge_data.source_to_joint)

@@ -141,7 +141,7 @@ namespace pinocchio
           const auto & src_name = g.graph[src].name;
           const auto & tgt_name = g.graph[tgt].name;
 
-          g_return.useEdgeBuilder()
+          g_return.edgeBuilder()
             .withName(prefix + edge_data.name)
             .withSourceVertex(prefix + src_name)
             .withSourcePose(edge_data.source_to_joint)
@@ -191,7 +191,7 @@ namespace pinocchio
 
       const std::string g2_body_merged = g2_body;
 
-      g_merged.useEdgeBuilder()
+      g_merged.edgeBuilder()
         .withName(merging_joint_name)
         .withSourceVertex(g1_body)
         .withTargetVertex(g2_body)
@@ -238,7 +238,7 @@ namespace pinocchio
 
           auto it = std::find(joints_to_lock.begin(), joints_to_lock.end(), edge_data.name);
 
-          EdgeBuilder builder = g_locked.useEdgeBuilder()
+          EdgeBuilder builder = g_locked.edgeBuilder()
                                   .withName(edge_data.name)
                                   .withSourceVertex(src_name)
                                   .withSourcePose(edge_data.source_to_joint)

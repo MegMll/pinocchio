@@ -112,7 +112,7 @@ namespace pinocchio
       /// \param[in] inert inertia of the body
       void addBody(const std::string & vertex_name, const Inertia & inert);
 
-      GeometryBuilder useGeometryBuilder();
+      GeometryBuilder geometryBuilder();
       void addGeometry(const std::string & vertex_name, const Geometry & geom);
       void addGeometries(const std::string & vertex_name, const std::vector<Geometry> & geoms);
 
@@ -125,7 +125,6 @@ namespace pinocchio
       /// \param[in] source_to_joint Transformation from supporting vertex to edge
       /// \param[in] target_body Vertex that is supported by edge
       /// \param[in] joint_to_target Transformation from edge to supported vertex
-      /// \param[in] q_ref q offset of the joint
       ///
       /// \note Since it's a bidirectional graph, two edges are added to the graph.
       /// Joints and transformation are inverted, to create reverse edge.
@@ -135,8 +134,7 @@ namespace pinocchio
         const std::string & source_body,
         const SE3 & source_to_joint,
         const std::string & target_body,
-        const SE3 & joint_to_target,
-        const boost::optional<Eigen::VectorXd> & q_ref = boost::none);
+        const SE3 & joint_to_target);
 
       /// \brief Add edges (joint) to the graph. Since it's a bidirectional graph,
       /// edge and its reverse are added to the graph.
@@ -149,7 +147,7 @@ namespace pinocchio
 
       /// \brief Create an EdgeBuilde. This will allow to use EdgeBuilder interface to have a more
       /// flexible edge configuration.
-      EdgeBuilder useEdgeBuilder();
+      EdgeBuilder edgeBuilder();
 
       /// @brief  add all the vertex and edges from a graph to this one.
       /// Attention : it does not add an edge between the two, so it will be like having two graph
