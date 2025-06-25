@@ -338,6 +338,9 @@ set(${PROJECT_NAME}_PARSERS_SOURCES
     ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph-algo.cpp)
 
+set(${PROJECT_NAME}_GRAPH_GEOMETRY_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph-algo-geometry.cpp)
+
 set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/meshloader-fwd.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/srdf.hpp
@@ -357,6 +360,9 @@ set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/geometries.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-configuration-converter.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-configuration-converter.hxx)
+
+set(${PROJECT_NAME}_GRAPH_GEOMETRY_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph-algo-geometry.hpp)
 
 set(${PROJECT_NAME}_URDF_SOURCES
     ${PROJECT_SOURCE_DIR}/src/parsers/urdf/model.cpp
@@ -621,6 +627,9 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-graph-algo.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-graph.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-extras.cpp)
+
+set(${PROJECT_NAME}_BINDINGS_GRAPH_GEOMETRY_SOURCES
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-graph-algo-geometry.cpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase.cpp
