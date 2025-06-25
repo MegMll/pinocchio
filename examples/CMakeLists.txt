@@ -83,6 +83,7 @@ if(BUILD_PYTHON_INTERFACE)
       forward-dynamics-derivatives
       inverse-dynamics-derivatives
       model-graph
+      model-graph-geometry
       model-configuration-converter)
 
   if(BUILD_WITH_URDF_SUPPORT)

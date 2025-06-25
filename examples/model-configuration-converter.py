@@ -7,7 +7,6 @@ import pinocchio as pin
 #  - Build a Model with b3 as root body with a free flyer as root joint
 #  - Use ModelConfigurationConverter API to convert configuration and velocity
 #    vector from the first model to the second
-
 # Construct kinematics chain with ModelGraph API.
 g = pin.graph.ModelGraph()
 
@@ -49,6 +48,8 @@ V_b3 = pin.getFrameVelocity(forward_model, forward_data, b3_index)
 
 # Create the backward model with b3 as root body and a free flyer as root joint.
 # b3 is placed at the same position and same velocity than b3 in the forward model.
+# Since velocity of b3 is non zero in forward model, we have to build
+# this model with a freeflyer if we want the conversion to work.
 backward_model, backward_build_info = pin.graph.buildModelWithBuildInfo(
     g, "b3", X_b3, pin.graph.JointFreeFlyer()
 )

@@ -11,6 +11,10 @@ import pinocchio as pin
 g = pin.graph.ModelGraph()
 
 # Adding bodies to the pin.graph.
+# In pinocchio, since bodies are represented as frames,
+# there's 2 ways to add a body to the graph :
+#   - addBody, helper function
+#   - addFrame, where you create the BodyFrame, yourself
 g.addBody("body1", pin.Inertia.Identity())
 g.addFrame("body2", pin.graph.BodyFrame(pin.Inertia.Identity()))
 g.addFrame("body3", pin.graph.BodyFrame(pin.Inertia.Identity()))
@@ -22,6 +26,8 @@ g.addFrame("sensor1", pin.graph.SensorFrame())
 pose_b1_to_j1 = pin.SE3.Random()  # pose of joint j1 wrt body1
 pose_j1_to_b2 = pin.SE3.Random()  # pose of body2 wrt joint j1
 
+# There are 2 ways to add joints to the graph.
+# This helper function, where you specify the basics of a joint only.
 g.addJoint(
     "j1",
     pin.graph.JointRevolute(np.array([0.0, 0.0, 1.0])),
@@ -35,13 +41,13 @@ g.addJoint(
 pose_b2_to_j2 = pin.SE3.Random()  # pose of joint j2 wrt body2
 pose_j2_to_b3 = pin.SE3.Random()  # pose of body3 wrt joint j2
 
-# Using builder interface to add the bias on j2
+# To add a joint with more details, such as limits, bias... the
+# builder interface is necessary.
 g.edgeBuilder().withName("j2").withJointType(
     pin.graph.JointPrismatic(np.array([1, 0, 0]))
 ).withSourceVertex("body2").withSourcePose(pose_b2_to_j2).withTargetVertex(
     "body3"
 ).withTargetPose(pose_j2_to_b3).withQref(np.array([0.5])).build()
-
 
 # sensor1 is a sensor frame so it can only be linked to the others body
 # via a fixed joint
@@ -67,6 +73,7 @@ g1 = pin.graph.prefixNames(g, "g1/")
 g2 = pin.graph.prefixNames(g, "g2/")
 
 # Then we will attach g2/body3 to g1/body2 with a spherical joint.
+# Equivalent to appendModel (deprecated now)
 g1_g2_merged = pin.graph.merge(
     g1, g2, "g1/body2", "g2/body3", pin.SE3.Random(), pin.graph.JointSpherical()
 )
@@ -80,6 +87,7 @@ print(kinematics_tree_from_g1_body1)
 
 # To lock a joints we only have to provide his name and his reference configuration.
 # We will lock g1/j1 at 0.3 rad.
+# Equivalent to buildReducedModel (deprecated now)
 g1_g2_merged_locked = pin.graph.lockJoints(g1_g2_merged, ["g1/j1"], [np.array([0.3])])
 
 # We can then create the locked model.
