@@ -8,7 +8,9 @@
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/graph/model-graph-algo.hpp"
-
+#if defined(PINOCCHIO_WITH_HPP_FCL)
+  #include "pinocchio/parsers/graph/model-graph-algo-geometry.hpp"
+#endif
 #include <boost/test/unit_test.hpp>
 #include <stdexcept>
 
@@ -920,33 +922,6 @@ BOOST_AUTO_TEST_CASE(test_joint_limits_composite)
     d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
 }
 
-BOOST_AUTO_TEST_CASE(test_add_geometry)
-{
-  using namespace pinocchio::graph;
-  ModelGraph g = buildReversableModelGraph(JointRevolute(Eigen::Vector3d::UnitY()));
-
-  pinocchio::SE3 placement = pinocchio::SE3::Random();
-  g.geometryBuilder()
-    .withBody("body1")
-    .withGeomType(GeomType::VISUAL)
-    .withName("body1_geom1")
-    .withPlacement(placement)
-    .withGeom(Box(Eigen::Vector3d::Constant(2)))
-    .build();
-
-  g.geometryBuilder()
-    .withBody("body1")
-    .withGeomType(GeomType::VISUAL)
-    .withName("body1_geom2")
-    .withPlacement(placement)
-    .withGeom(Sphere(4))
-    .build();
-
-  auto vertex_n = g.name_to_vertex.find("body1");
-  auto vertex = g.graph[vertex_n->second];
-
-  BOOST_CHECK(vertex.geometries.size() == 2);
-}
 /// @brief test out a tree robot
 ///          /---- left leg
 /// torso ---
@@ -1280,4 +1255,120 @@ BOOST_AUTO_TEST_CASE(test_lock_joint)
     poseBody1 * pose_fixed_joint));
 }
 
+/// @brief add geometries to a vertex
+BOOST_AUTO_TEST_CASE(test_add_geometry)
+{
+  using namespace pinocchio::graph;
+  ModelGraph g = buildReversableModelGraph(JointRevolute(Eigen::Vector3d::UnitY()));
+
+  pinocchio::SE3 placement = pinocchio::SE3::Random();
+  g.geometryBuilder()
+    .withBody("body1")
+    .withGeomType(GeomType::VISUAL)
+    .withName("body1_geom1")
+    .withPlacement(placement)
+    .withGeom(Box(Eigen::Vector3d::Constant(2)))
+    .build();
+
+  g.geometryBuilder()
+    .withBody("body1")
+    .withGeomType(GeomType::VISUAL)
+    .withName("body1_geom2")
+    .withPlacement(placement)
+    .withGeom(Sphere(4))
+    .build();
+
+  auto vertex_n = g.name_to_vertex.find("body1");
+  auto vertex = g.graph[vertex_n->second];
+
+  BOOST_CHECK(vertex.geometries.size() == 2);
+}
+
+#if defined(PINOCCHIO_WITH_HPP_FCL)
+BOOST_AUTO_TEST_CASE(test_build_geometry_model)
+{
+  using namespace pinocchio::graph;
+  ModelGraph g = buildReversableModelGraph(JointRevolute(Eigen::Vector3d::UnitY()));
+
+  pinocchio::SE3 placement = pinocchio::SE3::Random();
+  g.geometryBuilder()
+    .withBody("body1")
+    .withGeomType(GeomType::VISUAL)
+    .withName("body1_geom1")
+    .withPlacement(placement)
+    .withGeom(Box(Eigen::Vector3d::Constant(2)))
+    .build();
+
+  g.geometryBuilder()
+    .withBody("body1")
+    .withGeomType(GeomType::COLLISION)
+    .withName("body1_geom2")
+    .withPlacement(placement)
+    .withGeom(Sphere(4))
+    .build();
+
+  pinocchio::SE3 placement_b2 = pinocchio::SE3::Random();
+  g.geometryBuilder()
+    .withBody("body2")
+    .withGeomType(GeomType::VISUAL)
+    .withName("body2_geom2")
+    .withPlacement(placement_b2)
+    .withGeom(Cylinder(Eigen::Vector2d::Constant(2)))
+    .build();
+
+  g.geometryBuilder()
+    .withBody("body2")
+    .withGeomType(GeomType::COLLISION)
+    .withName("body2_geom2")
+    .withPlacement(placement_b2)
+    .withGeom(Capsule(Eigen::Vector2d::Constant(2)))
+    .build();
+
+  g.geometryBuilder()
+    .withBody("body2")
+    .withGeomType(GeomType::BOTH)
+    .withName("body2_geom3")
+    .withPlacement(placement_b2)
+    .withGeom(Capsule(Eigen::Vector2d::Constant(3)))
+    .build();
+
+  pinocchio::Model m = buildModel(g, "body1", pinocchio::SE3::Identity());
+  pinocchio::GeometryModel m_visual = buildGeometryModel(g, m, pinocchio::VISUAL);
+  pinocchio::GeometryModel m_col = buildGeometryModel(g, m, pinocchio::COLLISION);
+
+  BOOST_CHECK(m_visual.ngeoms == 3);
+  BOOST_CHECK(m_col.ngeoms == 3);
+
+  // Check that the right geometries were added to visual
+  auto * box = dynamic_cast<hpp::fcl::Box *>(m_visual.geometryObjects.at(0).geometry.get());
+  BOOST_REQUIRE(box);
+  Eigen::Vector3d sides = Eigen::Vector3d::Constant(1);
+  BOOST_CHECK(box->halfSide == sides);
+
+  auto * cyl = dynamic_cast<hpp::fcl::Cylinder *>(m_visual.geometryObjects.at(1).geometry.get());
+  BOOST_REQUIRE(cyl);
+  BOOST_CHECK(cyl->halfLength == 1);
+  BOOST_CHECK(cyl->radius == 2);
+
+  auto * cap = dynamic_cast<hpp::fcl::Capsule *>(m_visual.geometryObjects.at(2).geometry.get());
+  BOOST_REQUIRE(cap);
+  BOOST_CHECK(cap->halfLength == 1.5);
+  BOOST_CHECK(cap->radius == 3);
+
+  // Check that the right geometries were added to collision
+  auto * s = dynamic_cast<hpp::fcl::Sphere *>(m_col.geometryObjects.at(0).geometry.get());
+  BOOST_REQUIRE(s);
+  BOOST_CHECK(s->radius == 4);
+
+  auto * c = dynamic_cast<hpp::fcl::Capsule *>(m_col.geometryObjects.at(1).geometry.get());
+  BOOST_REQUIRE(c);
+  BOOST_CHECK(c->halfLength == 1);
+  BOOST_CHECK(c->radius == 2);
+
+  auto * cap2 = dynamic_cast<hpp::fcl::Capsule *>(m_col.geometryObjects.at(2).geometry.get());
+  BOOST_REQUIRE(cap2);
+  BOOST_CHECK(cap2->halfLength == 1.5);
+  BOOST_CHECK(cap2->radius == 3);
+}
+#endif
 BOOST_AUTO_TEST_SUITE_END()
