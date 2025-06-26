@@ -2,8 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_parsers_geometries_graph_hpp__
-#define __pinocchio_parsers_geometries_graph_hpp__
+#ifndef __pinocchio_parsers_graph_geometries_hpp__
+#define __pinocchio_parsers_graph_geometries_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 
@@ -111,4 +111,4 @@ namespace pinocchio
   } // namespace graph
 } // namespace pinocchio
 
-#endif //__pinocchio_parsers_geometries_graph_hpp__
+#endif // ifndef __pinocchio_parsers_graph_geometries_hpp__

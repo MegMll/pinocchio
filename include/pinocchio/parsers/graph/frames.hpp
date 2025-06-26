@@ -2,8 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_parsers_frame_graph_hpp__
-#define __pinocchio_parsers_frame_graph_hpp__
+#ifndef __pinocchio_parsers_graph_frames_hpp__
+#define __pinocchio_parsers_graph_frames_hpp__
 
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -48,4 +48,4 @@ namespace pinocchio
 
   } // namespace graph
 } // namespace pinocchio
-#endif
+#endif // ifndef __pinocchio_parsers_graph_frames_hpp__

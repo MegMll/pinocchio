@@ -2,8 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_parsers_model_graph_algo_geom_hpp__
-#define __pinocchio_parsers_model_graph_algo_geom_hpp__
+#ifndef __pinocchio_parsers_graph_model_graph_algo_geometry_hpp__
+#define __pinocchio_parsers_graph_model_graph_algo_geometry_hpp__
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/meshloader-fwd.hpp"
@@ -30,4 +30,4 @@ namespace pinocchio
       ::hpp::fcl::MeshLoaderPtr mesh_loader = ::hpp::fcl::MeshLoaderPtr());
   } // namespace graph
 } // namespace pinocchio
-#endif // __pinocchio_parsers_model_graph__algo__geom_hpp__
+#endif // ifndef __pinocchio_parsers_graph_model_graph_algo_geometry_hpp__
