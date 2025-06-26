@@ -25,9 +25,9 @@ namespace pinocchio
     /// @return A pinocchio model
     PINOCCHIO_PARSERS_DLLAPI GeometryModel buildGeometryModel(
       const ModelGraph & g,
-    const Model & model, 
-    const GeometryType type,
-    ::hpp::fcl::MeshLoaderPtr mesh_loader = ::hpp::fcl::MeshLoaderPtr());
+      const Model & model,
+      const GeometryType type,
+      ::hpp::fcl::MeshLoaderPtr mesh_loader = ::hpp::fcl::MeshLoaderPtr());
   } // namespace graph
 } // namespace pinocchio
 #endif // __pinocchio_parsers_model_graph__algo__geom_hpp__

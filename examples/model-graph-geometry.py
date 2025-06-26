@@ -1,7 +1,7 @@
 import numpy as np
 import pinocchio as pin
-from pinocchio.visualize import MeshcatVisualizer
 import time
+from pinocchio.visualize import MeshcatVisualizer
 
 # This example show how to:
 #  - Construct a kinematics chain with ModelGraph API
@@ -12,8 +12,8 @@ import time
 g = pin.graph.ModelGraph()
 
 # Adding bodies to the pin.graph.
-# In pinocchio, since bodies are represented as frames, 
-# there's 2 ways to add a body to the graph : 
+# In pinocchio, since bodies are represented as frames,
+# there's 2 ways to add a body to the graph :
 #   - addBody, helper function
 #   - addFrame, where you create the BodyFrame, yourself
 g.addBody("body1", pin.Inertia.Identity())
@@ -28,7 +28,7 @@ pose_b1_to_j1 = pin.SE3(np.eye(3), np.array([0.1, 0, 0]))  # pose of joint j1 wr
 r = np.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]])
 pose_j1_to_b2 = pin.SE3(r, np.array([0.4, 0, 0]))  # pose of body2 wrt joint j1
 
-# There are 2 ways to add joints to the graph. 
+# There are 2 ways to add joints to the graph.
 # This helper function, where you specify the basics of a joint only.
 g.addJoint(
     "j1",
@@ -41,10 +41,12 @@ g.addJoint(
 
 # j2 will be biased by 50cm.
 
-pose_b2_to_j2 = pin.SE3(np.eye(3), np.array([0.0, 0.2, -0.4]))  # pose of joint j2 wrt body2
+pose_b2_to_j2 = pin.SE3(
+    np.eye(3), np.array([0.0, 0.2, -0.4])
+)  # pose of joint j2 wrt body2
 pose_j2_to_b3 = pin.SE3(np.eye(3), np.array([0, 0, 0]))  # pose of body3 wrt joint j2
 
-# To add a joint with more details, such as limits, bias... the 
+# To add a joint with more details, such as limits, bias... the
 # builder interface is necessary.
 g.edgeBuilder().withName("j2").withJointType(
     pin.graph.JointPrismatic(np.array([0, 0, 1]))
@@ -58,17 +60,29 @@ print("Kinematics chain from body1:")
 print(kinematics_chain_from_body1)
 
 # Now if you want to visualize, it's possible to add geometries to each body.
-# Same as for joints, there is a builder interface, where all geometries 
+# Same as for joints, there is a builder interface, where all geometries
 # parameters can be redefined.
-# Type is to define in which geometry model the geometry will be added, 
+# Type is to define in which geometry model the geometry will be added,
 # it can be either visual, collision or both.
-g.geometryBuilder().withBody("body1").withGeomType(pin.graph.GeomType.BOTH).withName("body1_geom1").withPlacement(pin.SE3.Identity()).withGeom(pin.graph.Box(np.array([0.2, 0.2, 0.2]))).withColor(np.array([0.3, 0.3, 0.7, 1])).build()
-g.geometryBuilder().withBody("body2").withGeomType(pin.graph.GeomType.BOTH).withName("body2_geom1").withPlacement(pin.SE3.Identity()).withGeom(pin.graph.Cylinder(np.array([0.1, 0.8]))).withColor(np.array([0.7, 0.3, 0.3, 1])).build()
-g.geometryBuilder().withBody("body3").withGeomType(pin.graph.GeomType.BOTH).withName("body3_geom1").withPlacement(pin.SE3.Identity()).withGeom(pin.graph.Sphere(0.1)).build()
+g.geometryBuilder().withBody("body1").withGeomType(pin.graph.GeomType.BOTH).withName(
+    "body1_geom1"
+).withPlacement(pin.SE3.Identity()).withGeom(
+    pin.graph.Box(np.array([0.2, 0.2, 0.2]))
+).withColor(np.array([0.3, 0.3, 0.7, 1])).build()
+g.geometryBuilder().withBody("body2").withGeomType(pin.graph.GeomType.BOTH).withName(
+    "body2_geom1"
+).withPlacement(pin.SE3.Identity()).withGeom(
+    pin.graph.Cylinder(np.array([0.1, 0.8]))
+).withColor(np.array([0.7, 0.3, 0.3, 1])).build()
+g.geometryBuilder().withBody("body3").withGeomType(pin.graph.GeomType.BOTH).withName(
+    "body3_geom1"
+).withPlacement(pin.SE3.Identity()).withGeom(pin.graph.Sphere(0.1)).build()
 
 # And afterward build a pinocchio geometry model
 visual_model = pin.graph.buildGeometryModel(g, kinematics_chain_from_body1, pin.VISUAL)
-collision_model = pin.graph.buildGeometryModel(g, kinematics_chain_from_body1, pin.COLLISION)
+collision_model = pin.graph.buildGeometryModel(
+    g, kinematics_chain_from_body1, pin.COLLISION
+)
 
 # And visualize it with a visualizer. Here we use meshcat
 vizer = MeshcatVisualizer(kinematics_chain_from_body1, collision_model, visual_model)

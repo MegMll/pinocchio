@@ -14,7 +14,7 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
-    
+
     void exposeAlgoGeometry()
     {
       using namespace pinocchio::graph;
@@ -22,7 +22,8 @@ namespace pinocchio
       // Expose the global functions
       bp::def(
         "buildGeometryModel", &buildGeometryModel,
-        (bp::arg("g"), bp::arg("model"), bp::arg("type"), bp::arg("mesh_loader")=::hpp::fcl::MeshLoaderPtr()),
+        (bp::arg("g"), bp::arg("model"), bp::arg("type"),
+         bp::arg("mesh_loader") = ::hpp::fcl::MeshLoaderPtr()),
         "Build a pinocchio model based on the graph.");
     }
   } // namespace python
