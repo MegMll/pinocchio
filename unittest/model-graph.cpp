@@ -336,8 +336,11 @@ BOOST_AUTO_TEST_CASE(test_fixed_joint)
   pinocchio::Model m = buildModel(g, "body1", pinocchio::SE3::Identity(), JointFreeFlyer());
 
   BOOST_CHECK(m.njoints == 3);
+  pinocchio::SE3 body3_placement =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 2., 0.))
+    * pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., -3., 0.));
   BOOST_CHECK(m.frames[m.getFrameId("body2_to_body3", pinocchio::FIXED_JOINT)].placement.isApprox(
-    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(4., -1., 0.))));
+    body3_placement));
 }
 
 /// @brief test construction of model with a mimic

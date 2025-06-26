@@ -254,7 +254,7 @@ namespace pinocchio
             internal::UpdateJointGraphPoseVisitor ujgpv(q_ref);
             pinocchio::SE3 pose_offset = boost::apply_visitor(ujgpv, edge_data.joint);
 
-            builder.withJointType(JointFixed(pose_offset)).withQref(q_ref);
+            builder.withJointType(JointFixed(pose_offset));
           }
           else
             builder.withJointType(edge_data.joint);

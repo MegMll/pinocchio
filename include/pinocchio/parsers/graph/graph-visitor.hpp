@@ -448,13 +448,15 @@ namespace pinocchio
         }
 
         template<typename FrameGraph>
-        void operator()(const JointFixed & /*joint*/, const FrameGraph & f_)
+        void operator()(const JointFixed & joint, const FrameGraph & f_)
         {
           const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
 
           model.addFrame(Frame(
             target_vertex.name, previous_body.parentJoint,
-            previous_body.placement * edge.source_to_joint * edge.joint_to_target, f_.f_type));
+            previous_body.placement * edge.source_to_joint * joint.joint_offset
+              * edge.joint_to_target,
+            f_.f_type));
         }
 
         void operator()(const JointMimic & joint, const BodyFrame & b_f)
@@ -487,7 +489,7 @@ namespace pinocchio
           model.addBodyFrame(target_vertex.name, j_id, body_pose);
         }
 
-        void operator()(const JointFixed & /*joint*/, const BodyFrame & b_f)
+        void operator()(const JointFixed & joint, const BodyFrame & b_f)
         {
           // Need to check what's vertex the edge is coming from. If it's a body, then we add
           // both the fixed joint frame and a body frame. Otherwise, it's a "fake" fixed joint
@@ -501,18 +503,22 @@ namespace pinocchio
             const Frame previous_frame = model.frames[prev_f_id];
             model.addFrame(Frame(
               target_vertex.name, previous_frame.parentJoint,
-              previous_frame.placement * edge.source_to_joint * edge.joint_to_target, BODY,
-              b_f.inertia));
+              previous_frame.placement * edge.source_to_joint * joint.joint_offset
+                * edge.joint_to_target,
+              BODY, b_f.inertia));
           }
           else
           {
             const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
             // Don't add a new joint in the model — create the fixed_joint frame
             const FrameIndex f_id = model.addFrame(Frame(
-              edge.name, previous_body.parentJoint, previous_body.placement * edge.source_to_joint,
-              FIXED_JOINT, b_f.inertia));
+              edge.name, previous_body.parentJoint,
+              previous_body.placement * edge.source_to_joint * joint.joint_offset, FIXED_JOINT,
+              b_f.inertia));
+            pinocchio::SE3 body_placement = previous_body.placement * edge.source_to_joint
+                                            * joint.joint_offset * edge.joint_to_target;
             model.addBodyFrame(
-              target_vertex.name, previous_body.parentJoint, edge.joint_to_target, (int)f_id);
+              target_vertex.name, previous_body.parentJoint, body_placement, (int)f_id);
           }
         }
       };
