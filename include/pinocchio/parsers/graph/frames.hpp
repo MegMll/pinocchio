@@ -26,7 +26,7 @@ namespace pinocchio
       FrameType f_type = FrameType::BODY;
 
       BodyFrame() = default;
-      BodyFrame(const pinocchio::Inertia & in)
+      explicit BodyFrame(const pinocchio::Inertia & in)
       : inertia(in)
       {
       }

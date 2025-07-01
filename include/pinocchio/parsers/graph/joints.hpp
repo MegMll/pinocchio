@@ -249,8 +249,8 @@ namespace pinocchio
       std::string primary_name;
 
       JointVariant secondary_joint;
-      double scaling;
-      double offset;
+      double scaling = 1.;
+      double offset = 0.;
 
       static constexpr int nq = 0;
       static constexpr int nv = 0;

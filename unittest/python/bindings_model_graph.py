@@ -20,7 +20,7 @@ class TestModelGraphBindings(unittest.TestCase):
         self.assertTrue(m.njoints == 2)
         self.assertTrue(m.names[1] == "b1_b2")
 
-        m, bi = pin.graph.buildModelWithBuildInfo(g, "body1", pin.SE3.Identity())
+        m, _ = pin.graph.buildModelWithBuildInfo(g, "body1", pin.SE3.Identity())
         self.assertTrue(m.njoints == 2)
         self.assertTrue(m.names[1] == "b1_b2")
 

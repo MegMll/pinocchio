@@ -57,7 +57,8 @@ namespace pinocchio
       struct ReverseJointLimitsVisitor : public boost::static_visitor<JointLimits>
       {
         const JointLimits jlimit;
-        ReverseJointLimitsVisitor(const JointLimits & jlimit)
+
+        explicit ReverseJointLimitsVisitor(const JointLimits & jlimit)
         : jlimit(jlimit)
         {
         }
@@ -599,7 +600,7 @@ namespace pinocchio
       {
         const Eigen::VectorXd q;
 
-        ReverseQVisitor(const Eigen::VectorXd q_)
+        explicit ReverseQVisitor(const Eigen::VectorXd q_)
         : q(q_)
         {
         }
@@ -720,7 +721,7 @@ namespace pinocchio
         typedef JointDataTpl<double> JointData;
         const Eigen::VectorXd q_ref;
 
-        UpdateJointGraphPoseVisitor(const Eigen::VectorXd q_)
+        explicit UpdateJointGraphPoseVisitor(const Eigen::VectorXd q_)
         : q_ref(q_)
         {
         }

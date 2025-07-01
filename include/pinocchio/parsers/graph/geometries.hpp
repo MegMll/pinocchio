@@ -30,7 +30,7 @@ namespace pinocchio
       std::string path;
 
       Mesh() = default;
-      Mesh(const std::string & name_path)
+      explicit Mesh(const std::string & name_path)
       : path(name_path)
       {
       }
@@ -41,7 +41,7 @@ namespace pinocchio
       Eigen::Vector3d size = Eigen::Vector3d::Constant(0);
 
       Box() = default;
-      Box(const Eigen::Vector3d & size)
+      explicit Box(const Eigen::Vector3d & size)
       : size(size)
       {
       }
@@ -52,7 +52,7 @@ namespace pinocchio
       Eigen::Vector2d size = Eigen::Vector2d::Constant(0);
 
       Cylinder() = default;
-      Cylinder(const Eigen::Vector2d & size)
+      explicit Cylinder(const Eigen::Vector2d & size)
       : size(size)
       {
       }
@@ -63,7 +63,7 @@ namespace pinocchio
       Eigen::Vector2d size = Eigen::Vector2d::Constant(0);
 
       Capsule() = default;
-      Capsule(const Eigen::Vector2d & size)
+      explicit Capsule(const Eigen::Vector2d & size)
       : size(size)
       {
       }
@@ -74,7 +74,7 @@ namespace pinocchio
       double radius = 0;
 
       Sphere() = default;
-      Sphere(const double r)
+      explicit Sphere(const double r)
       : radius(r)
       {
       }

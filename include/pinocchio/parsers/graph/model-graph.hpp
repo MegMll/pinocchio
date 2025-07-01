@@ -217,7 +217,7 @@ namespace pinocchio
       EdgeParameters param;
 
       /// @brief Constructor
-      EdgeBuilder(ModelGraph & graph)
+      explicit EdgeBuilder(ModelGraph & graph)
       : g(graph)
       {
       }

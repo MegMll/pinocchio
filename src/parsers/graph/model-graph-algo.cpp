@@ -197,8 +197,6 @@ namespace pinocchio
       g_merged.appendGraph(g1);
       g_merged.appendGraph(g2);
 
-      const std::string g2_body_merged = g2_body;
-
       g_merged.edgeBuilder()
         .withName(merging_joint_name)
         .withSourceVertex(g1_body)
