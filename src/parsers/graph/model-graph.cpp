@@ -32,6 +32,176 @@ namespace pinocchio
         }
         return false;
       }
+
+      struct MakeJointLimitsDefaultVisitor : public boost::static_visitor<JointLimits>
+      {
+        template<typename Joint>
+        JointLimits operator()(const Joint &) const
+        {
+          JointLimits jlimit;
+          jlimit.setDimensions<Joint::nq, Joint::nv>();
+          return jlimit;
+        }
+
+        JointLimits operator()(const JointComposite & j) const
+        {
+          JointLimits jlimit = boost::apply_visitor(*this, j.joints[0]);
+
+          for (size_t i = 1; i < j.joints.size(); i++)
+          {
+            int nq = boost::apply_visitor([](const auto & j) { return j.nq; }, j.joints[i]);
+            int nv = boost::apply_visitor([](const auto & j) { return j.nv; }, j.joints[i]);
+            jlimit.append(boost::apply_visitor(*this, j.joints[i]), nq, nv);
+          }
+          return jlimit;
+        }
+      };
+
+      struct ReverseJointLimitsVisitor : public boost::static_visitor<JointLimits>
+      {
+        const JointLimits jlimit;
+
+        explicit ReverseJointLimitsVisitor(const JointLimits & jlimit)
+        : jlimit(jlimit)
+        {
+        }
+
+        // For revolute, revolute unbounded, prismatic, helical, translation, mimic, fixed
+        template<typename Joint>
+        JointLimits operator()(const Joint &) const
+        {
+          JointLimits jlimit_return = jlimit;
+          jlimit_return.maxConfig = -jlimit.minConfig;
+          jlimit_return.minConfig = -jlimit.maxConfig;
+
+          return jlimit_return;
+        }
+
+        // For freeFlyer = no changes, except for translation limits. where min becomes -max and
+        // inverse
+        JointLimits operator()(const JointFreeFlyer &) const
+        {
+          JointLimits jlimit_return = jlimit;
+          jlimit_return.maxConfig.segment(0, 3) = -jlimit.minConfig.segment(0, 3);
+          jlimit_return.minConfig.segment(0, 3) = -jlimit.maxConfig.segment(0, 3);
+
+          return jlimit;
+        }
+
+        // For spherical = no changes
+        JointLimits operator()(const JointSpherical &) const
+        {
+          return jlimit;
+        }
+
+        // universal = inverse axis config, so inverse limits. Only 2 axis
+        JointLimits operator()(const JointUniversal &) const
+        {
+          JointLimits jlimit_return = jlimit;
+          std::swap(jlimit_return.maxConfig[0], jlimit_return.maxConfig[1]);
+          std::swap(jlimit_return.minConfig[0], jlimit_return.minConfig[1]);
+
+          std::swap(jlimit_return.maxEffort[0], jlimit_return.maxEffort[1]);
+          std::swap(jlimit_return.maxVel[0], jlimit_return.maxVel[1]);
+          std::swap(jlimit_return.friction[0], jlimit_return.friction[1]);
+          std::swap(jlimit_return.damping[0], jlimit_return.damping[1]);
+          std::swap(jlimit_return.armature[0], jlimit_return.armature[1]);
+
+          return jlimit_return;
+        }
+
+        // ZYX = inverse order and max becomes min,
+        JointLimits operator()(const JointSphericalZYX & j) const
+        {
+          JointLimits jlimit_return = jlimit;
+          // inverse z limits with x limits
+          std::swap(jlimit_return.maxEffort[0], jlimit_return.maxEffort[2]);
+          std::swap(jlimit_return.maxVel[0], jlimit_return.maxVel[2]);
+          std::swap(jlimit_return.friction[0], jlimit_return.friction[2]);
+          std::swap(jlimit_return.damping[0], jlimit_return.damping[2]);
+          std::swap(jlimit_return.armature[0], jlimit_return.armature[2]);
+
+          for (int i = 0; i < j.nq; i++)
+          {
+            jlimit_return.maxConfig[i] = -jlimit.minConfig[j.nq - 1 - i];
+            jlimit_return.minConfig[i] = -jlimit.maxConfig[j.nq - 1 - i];
+          }
+
+          return jlimit_return;
+        }
+
+        // Composite = inverse order inside and apply visitor on each joint
+        JointLimits operator()(const JointComposite & j) const
+        {
+          int nq_curr =
+            boost::apply_visitor([](const auto & j_) { return j_.nq; }, j.joints.back());
+          int index_back_config = j.nq - nq_curr;
+          int nv_curr =
+            boost::apply_visitor([](const auto & j_) { return j_.nv; }, j.joints.back());
+          int index_back_tangent = j.nv - nv_curr;
+
+          int i = static_cast<int>(j.joints.size() - 1);
+
+          auto createAndFillJointLimits = [&](
+                                            int nq_curr, int nv_curr, int index_back_config,
+                                            int index_back_tangent) -> JointLimits {
+            // Step 1: Initialize jtemp using the visitor
+            JointLimits jtemp = boost::apply_visitor(
+              MakeJointLimitsDefaultVisitor(), j.joints[static_cast<size_t>(i)]);
+
+            jtemp.minConfig.conservativeResize(nq_curr);
+            jtemp.maxConfig.conservativeResize(nq_curr);
+            jtemp.maxEffort.conservativeResize(nv_curr);
+            jtemp.maxVel.conservativeResize(nv_curr);
+            jtemp.friction.conservativeResize(nv_curr);
+            jtemp.damping.conservativeResize(nv_curr);
+            jtemp.armature.conservativeResize(nv_curr);
+
+            // Step 2: Copy segments from jlimit into jtemp
+            jtemp.minConfig.segment(0, nq_curr) =
+              jlimit.minConfig.segment(index_back_config, nq_curr);
+            jtemp.maxConfig.segment(0, nq_curr) =
+              jlimit.maxConfig.segment(index_back_config, nq_curr);
+
+            jtemp.maxEffort.segment(0, nv_curr) =
+              jlimit.maxEffort.segment(index_back_tangent, nv_curr);
+            jtemp.maxVel.segment(0, nv_curr) = jlimit.maxVel.segment(index_back_tangent, nv_curr);
+
+            jtemp.friction.segment(0, nv_curr) =
+              jlimit.friction.segment(index_back_tangent, nv_curr);
+            jtemp.damping.segment(0, nv_curr) = jlimit.damping.segment(index_back_tangent, nv_curr);
+
+            jtemp.armature.segment(0, nv_curr) =
+              jlimit.armature.segment(index_back_tangent, nv_curr);
+
+            return jtemp;
+          };
+
+          JointLimits jtemp =
+            createAndFillJointLimits(nq_curr, nv_curr, index_back_config, index_back_tangent);
+
+          JointLimits jlimit_return =
+            boost::apply_visitor(ReverseJointLimitsVisitor(jtemp), j.joints.back());
+          // Do the same for the rest
+          for (i = static_cast<int>(j.joints.size() - 2); i >= 0; i--)
+          {
+            nq_curr = boost::apply_visitor(
+              [](const auto & j_) { return j_.nq; }, j.joints[static_cast<size_t>(i)]);
+            index_back_config -= nq_curr;
+            nv_curr = boost::apply_visitor(
+              [](const auto & j_) { return j_.nv; }, j.joints[static_cast<size_t>(i)]);
+            index_back_tangent -= nv_curr;
+
+            JointLimits jtemp_ =
+              createAndFillJointLimits(nq_curr, nv_curr, index_back_config, index_back_tangent);
+            jlimit_return.append(
+              boost::apply_visitor(
+                ReverseJointLimitsVisitor(jtemp_), j.joints[static_cast<size_t>(i)]),
+              nq_curr, nv_curr);
+          }
+          return jlimit_return;
+        }
+      };
     } // namespace
 
     template<int Nq, int Nv>
@@ -87,14 +257,14 @@ namespace pinocchio
     , joint_to_target(joint_to_target)
     , joint(joint)
     , q_ref(q_ref)
-    , jlimit(boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), joint))
+    , jlimit(boost::apply_visitor(MakeJointLimitsDefaultVisitor(), joint))
     {
     }
 
     void EdgeBuilder::build()
     {
       // fill jointLimits
-      param.jlimit = boost::apply_visitor(internal::MakeJointLimitsDefaultVisitor(), param.joint);
+      param.jlimit = boost::apply_visitor(MakeJointLimitsDefaultVisitor(), param.joint);
 
       auto assignIfPresent = [&](auto & target, const auto & source) {
         if (source)
@@ -253,7 +423,7 @@ namespace pinocchio
       reverse_edge.forward = false;
 
       reverse_edge.jlimit =
-        boost::apply_visitor(internal::ReverseJointLimitsVisitor(params.jlimit), params.joint);
+        boost::apply_visitor(ReverseJointLimitsVisitor(params.jlimit), params.joint);
     }
 
     void ModelGraph::addJoint(
