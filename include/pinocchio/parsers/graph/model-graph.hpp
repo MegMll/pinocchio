@@ -183,15 +183,6 @@ namespace pinocchio
 
       JointLimits jlimit;
 
-      boost::optional<Eigen::VectorXd> minConfig;
-      boost::optional<Eigen::VectorXd> maxConfig;
-      boost::optional<Eigen::VectorXd> maxVel;
-      boost::optional<Eigen::VectorXd> maxEffort;
-      boost::optional<Eigen::VectorXd> armature;
-      boost::optional<Eigen::VectorXd> friction;
-      boost::optional<Eigen::VectorXd> damping;
-      double frictionLoss = 0;
-
       /// @brief Default Constructor
       EdgeParameters() = default;
 
@@ -215,6 +206,16 @@ namespace pinocchio
 
       /// @brief Parameters of the edge
       EdgeParameters param;
+
+      boost::optional<Eigen::VectorXd> minConfig;
+      boost::optional<Eigen::VectorXd> maxConfig;
+      boost::optional<Eigen::VectorXd> maxVel;
+      boost::optional<Eigen::VectorXd> maxEffort;
+      boost::optional<Eigen::VectorXd> armature;
+      boost::optional<Eigen::VectorXd> friction;
+      boost::optional<Eigen::VectorXd> damping;
+
+      double frictionLoss = 0;
 
       /// @brief Constructor
       explicit EdgeBuilder(ModelGraph & graph)
@@ -268,58 +269,58 @@ namespace pinocchio
       }
 
       /// @brief Specify limit minConfig
-      EdgeBuilder & withMinConfig(const Eigen::VectorXd & minConfig)
+      EdgeBuilder & withMinConfig(const Eigen::VectorXd & minConfig_)
       {
-        param.minConfig = minConfig;
+        minConfig = minConfig_;
         return *this;
       }
 
       /// @brief Specify limit maxConfig
-      EdgeBuilder & withMaxConfig(const Eigen::VectorXd & maxConfig)
+      EdgeBuilder & withMaxConfig(const Eigen::VectorXd & maxConfig_)
       {
-        param.maxConfig = maxConfig;
+        maxConfig = maxConfig_;
         return *this;
       }
 
       /// @brief Specify limit maxVel
-      EdgeBuilder & withMaxVel(const Eigen::VectorXd & maxVel)
+      EdgeBuilder & withMaxVel(const Eigen::VectorXd & maxVel_)
       {
-        param.maxVel = maxVel;
+        maxVel = maxVel_;
         return *this;
       }
 
       /// @brief Specify limit maxEffort
-      EdgeBuilder & withMaxEffort(const Eigen::VectorXd & maxEffort)
+      EdgeBuilder & withMaxEffort(const Eigen::VectorXd & maxEffort_)
       {
-        param.maxEffort = maxEffort;
+        maxEffort = maxEffort_;
         return *this;
       }
 
       /// @brief Specify friction
-      EdgeBuilder & withFriction(const Eigen::VectorXd & friction)
+      EdgeBuilder & withFriction(const Eigen::VectorXd & friction_)
       {
-        param.friction = friction;
+        friction = friction_;
         return *this;
       }
 
       /// @brief Specify damping
-      EdgeBuilder & withDamping(const Eigen::VectorXd & damping)
+      EdgeBuilder & withDamping(const Eigen::VectorXd & damping_)
       {
-        param.damping = damping;
+        damping = damping_;
         return *this;
       }
 
       /// @brief Specify armature
-      EdgeBuilder & withArmature(const Eigen::VectorXd & armature)
+      EdgeBuilder & withArmature(const Eigen::VectorXd & armature_)
       {
-        param.armature = armature;
+        armature = armature_;
         return *this;
       }
 
       /// @brief Specify friction loss
-      EdgeBuilder & withFrictionLoss(const double frictionLoss)
+      EdgeBuilder & withFrictionLoss(const double frictionLoss_)
       {
-        param.frictionLoss = frictionLoss;
+        frictionLoss = frictionLoss_;
         return *this;
       }
 

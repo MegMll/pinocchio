@@ -273,15 +273,15 @@ namespace pinocchio
         }
       };
 
-      assignIfPresent(param.jlimit.maxConfig, param.maxConfig);
-      assignIfPresent(param.jlimit.minConfig, param.minConfig);
-      assignIfPresent(param.jlimit.maxVel, param.maxVel);
-      assignIfPresent(param.jlimit.maxEffort, param.maxEffort);
-      assignIfPresent(param.jlimit.friction, param.friction);
-      assignIfPresent(param.jlimit.damping, param.damping);
-      assignIfPresent(param.jlimit.armature, param.armature);
+      assignIfPresent(param.jlimit.maxConfig, maxConfig);
+      assignIfPresent(param.jlimit.minConfig, minConfig);
+      assignIfPresent(param.jlimit.maxVel, maxVel);
+      assignIfPresent(param.jlimit.maxEffort, maxEffort);
+      assignIfPresent(param.jlimit.friction, friction);
+      assignIfPresent(param.jlimit.damping, damping);
+      assignIfPresent(param.jlimit.armature, armature);
 
-      param.jlimit.frictionLoss = param.frictionLoss;
+      param.jlimit.frictionLoss = frictionLoss;
 
       g.addJoint(param);
     }
