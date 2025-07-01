@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import pinocchio as pin
 import time
@@ -84,10 +86,26 @@ collision_model = pin.graph.buildGeometryModel(
     g, kinematics_chain_from_body1, pin.COLLISION
 )
 
-# And visualize it with a visualizer. Here we use meshcat
-vizer = MeshcatVisualizer(kinematics_chain_from_body1, collision_model, visual_model)
-# Load the robot in the viewer.
-vizer.initViewer(open=True)
+# Start a new MeshCat server and client.
+# Note: the server can also be started separately using the "meshcat-server" command in
+# a terminal:
+# this enables the server to remain active after the current script ends.
+#
+# Option open=True pens the visualizer.
+# Note: the visualizer can also be opened separately by visiting the provided URL.
+try:
+    vizer = MeshcatVisualizer(
+        kinematics_chain_from_body1, collision_model, visual_model
+    )
+    vizer.initViewer(open=True)
+except ImportError as err:
+    print(
+        "Error while initializing the viewer. "
+        "It seems you should install Python meshcat"
+    )
+    print(err)
+    sys.exit(0)
+
 vizer.loadViewerModel()
 
 q = np.array([0.3, 0.4])
