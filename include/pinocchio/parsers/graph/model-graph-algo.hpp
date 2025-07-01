@@ -5,10 +5,15 @@
 #ifndef __pinocchio_parsers_graph_model_graph_algo_hpp__
 #define __pinocchio_parsers_graph_model_graph_algo_hpp__
 
+#include "pinocchio/parsers/graph/fwd.hpp"
+
 #include "pinocchio/parsers/graph/model-graph.hpp"
+#include "pinocchio/parsers/graph/joints.hpp"
+
+#include <Eigen/Core>
 
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 namespace pinocchio
 {
@@ -34,7 +39,7 @@ namespace pinocchio
     PINOCCHIO_PARSERS_DLLAPI Model buildModel(
       const ModelGraph & g,
       const std::string & root_body,
-      const pinocchio::SE3 & root_position,
+      const SE3 & root_position,
       const JointVariant & root_joint = JointFixed(),
       const std::string & root_joint_name = "root_joint");
 
@@ -51,7 +56,7 @@ namespace pinocchio
     PINOCCHIO_PARSERS_DLLAPI BuildModelWithBuildInfoReturn buildModelWithBuildInfo(
       const ModelGraph & g,
       const std::string & root_body,
-      const pinocchio::SE3 & root_position,
+      const SE3 & root_position,
       const JointVariant & root_joint = JointFixed(),
       const std::string & root_joint_name = "root_joint");
 
@@ -62,7 +67,8 @@ namespace pinocchio
     /// @param prefix prefix to add to all names
     ///
     /// @return a model graph
-    PINOCCHIO_PARSERS_DLLAPI ModelGraph prefixNames(const ModelGraph & g, const std::string prefix);
+    PINOCCHIO_PARSERS_DLLAPI ModelGraph
+    prefixNames(const ModelGraph & g, const std::string & prefix);
 
     /// @brief  Merge 2 graphs together, by adding an edge between the two bodies in arguments.
     ///

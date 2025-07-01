@@ -5,10 +5,16 @@
 #ifndef __pinocchio_parsers_graph_joints_hpp__
 #define __pinocchio_parsers_graph_joints_hpp__
 
+#include "pinocchio/parsers/graph/fwd.hpp"
+
 #include "pinocchio/parsers/config.hpp"
-#include "pinocchio/multibody/fwd.hpp"
-#include "pinocchio/multibody/joint/joint-generic.hpp"
-#include "pinocchio/spatial/se3.hpp"
+
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant.hpp>
+
+#include <Eigen/Core>
+
+#include <string>
 
 namespace pinocchio
 {
@@ -45,12 +51,12 @@ namespace pinocchio
 
     struct JointFixed
     {
-      pinocchio::SE3 joint_offset = pinocchio::SE3::Identity();
+      SE3 joint_offset = SE3::Identity();
       static constexpr int nq = 0;
       static constexpr int nv = 0;
 
       JointFixed() = default;
-      JointFixed(const pinocchio::SE3 & pose)
+      JointFixed(const SE3 & pose)
       : joint_offset(pose)
       {
       }

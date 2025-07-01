@@ -5,15 +5,23 @@
 #ifndef __pinocchio_parsers_graph_graph_visitor_hpp__
 #define __pinocchio_parsers_graph_graph_visitor_hpp__
 
-#include "pinocchio/multibody/fwd.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/macros.hpp"
+
+#include "pinocchio/parsers/graph/fwd.hpp"
+
+#include "pinocchio/multibody/joint/joint-collection.hpp"
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/graph/joints.hpp"
 
-#include <boost/graph/visitors.hpp>
+#include <Eigen/Core>
+
+#include <boost/graph/depth_first_search.hpp>
+
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+
+#include <utility>
 #include <stdexcept>
 
 namespace pinocchio
@@ -25,7 +33,7 @@ namespace pinocchio
       struct MakeJointLimitsDefaultVisitor : public boost::static_visitor<JointLimits>
       {
         template<typename Joint>
-        JointLimits operator()(const Joint & j) const
+        JointLimits operator()(const Joint &) const
         {
           JointLimits jlimit;
           jlimit.setDimensions<Joint::nq, Joint::nv>();
@@ -195,67 +203,66 @@ namespace pinocchio
         }
       };
 
-      struct ReverseJointGraphVisitor
-      : public boost::static_visitor<std::pair<JointVariant, pinocchio::SE3>>
+      struct ReverseJointGraphVisitor : public boost::static_visitor<std::pair<JointVariant, SE3>>
       {
-        using ReturnType = std::pair<JointVariant, pinocchio::SE3>;
+        using ReturnType = std::pair<JointVariant, SE3>;
 
         ReturnType operator()(const JointRevolute & joint) const
         {
-          return {JointRevolute(joint.axis), pinocchio::SE3::Identity()};
+          return {JointRevolute(joint.axis), SE3::Identity()};
         }
 
         ReturnType operator()(const JointRevoluteUnbounded & joint) const
         {
-          return {JointRevoluteUnbounded(joint.axis), pinocchio::SE3::Identity()};
+          return {JointRevoluteUnbounded(joint.axis), SE3::Identity()};
         }
 
         ReturnType operator()(const JointPrismatic & joint) const
         {
-          return {JointPrismatic(joint.axis), pinocchio::SE3::Identity()};
+          return {JointPrismatic(joint.axis), SE3::Identity()};
         }
         ReturnType operator()(const JointFixed & joint) const
         {
-          return {JointFixed(joint.joint_offset.inverse()), pinocchio::SE3::Identity()};
+          return {JointFixed(joint.joint_offset.inverse()), SE3::Identity()};
         }
         ReturnType operator()(const JointFreeFlyer &) const
         {
 
-          return {JointFreeFlyer(), pinocchio::SE3::Identity()};
+          return {JointFreeFlyer(), SE3::Identity()};
         }
         ReturnType operator()(const JointSpherical &) const
         {
-          return {JointSpherical(), pinocchio::SE3::Identity()};
+          return {JointSpherical(), SE3::Identity()};
         }
         ReturnType operator()(const JointSphericalZYX &) const
         {
-          return {JointSphericalZYX(), pinocchio::SE3::Identity()};
+          return {JointSphericalZYX(), SE3::Identity()};
         }
         ReturnType operator()(const JointTranslation &) const
         {
-          return {JointTranslation(), pinocchio::SE3::Identity()};
+          return {JointTranslation(), SE3::Identity()};
         }
         ReturnType operator()(const JointPlanar &) const
         {
-          return {JointPlanar(), pinocchio::SE3::Identity()};
+          return {JointPlanar(), SE3::Identity()};
         }
         ReturnType operator()(const JointHelical & joint) const
         {
-          return {JointHelical(joint.axis, joint.pitch), pinocchio::SE3::Identity()};
+          return {JointHelical(joint.axis, joint.pitch), SE3::Identity()};
         }
         ReturnType operator()(const JointUniversal & joint) const
         {
-          return {JointUniversal(-joint.axis2, -joint.axis1), pinocchio::SE3::Identity()};
+          return {JointUniversal(-joint.axis2, -joint.axis1), SE3::Identity()};
         }
         ReturnType operator()(const JointMimic & joint) const
         {
-          return {joint, pinocchio::SE3::Identity()};
+          return {joint, SE3::Identity()};
         }
         ReturnType operator()(const JointComposite & joint) const
         {
           JointComposite jReturn;
           auto temp = boost::apply_visitor(*this, joint.joints.back());
-          jReturn.addJoint(temp.first, temp.second * pinocchio::SE3::Identity());
+          jReturn.addJoint(temp.first, temp.second * SE3::Identity());
           // Reverse joints
           for (int i = static_cast<int>(joint.joints.size() - 2); i >= 0; i--)
           {
@@ -268,6 +275,69 @@ namespace pinocchio
 
       struct CreateJointModelVisitor : public boost::static_visitor<JointModel>
       {
+        typedef JointModelTpl<double> JointModel;
+        typedef JointCollectionDefaultTpl<double> JointCollectionDefault;
+
+        // Joint Revolute
+        typedef typename JointCollectionDefault::JointModelRX JointModelRX;
+        typedef typename JointCollectionDefault::JointModelRY JointModelRY;
+        typedef typename JointCollectionDefault::JointModelRZ JointModelRZ;
+
+        // Joint Revolute Unaligned
+        typedef
+          typename JointCollectionDefault::JointModelRevoluteUnaligned JointModelRevoluteUnaligned;
+
+        // Joint Revolute UBounded
+        typedef typename JointCollectionDefault::JointModelRUBX JointModelRUBX;
+        typedef typename JointCollectionDefault::JointModelRUBY JointModelRUBY;
+        typedef typename JointCollectionDefault::JointModelRUBZ JointModelRUBZ;
+
+        // Joint Revolute Unbounded Unaligned
+        typedef typename JointCollectionDefault::JointModelRevoluteUnboundedUnaligned
+          JointModelRevoluteUnboundedUnaligned;
+
+        // Joint Prismatic
+        typedef typename JointCollectionDefault::JointModelPX JointModelPX;
+        typedef typename JointCollectionDefault::JointModelPY JointModelPY;
+        typedef typename JointCollectionDefault::JointModelPZ JointModelPZ;
+
+        // Joint Prismatic Unaligned
+        typedef typename JointCollectionDefault::JointModelPrismaticUnaligned
+          JointModelPrismaticUnaligned;
+
+        // Joint Spherical
+        typedef typename JointCollectionDefault::JointModelSpherical JointModelSpherical;
+
+        // Joint Spherical ZYX
+        typedef typename JointCollectionDefault::JointModelSphericalZYX JointModelSphericalZYX;
+
+        // Joint Translation
+        typedef typename JointCollectionDefault::JointModelTranslation JointModelTranslation;
+
+        // Joint FreeFlyer
+        typedef typename JointCollectionDefault::JointModelFreeFlyer JointModelFreeFlyer;
+
+        // Joint Planar
+        typedef typename JointCollectionDefault::JointModelPlanar JointModelPlanar;
+
+        // Joint Composite
+        typedef typename JointCollectionDefault::JointModelComposite JointModelComposite;
+
+        // Joint Mimic
+        typedef typename JointCollectionDefault::JointModelMimic JointModelMimic;
+
+        // Joint Helical
+        typedef typename JointCollectionDefault::JointModelHx JointModelHx;
+        typedef typename JointCollectionDefault::JointModelHy JointModelHy;
+        typedef typename JointCollectionDefault::JointModelHz JointModelHz;
+
+        // Joint Helical Unaligned
+        typedef
+          typename JointCollectionDefault::JointModelHelicalUnaligned JointModelHelicalUnaligned;
+
+        // Joint Universal
+        typedef typename JointCollectionDefault::JointModelUniversal JointModelUniversal;
+
         typedef JointModel ReturnType;
 
         ReturnType operator()(const JointFixed & /*joint*/) const
@@ -280,76 +350,76 @@ namespace pinocchio
         {
           if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
           {
-            return pinocchio::JointModelRX();
+            return JointModelRX();
           }
           else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
           {
-            return pinocchio::JointModelRY();
+            return JointModelRY();
           }
           else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
           {
-            return pinocchio::JointModelRZ();
+            return JointModelRZ();
           }
           else
           {
-            return pinocchio::JointModelRevoluteUnaligned(joint.axis);
+            return JointModelRevoluteUnaligned(joint.axis);
           }
         }
         ReturnType operator()(const JointRevoluteUnbounded & joint) const
         {
           if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
           {
-            return pinocchio::JointModelRUBX();
+            return JointModelRUBX();
           }
           else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
           {
-            return pinocchio::JointModelRUBY();
+            return JointModelRUBY();
           }
           else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
           {
-            return pinocchio::JointModelRUBZ();
+            return JointModelRUBZ();
           }
           else
           {
-            return pinocchio::JointModelRevoluteUnboundedUnaligned(joint.axis);
+            return JointModelRevoluteUnboundedUnaligned(joint.axis);
           }
         }
         ReturnType operator()(const JointPrismatic & joint) const
         {
           if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
           {
-            return pinocchio::JointModelPX();
+            return JointModelPX();
           }
           else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
           {
-            return pinocchio::JointModelPY();
+            return JointModelPY();
           }
           else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
           {
-            return pinocchio::JointModelPZ();
+            return JointModelPZ();
           }
           else
           {
-            return pinocchio::JointModelPrismaticUnaligned(joint.axis);
+            return JointModelPrismaticUnaligned(joint.axis);
           }
         }
         ReturnType operator()(const JointHelical & joint) const
         {
           if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
           {
-            return pinocchio::JointModelHX(joint.pitch);
+            return JointModelHX(joint.pitch);
           }
           else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
           {
-            return pinocchio::JointModelHY(joint.pitch);
+            return JointModelHY(joint.pitch);
           }
           else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
           {
-            return pinocchio::JointModelHZ(joint.pitch);
+            return JointModelHZ(joint.pitch);
           }
           else
           {
-            return pinocchio::JointModelHelicalUnaligned(joint.axis, joint.pitch);
+            return JointModelHelicalUnaligned(joint.axis, joint.pitch);
           }
         }
         ReturnType operator()(const JointFreeFlyer & /*joint*/) const
@@ -429,8 +499,8 @@ namespace pinocchio
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph -Invalid joint between a body and a non body frame.");
 
-          const pinocchio::SE3 & joint_pose = edge.source_to_joint;
-          const pinocchio::SE3 & body_pose = edge.joint_to_target;
+          const SE3 & joint_pose = edge.source_to_joint;
+          const SE3 & body_pose = edge.joint_to_target;
 
           const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
           JointIndex j_id = model.addJoint(
@@ -475,8 +545,8 @@ namespace pinocchio
 
           const auto primary_joint = model.joints[model.getJointId(joint.primary_name)];
 
-          const pinocchio::SE3 & joint_pose = edge.source_to_joint;
-          const pinocchio::SE3 & body_pose = edge.joint_to_target;
+          const SE3 & joint_pose = edge.source_to_joint;
+          const SE3 & body_pose = edge.joint_to_target;
 
           const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
           JointIndex j_id = model.addJoint(
@@ -515,8 +585,8 @@ namespace pinocchio
               edge.name, previous_body.parentJoint,
               previous_body.placement * edge.source_to_joint * joint.joint_offset, FIXED_JOINT,
               b_f.inertia));
-            pinocchio::SE3 body_placement = previous_body.placement * edge.source_to_joint
-                                            * joint.joint_offset * edge.joint_to_target;
+            SE3 body_placement = previous_body.placement * edge.source_to_joint * joint.joint_offset
+                                 * edge.joint_to_target;
             model.addBodyFrame(
               target_vertex.name, previous_body.parentJoint, body_placement, (int)f_id);
           }
@@ -643,8 +713,9 @@ namespace pinocchio
         }
       };
 
-      struct UpdateJointGraphPoseVisitor : public boost::static_visitor<pinocchio::SE3>
+      struct UpdateJointGraphPoseVisitor : public boost::static_visitor<SE3>
       {
+        typedef JointDataTpl<double> JointData;
         const Eigen::VectorXd q_ref;
 
         UpdateJointGraphPoseVisitor(const Eigen::VectorXd q_)
@@ -652,21 +723,21 @@ namespace pinocchio
         {
         }
 
-        pinocchio::SE3 joint_calc(JointModel jmodel) const
+        SE3 joint_calc(JointModel jmodel) const
         {
           jmodel.setIndexes(1, 0, 0);
-          pinocchio::JointData jdata = jmodel.createData();
+          JointData jdata = jmodel.createData();
           jmodel.calc(jdata, q_ref);
 
           return jdata.M();
         }
 
-        pinocchio::SE3 operator()(const JointFixed & joint) const
+        SE3 operator()(const JointFixed & joint) const
         {
           return joint.joint_offset;
         }
 
-        pinocchio::SE3 operator()(const JointRevolute & joint) const
+        SE3 operator()(const JointRevolute & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -675,7 +746,7 @@ namespace pinocchio
           return joint_calc(JointModelRevoluteUnaligned(joint.axis));
         }
 
-        pinocchio::SE3 operator()(const JointPrismatic & joint) const
+        SE3 operator()(const JointPrismatic & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -684,7 +755,7 @@ namespace pinocchio
           return joint_calc(JointModelPrismaticUnaligned(joint.axis));
         }
 
-        pinocchio::SE3 operator()(const JointRevoluteUnbounded & joint) const
+        SE3 operator()(const JointRevoluteUnbounded & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -694,7 +765,7 @@ namespace pinocchio
           return joint_calc(JointModelRevoluteUnboundedUnaligned(joint.axis));
         }
 
-        pinocchio::SE3 operator()(const JointHelical & joint) const
+        SE3 operator()(const JointHelical & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -703,7 +774,7 @@ namespace pinocchio
           return joint_calc(JointModelHelicalUnaligned(joint.axis, joint.pitch));
         }
 
-        pinocchio::SE3 operator()(const JointUniversal & joint) const
+        SE3 operator()(const JointUniversal & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -712,7 +783,7 @@ namespace pinocchio
           return joint_calc(JointModelUniversal(joint.axis1, joint.axis2));
         }
 
-        pinocchio::SE3 operator()(const JointFreeFlyer & joint) const
+        SE3 operator()(const JointFreeFlyer & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -721,7 +792,7 @@ namespace pinocchio
           return joint_calc(JointModelFreeFlyer());
         }
 
-        pinocchio::SE3 operator()(const JointSpherical & joint) const
+        SE3 operator()(const JointSpherical & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -730,7 +801,7 @@ namespace pinocchio
           return joint_calc(JointModelSpherical());
         }
 
-        pinocchio::SE3 operator()(const JointSphericalZYX & joint) const
+        SE3 operator()(const JointSphericalZYX & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -739,7 +810,7 @@ namespace pinocchio
           return joint_calc(JointModelSphericalZYX());
         }
 
-        pinocchio::SE3 operator()(const JointPlanar & joint) const
+        SE3 operator()(const JointPlanar & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -748,7 +819,7 @@ namespace pinocchio
           return joint_calc(JointModelPlanar());
         }
 
-        pinocchio::SE3 operator()(const JointTranslation & joint) const
+        SE3 operator()(const JointTranslation & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -757,14 +828,14 @@ namespace pinocchio
           return joint_calc(JointModelTranslation());
         }
 
-        pinocchio::SE3 operator()(const JointMimic & /*joint*/) const
+        SE3 operator()(const JointMimic & /*joint*/) const
         {
           PINOCCHIO_THROW_PRETTY(
             std::invalid_argument,
             "Graph - Joint Mimic cannot have a q_ref. Please use the joint offset directly.");
         }
 
-        pinocchio::SE3 operator()(const JointComposite & joint) const
+        SE3 operator()(const JointComposite & joint) const
         {
           if (q_ref.size() != joint.nq)
             PINOCCHIO_THROW_PRETTY(
@@ -780,18 +851,18 @@ namespace pinocchio
             int nq_curr =
               boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[i]);
             UpdateJointGraphPoseVisitor u_temp(q_ref.segment(index, nq_curr));
-            pinocchio::SE3 pose_temp = boost::apply_visitor(u_temp, joint.joints[i]);
+            SE3 pose_temp = boost::apply_visitor(u_temp, joint.joints[i]);
             joint_ptr->jointsPlacements[i] = joint_ptr->jointsPlacements[i] * pose_temp;
             index += nq_curr;
           }
-          return pinocchio::SE3::Identity();
+          return SE3::Identity();
         }
       };
 
-      template<typename Graph>
       struct RecordTreeEdgeVisitor : public boost::default_dfs_visitor
       {
-        typedef typename boost::graph_traits<Graph>::edge_descriptor EdgeDesc;
+        typedef ModelGraph::Graph Graph;
+        typedef ModelGraph::EdgeDesc EdgeDesc;
         typedef std::unordered_map<std::string, bool> JointNameToDirection;
 
         RecordTreeEdgeVisitor(std::vector<EdgeDesc> * edges, JointNameToDirection * joint_forward)

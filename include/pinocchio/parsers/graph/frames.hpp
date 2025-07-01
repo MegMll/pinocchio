@@ -5,9 +5,11 @@
 #ifndef __pinocchio_parsers_graph_frames_hpp__
 #define __pinocchio_parsers_graph_frames_hpp__
 
-#include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/parsers/graph/fwd.hpp"
+
+#include "pinocchio/multibody/frame.hpp"
+
+#include <boost/variant/variant.hpp>
 
 namespace pinocchio
 {
@@ -19,9 +21,9 @@ namespace pinocchio
       ///
       /// Note: If the joint is reversed in the model graph, the body frame pose
       /// is kept the same in the model, so this inertia remains valid.
-      Inertia inertia = pinocchio::Inertia::Identity();
+      Inertia inertia = Inertia::Identity();
 
-      pinocchio::FrameType f_type = BODY;
+      FrameType f_type = FrameType::BODY;
 
       BodyFrame() = default;
       BodyFrame(const pinocchio::Inertia & in)
@@ -32,14 +34,14 @@ namespace pinocchio
 
     struct SensorFrame
     {
-      pinocchio::FrameType f_type = SENSOR;
+      FrameType f_type = FrameType::SENSOR;
 
       SensorFrame() = default;
     };
 
     struct OpFrame
     {
-      pinocchio::FrameType f_type = OP_FRAME;
+      FrameType f_type = FrameType::OP_FRAME;
 
       OpFrame() = default;
     };

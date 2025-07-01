@@ -5,7 +5,13 @@
 #ifndef __pinocchio_parsers_graph_geometries_hpp__
 #define __pinocchio_parsers_graph_geometries_hpp__
 
-#include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/parsers/graph/fwd.hpp"
+
+#include <Eigen/Core>
+
+#include <boost/variant/variant.hpp>
+
+#include <string>
 
 namespace pinocchio
 {
@@ -100,10 +106,10 @@ namespace pinocchio
         const Eigen::Vector4d & color,
         const GeomVariant & geom)
       : name(name)
-      , placement(placement)
+      , type(type)
       , scale(scale)
       , color(color)
-      , type(type)
+      , placement(placement)
       , geometry(geom)
       {
       }

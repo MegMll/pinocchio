@@ -1,58 +1,67 @@
 //
 // Copyright (c) 2025 INRIA
 //
-
-#include "pinocchio/parsers/graph/model-graph.hpp"
+//
 #include "pinocchio/parsers/graph/model-graph-algo.hpp"
-#include "pinocchio/parsers/graph/graph-visitor.hpp"
+
+#include "pinocchio/parsers/graph/fwd.hpp"
+#include "pinocchio/parsers/graph/model-graph.hpp"
+#include "pinocchio/parsers/graph/frames.hpp"
 #include "pinocchio/parsers/graph/joints.hpp"
+#include "pinocchio/parsers/graph/graph-visitor.hpp"
+
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/depth_first_search.hpp>
+
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 namespace pinocchio
 {
   namespace graph
   {
-    struct AddRootFrameVisitor : public boost::static_visitor<>
+    namespace
     {
-      const ModelGraphVertex vertex;
-      const pinocchio::SE3 position;
-      const JointIndex j;
-      Model & model;
-
-      AddRootFrameVisitor(
-        const ModelGraphVertex & v, const JointIndex & j_id, const pinocchio::SE3 & pose, Model & m)
-      : vertex(v)
-      , position(pose)
-      , j(j_id)
-      , model(m)
+      struct AddRootFrameVisitor : public boost::static_visitor<>
       {
-      }
+        const ModelGraphVertex vertex;
+        const SE3 position;
+        const JointIndex j;
+        Model & model;
 
-      void operator()(const BodyFrame & b_f) const
-      {
-        const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
-        model.addFrame(Frame(vertex.name, j, f_id, position, BODY, b_f.inertia));
-      }
+        AddRootFrameVisitor(
+          const ModelGraphVertex & v, const JointIndex & j_id, const SE3 & pose, Model & m)
+        : vertex(v)
+        , position(pose)
+        , j(j_id)
+        , model(m)
+        {
+        }
 
-      template<typename FrameGraph>
-      void operator()(const FrameGraph & f_) const
-      {
-        const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
-        model.addFrame(Frame(vertex.name, j, f_id, position, f_.f_type));
-      }
-    };
+        void operator()(const BodyFrame & b_f) const
+        {
+          const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
+          model.addFrame(Frame(vertex.name, j, f_id, position, BODY, b_f.inertia));
+        }
+
+        template<typename FrameGraph>
+        void operator()(const FrameGraph & f_) const
+        {
+          const FrameIndex f_id = model.getFrameId(model.names[j], JOINT);
+          model.addFrame(Frame(vertex.name, j, f_id, position, f_.f_type));
+        }
+      };
+    } // namespace
 
     BuildModelWithBuildInfoReturn buildModelWithBuildInfo(
       const ModelGraph & g,
       const std::string & root_body,
-      const pinocchio::SE3 & root_position,
+      const SE3 & root_position,
       const JointVariant & root_joint,
       const std::string & root_joint_name)
     {
       BuildModelWithBuildInfoReturn ret;
-      typedef boost::adjacency_list<
-        boost::vecS, boost::vecS, boost::directedS, ModelGraphVertex, ModelGraphEdge>
-        Graph;
-      typedef typename boost::graph_traits<Graph>::edge_descriptor EdgeDesc;
+      typedef ModelGraph::EdgeDesc EdgeDesc;
 
       auto root_vertex = g.name_to_vertex.find(root_body);
       if (root_vertex == g.name_to_vertex.end())
@@ -63,8 +72,7 @@ namespace pinocchio
         boost::num_vertices(g.graph), boost::default_color_type::white_color);
       std::vector<EdgeDesc> edges;
       edges.reserve(boost::num_vertices(g.graph));
-      internal::RecordTreeEdgeVisitor<Graph> tree_edge_visitor(
-        &edges, &ret.build_info._joint_forward);
+      internal::RecordTreeEdgeVisitor tree_edge_visitor(&edges, &ret.build_info._joint_forward);
       boost::depth_first_search(g.graph, tree_edge_visitor, colors.data(), root_vertex->second);
 
       Model & model = ret.model;
@@ -78,7 +86,7 @@ namespace pinocchio
           root_joint_name);
         model.addJointFrame(j_id);
 
-        AddRootFrameVisitor afv(root_vertex_data, j_id, pinocchio::SE3::Identity(), model);
+        AddRootFrameVisitor afv(root_vertex_data, j_id, SE3::Identity(), model);
         boost::apply_visitor(afv, root_vertex_data.frame);
       }
       else // Fixed to world
@@ -106,7 +114,7 @@ namespace pinocchio
     Model buildModel(
       const ModelGraph & g,
       const std::string & root_body,
-      const pinocchio::SE3 & root_position,
+      const SE3 & root_position,
       const JointVariant & root_joint,
       const std::string & root_joint_name)
     {
@@ -114,7 +122,7 @@ namespace pinocchio
         .model;
     }
 
-    ModelGraph prefixNames(const ModelGraph & g, const std::string prefix)
+    ModelGraph prefixNames(const ModelGraph & g, const std::string & prefix)
     {
       ModelGraph g_return;
       // Copy all vertices from g
@@ -127,8 +135,8 @@ namespace pinocchio
         g_return.addFrame(prefix + name, vertex_data.frame);
       }
 
-      // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to add
-      // both.
+      // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to
+      // add both.
       for (auto e_it = boost::edges(g.graph); e_it.first != e_it.second; ++e_it.first)
       {
         const auto & edge = *e_it.first;
@@ -222,8 +230,8 @@ namespace pinocchio
         g_locked.addFrame(name, vertex_data.frame);
       }
 
-      // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to add
-      // both.
+      // Copy all forward joints from g. Since addJoint will create the reverse edge, no need to
+      // add both.
       for (auto e_it = boost::edges(g.graph); e_it.first != e_it.second; ++e_it.first)
       {
         const auto & edge = *e_it.first;
@@ -252,7 +260,7 @@ namespace pinocchio
               reference_configurations[static_cast<std::size_t>(index)];
 
             internal::UpdateJointGraphPoseVisitor ujgpv(q_ref);
-            pinocchio::SE3 pose_offset = boost::apply_visitor(ujgpv, edge_data.joint);
+            SE3 pose_offset = boost::apply_visitor(ujgpv, edge_data.joint);
 
             builder.withJointType(JointFixed(pose_offset));
           }

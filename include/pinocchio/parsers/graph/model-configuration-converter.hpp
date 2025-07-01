@@ -5,8 +5,11 @@
 #ifndef __pinocchio_parsers_graph_model_configuration_converter_hpp__
 #define __pinocchio_parsers_graph_model_configuration_converter_hpp__
 
+#include "pinocchio/parsers/graph/fwd.hpp"
+
+#include "pinocchio/multibody/model.hpp"
+
 #include "pinocchio/parsers/graph/model-graph.hpp"
-#include "pinocchio/multibody/fwd.hpp"
 
 #include <Eigen/Core>
 

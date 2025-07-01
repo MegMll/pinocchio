@@ -5,20 +5,28 @@
 #ifndef __pinocchio_parsers_graph_model_configuration_converter_hxx__
 #define __pinocchio_parsers_graph_model_configuration_converter_hxx__
 
+#include "pinocchio/macros.hpp"
+
+#include "pinocchio/math/sincos.hpp"
+
+#include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/motion.hpp"
+
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/joint/joint-generic.hpp"
+#include "pinocchio/multibody/joint/joints.hpp"
+
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/graph/model-configuration-converter.hpp"
-#include "pinocchio/multibody/joint/fwd.hpp"
-#include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/motion-ref.hpp"
-#include "pinocchio/spatial/motion-tpl.hpp"
 
+#include <Eigen/Core>
 #include <Eigen/Geometry>
 
 #include <boost/variant.hpp>
 
 #include <stdexcept>
 #include <unordered_map>
+#include <vector>
 
 namespace pinocchio
 {

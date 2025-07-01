@@ -5,17 +5,20 @@
 #ifndef __pinocchio_parsers_graph_model_graph_algo_geometry_hpp__
 #define __pinocchio_parsers_graph_model_graph_algo_geometry_hpp__
 
+#include "pinocchio/parsers/graph/fwd.hpp"
+
+#include "pinocchio/multibody/geometry-object.hpp"
+
 #include "pinocchio/parsers/graph/model-graph.hpp"
 #include "pinocchio/parsers/meshloader-fwd.hpp"
-#include "pinocchio/multibody/geometry.hpp"
 
 namespace pinocchio
 {
   namespace graph
   {
 
-    /// @brief  Build a pinocchio model based on the graph that was built previously, that allows
-    /// to have a root_joint.
+    /// @brief  Build a GeometryModel based on the graph that was built previously,
+    /// that allows to have a root_joint.
     ///
     /// @param root_body First body to add to the model
     /// @param root_position position of said body wrt to the universe

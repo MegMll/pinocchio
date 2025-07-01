@@ -3,9 +3,16 @@
 //
 
 #include "pinocchio/parsers/graph/model-graph.hpp"
-#include "pinocchio/parsers/graph/model-graph-algo.hpp"
-#include "pinocchio/parsers/graph/graph-visitor.hpp"
+
+#include "pinocchio/parsers/graph/fwd.hpp"
+
 #include "pinocchio/parsers/graph/joints.hpp"
+#include "pinocchio/parsers/graph/frames.hpp"
+#include "pinocchio/parsers/graph/graph-visitor.hpp"
+
+#include <boost/graph/adjacency_list.hpp>
+
+#include <boost/variant/apply_visitor.hpp>
 
 namespace pinocchio
 {
