@@ -13,72 +13,72 @@ namespace pinocchio
 {
   namespace graph
   {
-    struct AddGeometryToModel : public boost::static_visitor<>
+    namespace
     {
-      const pinocchio::Frame & body_frame;
-      const pinocchio::FrameIndex & f_id;
-      const Geometry & geom;
-      ::hpp::fcl::MeshLoaderPtr mesh_loader;
-      GeometryModel & model;
-
-      AddGeometryToModel(
-        const pinocchio::Frame & b_f,
-        const pinocchio::FrameIndex & f_id,
-        const Geometry & g,
-        ::hpp::fcl::MeshLoaderPtr mesh_loader,
-        GeometryModel & model_)
-      : body_frame(b_f)
-      , f_id(f_id)
-      , geom(g)
-      , mesh_loader(mesh_loader)
-      , model(model_)
+      struct AddGeometryToModel : public boost::static_visitor<>
       {
-      }
+        const pinocchio::Frame & body_frame;
+        const pinocchio::FrameIndex & f_id;
+        const Geometry & geom;
+        ::hpp::fcl::MeshLoaderPtr mesh_loader;
+        GeometryModel & model;
 
-      // For primitive only
-      void addGeometry(std::shared_ptr<fcl::CollisionGeometry> g)
-      {
-        GeometryObject geometry_object(
-          geom.name, body_frame.parentJoint, f_id, body_frame.placement * geom.placement, g, "",
-          geom.scale, true, geom.color);
+        AddGeometryToModel(
+          const pinocchio::Frame & b_f,
+          const pinocchio::FrameIndex & f_id,
+          const Geometry & g,
+          ::hpp::fcl::MeshLoaderPtr mesh_loader,
+          GeometryModel & model_)
+        : body_frame(b_f)
+        , f_id(f_id)
+        , geom(g)
+        , mesh_loader(mesh_loader)
+        , model(model_)
+        {
+        }
 
-        model.addGeometryObject(geometry_object);
-      }
+        // For primitive only
+        void addGeometry(std::shared_ptr<fcl::CollisionGeometry> g)
+        {
+          GeometryObject geometry_object(
+            geom.name, body_frame.parentJoint, f_id, body_frame.placement * geom.placement, g, "",
+            geom.scale, true, geom.color);
 
-      void operator()(const Sphere & s)
-      {
-        addGeometry(std::shared_ptr<fcl::CollisionGeometry>(new fcl::Sphere(s.radius)));
-      }
+          model.addGeometryObject(geometry_object);
+        }
 
-      void operator()(const Capsule & c)
-      {
-        addGeometry(
-          std::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(c.size[0], c.size[1])));
-      }
+        void operator()(const Sphere & s)
+        {
+          addGeometry(std::make_shared<fcl::Sphere>(s.radius));
+        }
 
-      void operator()(const Cylinder & c)
-      {
-        addGeometry(
-          std::shared_ptr<fcl::CollisionGeometry>(new fcl::Cylinder(c.size[0], c.size[1])));
-      }
+        void operator()(const Capsule & c)
+        {
+          addGeometry(std::make_shared<fcl::Capsule>(c.size[0], c.size[1]));
+        }
 
-      void operator()(const Box & b)
-      {
-        addGeometry(
-          std::shared_ptr<fcl::CollisionGeometry>(new fcl::Box(b.size[0], b.size[1], b.size[2])));
-      }
+        void operator()(const Cylinder & c)
+        {
+          addGeometry(std::make_shared<fcl::Cylinder>(c.size[0], c.size[1]));
+        }
 
-      void operator()(const Mesh & m)
-      {
-        hpp::fcl::BVHModelPtr_t bvh = mesh_loader->load(m.path, geom.scale);
+        void operator()(const Box & b)
+        {
+          addGeometry(std::make_shared<fcl::Box>(b.size[0], b.size[1], b.size[2]));
+        }
 
-        GeometryObject geometry_object(
-          geom.name, body_frame.parentJoint, f_id, body_frame.placement * geom.placement, bvh,
-          m.path, geom.scale, true, geom.color);
+        void operator()(const Mesh & m)
+        {
+          hpp::fcl::BVHModelPtr_t bvh = mesh_loader->load(m.path, geom.scale);
 
-        model.addGeometryObject(geometry_object);
-      }
-    };
+          GeometryObject geometry_object(
+            geom.name, body_frame.parentJoint, f_id, body_frame.placement * geom.placement, bvh,
+            m.path, geom.scale, true, geom.color);
+
+          model.addGeometryObject(geometry_object);
+        }
+      };
+    } // namespace
 
     GeometryModel buildGeometryModel(
       const ModelGraph & g,
