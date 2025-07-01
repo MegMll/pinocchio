@@ -44,7 +44,7 @@ namespace pinocchio
         {
           JointLimits jlimit = boost::apply_visitor(*this, j.joints[0]);
 
-          for (int i = 1; i < static_cast<int>(j.joints.size()); i++)
+          for (size_t i = 1; i < j.joints.size(); i++)
           {
             int nq = boost::apply_visitor([](const auto & j) { return j.nq; }, j.joints[i]);
             int nv = boost::apply_visitor([](const auto & j) { return j.nv; }, j.joints[i]);
@@ -188,16 +188,19 @@ namespace pinocchio
           // Do the same for the rest
           for (i = static_cast<int>(j.joints.size() - 2); i >= 0; i--)
           {
-            nq_curr = boost::apply_visitor([](const auto & j_) { return j_.nq; }, j.joints[i]);
+            nq_curr = boost::apply_visitor(
+              [](const auto & j_) { return j_.nq; }, j.joints[static_cast<size_t>(i)]);
             index_back_config -= nq_curr;
-            nv_curr = boost::apply_visitor([](const auto & j_) { return j_.nv; }, j.joints[i]);
+            nv_curr = boost::apply_visitor(
+              [](const auto & j_) { return j_.nv; }, j.joints[static_cast<size_t>(i)]);
             index_back_tangent -= nv_curr;
 
             JointLimits jtemp_ =
               createAndFillJointLimits(nq_curr, nv_curr, index_back_config, index_back_tangent);
             jlimit_return.append(
-              boost::apply_visitor(ReverseJointLimitsVisitor(jtemp_), j.joints[i]), nq_curr,
-              nv_curr);
+              boost::apply_visitor(
+                ReverseJointLimitsVisitor(jtemp_), j.joints[static_cast<size_t>(i)]),
+              nq_curr, nv_curr);
           }
           return jlimit_return;
         }
@@ -266,8 +269,10 @@ namespace pinocchio
           // Reverse joints
           for (int i = static_cast<int>(joint.joints.size() - 2); i >= 0; i--)
           {
-            temp = boost::apply_visitor(*this, joint.joints[i]);
-            jReturn.addJoint(temp.first, temp.second * joint.jointsPlacements[i + 1].inverse());
+            temp = boost::apply_visitor(*this, joint.joints[static_cast<size_t>(i)]);
+            jReturn.addJoint(
+              temp.first,
+              temp.second * joint.jointsPlacements[static_cast<size_t>(i + 1)].inverse());
           }
           return {jReturn, joint.jointsPlacements[0].inverse()};
         }
@@ -699,15 +704,15 @@ namespace pinocchio
           int index_front = 0;
           for (int i = static_cast<int>(joint.joints.size() - 1); i >= 0; i--)
           {
-            int nq_curr =
-              boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[i]);
+            int nq_curr = boost::apply_visitor(
+              [](const auto & j_) { return j_.nq; }, joint.joints[static_cast<size_t>(i)]);
             ReverseQVisitor reverse_temp(q.segment(index_back, nq_curr));
             q_rev.segment(index_front, nq_curr) =
-              boost::apply_visitor(reverse_temp, joint.joints[i]);
+              boost::apply_visitor(reverse_temp, joint.joints[static_cast<size_t>(i)]);
             index_front += nq_curr;
             if (i != 0)
-              index_back -=
-                boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[i - 1]);
+              index_back -= boost::apply_visitor(
+                [](const auto & j_) { return j_.nq; }, joint.joints[static_cast<size_t>(i - 1)]);
           }
           return q_rev;
         }
@@ -846,7 +851,7 @@ namespace pinocchio
 
           int index = 0;
 
-          for (int i = 0; i < static_cast<int>(joint.joints.size()); i++)
+          for (size_t i = 0; i < joint.joints.size(); i++)
           {
             int nq_curr =
               boost::apply_visitor([](const auto & j_) { return j_.nq; }, joint.joints[i]);
