@@ -83,7 +83,6 @@ if(BUILD_PYTHON_INTERFACE)
       forward-dynamics-derivatives
       inverse-dynamics-derivatives
       model-graph
-      model-graph-geometry
       model-configuration-converter)
 
   if(BUILD_WITH_URDF_SUPPORT)
@@ -98,8 +97,14 @@ if(BUILD_PYTHON_INTERFACE)
   endif()
 
   if(BUILD_WITH_COLLISION_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES sample-model-viewer display-shapes
-         simulation-pendulum simulation-closed-kinematic-chains)
+    list(
+      APPEND
+      ${PROJECT_NAME}_PYTHON_EXAMPLES
+      sample-model-viewer
+      display-shapes
+      simulation-pendulum
+      simulation-closed-kinematic-chains
+      model-graph-geometry)
     if(BUILD_WITH_URDF_SUPPORT)
       list(
         APPEND
