@@ -96,9 +96,11 @@ namespace pinocchio
           // check it's a model linked to the graph
           auto vertex = g.name_to_vertex.find(f.name);
           if (vertex == g.name_to_vertex.end())
+          {
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument,
               "Graph - Body in model is not in the graph. Please check arguments.");
+          }
 
           // if it is go through vector of geometries and add them to the model
           const ModelGraphVertex & vert = g.graph[vertex->second];
@@ -107,12 +109,15 @@ namespace pinocchio
             AddGeometryToModel add_geom(
               f, model.getFrameId(f.name, BODY), geom, mesh_loader, geomModel);
             if (type == VISUAL && (geom.type == GeomType::VISUAL || geom.type == GeomType::BOTH))
+            {
               boost::apply_visitor(add_geom, geom.geometry);
-
+            }
             else if (
               type == COLLISION
               && (geom.type == GeomType::COLLISION || geom.type == GeomType::BOTH))
+            {
               boost::apply_visitor(add_geom, geom.geometry);
+            }
           }
         }
       }

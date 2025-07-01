@@ -209,11 +209,15 @@ namespace pinocchio
       edge.name = params.name;
       edge.joint = params.joint;
       if (params.q_ref)
+      {
         edge.source_to_joint =
           params.source_to_joint
           * boost::apply_visitor(internal::UpdateJointGraphPoseVisitor(*params.q_ref), edge.joint);
+      }
       else
+      {
         edge.source_to_joint = params.source_to_joint;
+      }
 
       edge.joint_to_target = params.joint_to_target;
 
@@ -241,7 +245,9 @@ namespace pinocchio
             internal::UpdateJointGraphPoseVisitor(q_ref_reverse), reverse_edge.joint);
       }
       else
+      {
         reverse_edge.source_to_joint = params.joint_to_target.inverse();
+      }
 
       reverse_edge.joint_to_target = reversed_joint.second * params.source_to_joint.inverse();
       reverse_edge.forward = false;

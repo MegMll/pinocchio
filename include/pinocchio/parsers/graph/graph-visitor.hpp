@@ -76,7 +76,6 @@ namespace pinocchio
         // For freeFlyer = no changes, except for translation limits.
         JointLimits operator()(const JointFreeFlyer &) const
         {
-
           return jlimit;
         }
 
@@ -150,7 +149,8 @@ namespace pinocchio
                                             int nq_curr, int nv_curr, int index_back_config,
                                             int index_back_tangent) -> JointLimits {
             // Step 1: Initialize jtemp using the visitor
-            JointLimits jtemp = boost::apply_visitor(MakeJointLimitsDefaultVisitor(), j.joints[i]);
+            JointLimits jtemp = boost::apply_visitor(
+              MakeJointLimitsDefaultVisitor(), j.joints[static_cast<size_t>(i)]);
 
             jtemp.minConfig.conservativeResize(nq_curr);
             jtemp.maxConfig.conservativeResize(nq_curr);
@@ -214,12 +214,10 @@ namespace pinocchio
         {
           return {JointRevolute(joint.axis), SE3::Identity()};
         }
-
         ReturnType operator()(const JointRevoluteUnbounded & joint) const
         {
           return {JointRevoluteUnbounded(joint.axis), SE3::Identity()};
         }
-
         ReturnType operator()(const JointPrismatic & joint) const
         {
           return {JointPrismatic(joint.axis), SE3::Identity()};
@@ -230,7 +228,6 @@ namespace pinocchio
         }
         ReturnType operator()(const JointFreeFlyer &) const
         {
-
           return {JointFreeFlyer(), SE3::Identity()};
         }
         ReturnType operator()(const JointSpherical &) const
@@ -451,7 +448,6 @@ namespace pinocchio
         {
           return JointModelUniversal(joint.axis1, joint.axis2);
         }
-
         ReturnType operator()(const JointMimic & joint) const
         {
           return boost::apply_visitor(*this, joint.secondary_joint);
@@ -499,10 +495,11 @@ namespace pinocchio
         template<typename JointGraph>
         void operator()(const JointGraph & joint, const BodyFrame & b_f)
         {
-          if (boost::get<BodyFrame>(&source_vertex.frame) == nullptr) // body frame is index 0
-                                                                      // in variant
+          if (boost::get<BodyFrame>(&source_vertex.frame) == nullptr)
+          {
             PINOCCHIO_THROW_PRETTY(
-              std::invalid_argument, "Graph -Invalid joint between a body and a non body frame.");
+              std::invalid_argument, "Graph - Invalid joint between a body and a non body frame.");
+          }
 
           const SE3 & joint_pose = edge.source_to_joint;
           const SE3 & body_pose = edge.joint_to_target;

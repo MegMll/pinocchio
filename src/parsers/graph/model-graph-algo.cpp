@@ -253,6 +253,7 @@ namespace pinocchio
                                   .withTargetVertex(tgt_name)
                                   .withTargetPose(edge_data.joint_to_target);
 
+          // If joint should be locked we replaced it with a JointFixed with the right offset.
           if (it != joints_to_lock.end())
           {
             auto index = std::distance(joints_to_lock.begin(), it);
@@ -265,7 +266,9 @@ namespace pinocchio
             builder.withJointType(JointFixed(pose_offset));
           }
           else
+          {
             builder.withJointType(edge_data.joint);
+          }
 
           builder.build();
         }
