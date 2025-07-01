@@ -1,8 +1,8 @@
 import sys
+import time
 
 import numpy as np
 import pinocchio as pin
-import time
 from pinocchio.visualize import MeshcatVisualizer
 
 # This example show how to:
