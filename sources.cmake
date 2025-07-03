@@ -335,6 +335,7 @@ set(${PROJECT_NAME}_PARSERS_SOURCES
     ${PROJECT_SOURCE_DIR}/src/utils/file-explorer.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph-geom.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/opensim/opensim.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph-algo.cpp)
 
@@ -351,6 +352,8 @@ set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/geometry.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/mjcf-graph.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/opensim.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/opensim/opensim-parser.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sample-models.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph-algo.hpp
@@ -547,6 +550,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/sdf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/mjcf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/srdf.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/opensim.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/model-graph.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/graph/model-configuration-converter.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp
@@ -621,6 +625,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/srdf.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/model.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/geometry.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/opensim/opensim.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-edges.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-frames.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-geometries.cpp
