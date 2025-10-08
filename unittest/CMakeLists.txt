@@ -284,6 +284,7 @@ add_pinocchio_unit_test(joint-composite)
 add_pinocchio_unit_test(joint-mimic)
 add_pinocchio_unit_test(joint-helical)
 add_pinocchio_unit_test(joint-universal)
+add_pinocchio_unit_test(joint-spline)
 
 # Main corpus
 add_pinocchio_unit_test(model COLLISION_OPTIONAL)
