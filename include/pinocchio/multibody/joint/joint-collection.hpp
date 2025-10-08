@@ -82,6 +82,9 @@ namespace pinocchio
     // Joint Universal
     typedef JointModelUniversalTpl<Scalar, Options> JointModelUniversal;
 
+    // Joint Spline
+    typedef JointModelSplineTpl<Scalar, Options> JointModelSpline;
+
     typedef boost::variant<
       //    JointModelVoid,
       JointModelRX,
@@ -106,6 +109,7 @@ namespace pinocchio
       JointModelHz,
       JointModelHelicalUnaligned,
       JointModelUniversal,
+      JointModelSpline,
       boost::recursive_wrapper<JointModelComposite>,
       boost::recursive_wrapper<JointModelMimic>>
       JointModelVariant;
@@ -169,6 +173,9 @@ namespace pinocchio
     // Joint Universal
     typedef JointDataUniversalTpl<Scalar, Options> JointDataUniversal;
 
+    // Joint Spline
+    typedef JointDataSplineTpl<Scalar, Options> JointDataSpline;
+
     typedef boost::variant<
       //    JointDataVoid
       JointDataRX,
@@ -193,6 +200,7 @@ namespace pinocchio
       JointDataHz,
       JointDataHelicalUnaligned,
       JointDataUniversal,
+      JointDataSpline,
       boost::recursive_wrapper<JointDataComposite>,
       boost::recursive_wrapper<JointDataMimic>>
       JointDataVariant;

@@ -20,5 +20,6 @@
 #include "pinocchio/multibody/joint/joint-helical.hpp"
 #include "pinocchio/multibody/joint/joint-helical-unaligned.hpp"
 #include "pinocchio/multibody/joint/joint-universal.hpp"
+#include "pinocchio/multibody/joint/joint-spline.hpp"
 
 #endif // ifndef __pinocchio_multibody_joint_joints_hpp__

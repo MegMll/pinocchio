@@ -194,6 +194,7 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint/joint-spherical-ZYX.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint/joint-translation.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint/joint-universal.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint/joint-spline.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint-motion-subspace-base.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint-motion-subspace-generic.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint-motion-subspace.hpp
