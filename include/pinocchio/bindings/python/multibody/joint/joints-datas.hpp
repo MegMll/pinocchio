@@ -72,7 +72,6 @@ namespace pinocchio
         .add_property("pjMi", &JointDataComposite::pjMi)
         .add_property("StU", &JointDataComposite::StU);
     }
-
   } // namespace python
 } // namespace pinocchio
 
