@@ -482,6 +482,38 @@ struct TestJointTransform
     test(S);
   }
 
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelSplineTpl<Scalar, Options> &)
+  {
+    typedef typename pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
+
+    // --- FIX IS HERE ---
+    // First, get the CRTP base type from the model.
+    typedef typename JointModel::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::Transformation_t Transform;
+    typedef typename pinocchio::traits<JointDerived>::Constraint_t Constraint;
+    typedef typename pinocchio::JointDataSplineTpl<Scalar, Options> JointData;
+
+    JointModel jmodel = init<JointModel>::run();
+
+    JointData jdata = jmodel.createData();
+
+    typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
+    LieGroupType lg;
+
+    Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(), 0));
+    Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
+
+    Eigen::VectorXd q_random = lg.randomConfiguration(lb, ub);
+
+    jmodel.calc(jdata, q_random);
+    Transform & m = jdata.M;
+    test(m);
+
+    Constraint & S = jdata.S;
+    test(S);
+  }
+
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   void operator()(const pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> &)
   {
@@ -537,6 +569,40 @@ struct TestJointMotion
     test(m);
 
     Bias & b = jdata_base.c();
+    test(b);
+  }
+
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelSplineTpl<Scalar, Options> &)
+  {
+    typedef typename pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
+
+    // --- FIX IS HERE ---
+    // First, get the CRTP base type from the model.
+    typedef typename JointModel::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::Motion_t Motion;
+    typedef typename pinocchio::traits<JointDerived>::Bias_t Bias;
+    typedef typename pinocchio::JointDataSplineTpl<Scalar, Options> JointData;
+
+    JointModel jmodel = init<JointModel>::run();
+
+    JointData jdata = jmodel.createData();
+
+    typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
+    LieGroupType lg;
+
+    Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(), 0));
+    Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
+
+    Eigen::VectorXd q_random = lg.randomConfiguration(lb, ub);
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
+
+    jmodel.calc(jdata, q_random, v_random);
+    Motion & m = jdata.v;
+
+    test(m);
+
+    Bias & b = jdata.c;
     test(b);
   }
 
