@@ -487,8 +487,6 @@ struct TestJointTransform
   {
     typedef typename pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
 
-    // --- FIX IS HERE ---
-    // First, get the CRTP base type from the model.
     typedef typename JointModel::JointDerived JointDerived;
     typedef typename pinocchio::traits<JointDerived>::Transformation_t Transform;
     typedef typename pinocchio::traits<JointDerived>::Constraint_t Constraint;
@@ -577,8 +575,6 @@ struct TestJointMotion
   {
     typedef typename pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
 
-    // --- FIX IS HERE ---
-    // First, get the CRTP base type from the model.
     typedef typename JointModel::JointDerived JointDerived;
     typedef typename pinocchio::traits<JointDerived>::Motion_t Motion;
     typedef typename pinocchio::traits<JointDerived>::Bias_t Bias;
