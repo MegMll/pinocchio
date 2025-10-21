@@ -236,7 +236,7 @@ namespace pinocchio
         {
           JointModelSpline jmodel(joint.degree);
           jmodel.setControlFrames(joint.ctrlFrames);
-          
+
           return jmodel;
         }
         ReturnType operator()(const JointComposite & joint) const
