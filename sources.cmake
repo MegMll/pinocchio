@@ -97,6 +97,7 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea-second-order-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea-second-order-derivatives.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/splines.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/utils/force.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/utils/motion.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/autodiff/casadi-algo.hpp
@@ -104,6 +105,7 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/autodiff/casadi/math/matrix.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/autodiff/casadi/math/quaternion.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/autodiff/casadi/math/triangular-matrix.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/autodiff/casadi/algorithm/splines.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/autodiff/casadi/spatial/se3-tpl.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/autodiff/casadi/utils/static-if.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/autodiff/cppad/algorithm/aba.hpp
