@@ -443,5 +443,6 @@ namespace Eigen
 #include "pinocchio/autodiff/casadi/math/matrix.hpp"
 #include "pinocchio/autodiff/casadi/math/quaternion.hpp"
 #include "pinocchio/autodiff/casadi/math/triangular-matrix.hpp"
+#include "pinocchio/autodiff/casadi/algorithm/splines.hpp"
 
 #endif // #ifndef __pinocchio_autodiff_casadi_hpp__
