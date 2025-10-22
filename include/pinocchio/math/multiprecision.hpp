@@ -7,6 +7,7 @@
 
 #include "pinocchio/math/fwd.hpp"
 
+#include <boost/mpl/bool_fwd.hpp>
 #include <boost/multiprecision/number.hpp>
 #include <boost/random.hpp>
 #include <Eigen/Dense>
