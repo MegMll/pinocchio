@@ -690,10 +690,37 @@ struct TestJointData
     JointModel jmodel = init<JointModel>::run();
     JointData jdata = jmodel.createData();
 
+    Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(), 0));
+    Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
     Eigen::VectorXd q_random = Eigen::VectorXd::Random(jmodel.jmodel().nq());
     Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.jmodel().nv());
     jmodel.calc(jdata, q_random, v_random);
 
+    test(jdata);
+  }
+
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelSplineTpl<Scalar, Options> &)
+  {
+    typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
+    typedef typename JointModel::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointData;
+
+    JointModel jmodel = init<JointModel>::run();
+    JointData jdata = jmodel.createData();
+
+    typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
+    LieGroupType lg;
+
+    Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(), 0));
+    Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
+
+    Eigen::VectorXd q_random = lg.randomConfiguration(lb, ub);
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
+
+    jmodel.calc(jdata, q_random, v_random);
+    pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
+    jmodel.calc_aba(jdata, Eigen::VectorXd::Zero(jmodel.nv()), I, false);
     test(jdata);
   }
 
