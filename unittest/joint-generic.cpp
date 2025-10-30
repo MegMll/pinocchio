@@ -71,11 +71,15 @@ void test_joint_methods(
   BOOST_CHECK_MESSAGE(jmodel.idx_v() == jma.idx_v(), std::string(error_prefix + " - Idx_v "));
   BOOST_CHECK_MESSAGE(jmodel.id() == jma.id(), std::string(error_prefix + " - JointId "));
 
+  std::cout.precision(16); // Use high precision for output
+  std::cout << "--- Debugging Joint Transform ---" << std::endl;
+  std::cout << "jdata.M():\n" << jdata.M() << std::endl << std::endl;
+  std::cout << "jda.M():\n" << jda.M() << std::endl << std::endl;
   BOOST_CHECK_MESSAGE(
     jda.S().matrix().isApprox(jdata.S().matrix()),
     std::string(error_prefix + " - JointMotionSubspaceXd "));
   BOOST_CHECK_MESSAGE(
-    (jda.M()).isApprox((jdata.M()), 1e-6),
+    (jda.M()).isApprox((jdata.M())),
     std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
   BOOST_CHECK_MESSAGE(
     (jda.v()).isApprox((pinocchio::Motion(jdata.v()))),
