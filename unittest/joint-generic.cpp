@@ -32,6 +32,8 @@ void test_joint_methods(
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
 
+  std::cout << "Random Config Vector " << q1.transpose() << " " << q2.transpose() << std::endl;
+
   Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv())),
     v2(Eigen::VectorXd::Random(jdata.S().nv()));
 
@@ -71,10 +73,6 @@ void test_joint_methods(
   BOOST_CHECK_MESSAGE(jmodel.idx_v() == jma.idx_v(), std::string(error_prefix + " - Idx_v "));
   BOOST_CHECK_MESSAGE(jmodel.id() == jma.id(), std::string(error_prefix + " - JointId "));
 
-  std::cout.precision(16); // Use high precision for output
-  std::cout << "--- Debugging Joint Transform ---" << std::endl;
-  std::cout << "jdata.M():\n" << jdata.M() << std::endl << std::endl;
-  std::cout << "jda.M():\n" << jda.M() << std::endl << std::endl;
   BOOST_CHECK_MESSAGE(
     jda.S().matrix().isApprox(jdata.S().matrix()),
     std::string(error_prefix + " - JointMotionSubspaceXd "));
