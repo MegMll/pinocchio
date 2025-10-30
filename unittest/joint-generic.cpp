@@ -32,6 +32,8 @@ void test_joint_methods(
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
 
+  std::cout << "Random Config Vector " << q1.transpose() << " " << q2.transpose() << std::endl;
+
   Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv())),
     v2(Eigen::VectorXd::Random(jdata.S().nv()));
 
@@ -75,7 +77,7 @@ void test_joint_methods(
     jda.S().matrix().isApprox(jdata.S().matrix()),
     std::string(error_prefix + " - JointMotionSubspaceXd "));
   BOOST_CHECK_MESSAGE(
-    (jda.M()).isApprox((jdata.M()), 1e-6),
+    (jda.M()).isApprox((jdata.M())),
     std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
   BOOST_CHECK_MESSAGE(
     (jda.v()).isApprox((pinocchio::Motion(jdata.v()))),
